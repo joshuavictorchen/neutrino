@@ -15,5 +15,6 @@ setup(
         "numpy",
         "python-dateutil",
         "pyyaml",
+        "sphinx",
     ],
 )
