@@ -36,7 +36,5 @@ popd
 
 :: ADDITIONS FOR GITHUB PAGES BELOW ::
 
-:: re-create ../docs/ with contents of ./_build/html/
-rmdir ..\docs /s /q
-xcopy .\_build\html\ ..\docs\ /e /y /q
-xcopy .nojekyll ..\docs /e /y /q
+:: bring \docs\_build\html\ to parent \docs\ directory for consumption by github pages
+xcopy .\_build\html\ . /e /y /q
