@@ -9,6 +9,15 @@ from neutrino.stream import Stream
 
 
 class Link:
+    """Creates an API session and sends/receives API requests/responses.
+
+    *In-depth documentation TBD.*
+
+    Args:
+        url (str): Base URL for Coinbase Pro API endpoints.
+        auth (Authenticator): :py:obj:`neutrino.tools.Authenticator`
+    """
+
     def __init__(self, url, auth):
 
         self.session = requests.Session()
@@ -18,9 +27,17 @@ class Link:
         self.auth = auth
 
     def send_api_request(self, method, endpoint, params=None, data=None):
-        """send an API request and return the results"""
+        """Sends an API request and returns the response.
 
-        # TODO: check for errors
+        Args:
+            method (string): API request method ('get', 'post', etc.).
+            endpoint (string): API request endpoint.
+            params (list(str), optional): *description TBD* Defaults to None.
+            data (list(str), optional): *description TBD*. Defaults to None.
+
+        Returns:
+            str: API response.
+        """
 
         return self.session.request(
             method,
@@ -65,11 +82,6 @@ class Link:
                 orders_dict.update({i.get("product_id"): {i.get("id"): i}})
 
         return orders_dict
-
-    def get_test(self):
-        """temporary test method"""
-
-        return json.loads(self.send_api_request("GET", "/coinbase-accounts").text)
 
     def get_account_ledger(self, account_id):
         """get the ledger (transaction history) for the specified user account"""
