@@ -70,7 +70,18 @@ class Neutrino:
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set="default"
     ):
-        """set up a new coinbase websocket stream"""
+        """set up a new coinbase websocket stream
+
+        Args:
+            name (string): stream name
+            product_ids (list): list of strings
+            channels (list): list of channels
+            type (str, optional): message type
+            cbkey_set (str, optional): api keys to use
+
+        Raises:
+            ValueError: if the stream already exists
+        """
 
         # raise exception if stream already exists
         if name in self.streams:
@@ -100,7 +111,11 @@ class Neutrino:
         self.threads.get(stream_name).start()
 
     def parse_stream_messages(self, stream_name):
-        """temporary test method"""
+        """test function to parse stream messages
+
+        Args:
+            stream_name (string): name of stream whom's messages to parse
+        """
 
         parsed_message_count = 0
         while True:
