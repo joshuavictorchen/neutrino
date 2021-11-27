@@ -33,3 +33,10 @@ goto end
 
 :end
 popd
+
+:: ADDITIONS FOR GITHUB PAGES BELOW ::
+
+:: re-create ../docs/ with contents of ./_build/html/
+rmdir ..\docs /s /q
+xcopy .\_build\html\ ..\docs\ /e /y /q
+xcopy .nojekyll ..\docs /e /y /q
