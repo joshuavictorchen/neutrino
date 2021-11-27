@@ -82,6 +82,9 @@ html_last_updated_fmt = "%Y-%m-%d %H:%M:%S"
 # typographically correct entities.
 html_use_smartypants = True
 
+# Order autodoc members by source instead of alphabetically.
+autodoc_member_order = "bysource"
+
 # Custom sidebar templates, maps document names to template names.
 # html_sidebars = {'**': ['localtoc.html']}
 
