@@ -38,3 +38,5 @@ popd
 
 :: bring \docs\_build\html\ to parent \docs\ directory for consumption by github pages
 xcopy .\_build\html\ . /e /y /q
+echo.
+echo neutrino\docs files have been updated.

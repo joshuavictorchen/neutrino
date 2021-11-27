@@ -1,5 +1,7 @@
+.. toctree::
+ :maxdepth: 3
 
-neutrino
+Neutrino
 --------
 
 .. autoclass:: neutrino.main.Neutrino
@@ -7,7 +9,7 @@ neutrino
    :undoc-members:
    :show-inheritance:
 
-stream
+Stream
 ------
 
 .. automodule:: neutrino.stream
@@ -15,7 +17,7 @@ stream
    :undoc-members:
    :show-inheritance:
 
-link
+Link
 ----
 
 .. automodule:: neutrino.link
@@ -23,7 +25,7 @@ link
    :undoc-members:
    :show-inheritance:
 
-tools
+Tools
 -----
 
 .. automodule:: neutrino.tools

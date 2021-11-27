@@ -7,9 +7,33 @@ from websocket import create_connection
 
 
 class Stream:
+    """Opens a websocket connection and streams/stores Coinbase Pro data.
+
+    Authentication is currently handled using a plaintext dictionary in the following format.
+    It will be updated to use a more secure method in the future:
+
+    .. code-block::
+
+        {
+            public: <public-key-string>,
+            private: <secret-key-string>,
+            passphrase: <passphrase-string>
+        }
+
+    Args:
+        name (str): Unique name for this Stream object.
+        url (str): URL endpoint for the Coinbase Pro websocket feed.
+        type (str): Type of message that is sent to the websocket endpoint upon opening a connection
+                    (usually 'subscribe').
+        product_ids (list of str): List of coin trading pairs (i.e., ['BTC-USD']).
+        channels (list of str): List of channels specified for the websocket connection (i.e., ['ticker']).
+        auth_keys (dict of str, optional): Dictionary of Coinbase Pro API keys.
+                                           If provided, the Stream's websocket connection will be authenticated.
+    """
+
     def __init__(self, name, url, type, product_ids, channels, auth_keys=None):
 
-        # create requestn for the stream
+        # create request for the stream
         request = {"type": type, "product_ids": product_ids, "channels": channels}
 
         # if auth_keys are provided, then authenticate by updating the request with auth fields
@@ -38,7 +62,7 @@ class Stream:
         self.latest_message = ()
 
     def stream(self):
-        """open a websocket connection and stream data from coinbase until stream is killed"""
+        """Opens a websocket connection and streams data from the Coinbase Pro API until the Stream is killed."""
 
         print(f"\n starting stream {self.name}")
 
@@ -53,7 +77,7 @@ class Stream:
         streamed_message_count = 0
         while not self.kill_order:
             try:
-                # get websocket message and load into dictionary
+                # load websocket message into dictionary and store it in self.latest_message along with the message count
                 message = json.loads(self.socket.recv())
                 streamed_message_count += 1
                 self.latest_message = (streamed_message_count, message)
@@ -66,14 +90,16 @@ class Stream:
         self.close()
 
     def kill(self):
-        """sets self.kill_order to True, which kills the stream upon receipt of the next message"""
+        """Sets the Stream's ``kill_order`` attribute to ``True``,
+        which kills the Stream upon receipt of the next websocket message.
+        """
 
         # TODO: kill the stream immediately, instead of depending on next message
 
         self.kill_order = True
 
     def close(self):
-        """performs actions to close the stream"""
+        """Closes the Stream's websocket connection and sets its ``active`` attribute to ``False``."""
 
         self.socket.close()
         self.active = False
