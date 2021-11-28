@@ -49,7 +49,7 @@ class Neutrino:
 
     Instance attributes
         * this is a test \n
-          this is a continuation
+          this is a continuation of the first bullet on a new line
         * another bullet
     """
 
