@@ -15,10 +15,15 @@ class Link:
 
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
-        auth (Authenticator): :py:obj:`neutrino.tools.Authenticator`
-    
+        auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
+
     Instance attributes
-        * **name** (*str*): Stream's name.
+        * **name** (*str*): Link's name.
+        * **url** (*str*): Base URL for Coinbase Pro API endpoints.
+        * **auth** (*str*): :py:obj:`neutrino.tools.Authenticator` callable.
+        * **session** (*str*): API Session object.
+        * **accounts** (*str*): TBD
+        * **coins** (*str*): TBD
     """
 
     def __init__(self, name, url, auth):

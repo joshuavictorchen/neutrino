@@ -112,12 +112,12 @@
 <h1>Neutrino<a class="headerlink" href="#neutrino" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Dictionary of Coinbase Pro API keys. If provided, the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
+<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Coinbase Pro API key dictionary. If provided, the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
 </dd>
 </dl>
 <dl>
@@ -136,29 +136,9 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.link">
-<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.link" title="Permalink to this definition"></a></dt>
-<dd><p>temporary test method</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
 <span class="sig-name descname"><span class="pre">configure_new_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subscribe'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.configure_new_stream" title="Permalink to this definition"></a></dt>
 <dd><p>set up a new coinbase websocket stream</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>string</em>) – stream name</p></li>
-<li><p><strong>product_ids</strong> (<em>list</em>) – list of strings</p></li>
-<li><p><strong>channels</strong> (<em>list</em>) – list of channels</p></li>
-<li><p><strong>type</strong> (<em>str</em><em>, </em><em>optional</em>) – message type</p></li>
-<li><p><strong>cbkey_set</strong> (<em>str</em><em>, </em><em>optional</em>) – api keys to use</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – if the stream already exists</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -282,13 +262,18 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>) – Base URL for Coinbase Pro API endpoints.</p></li>
-<li><p><strong>auth</strong> (<a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><em>Authenticator</em></a>) – <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a></p></li>
+<li><p><strong>auth</strong> (<a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><em>Authenticator</em></a>) – <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="simple">
 <dt>Instance attributes</dt><dd><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>): Stream’s name.</p></li>
+<li><p><strong>name</strong> (<em>str</em>): Link’s name.</p></li>
+<li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
+<li><p><strong>auth</strong> (<em>str</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
+<li><p><strong>session</strong> (<em>str</em>): API Session object.</p></li>
+<li><p><strong>accounts</strong> (<em>str</em>): TBD</p></li>
+<li><p><strong>coins</strong> (<em>str</em>): TBD</p></li>
 </ul>
 </dd>
 </dl>
@@ -416,7 +401,7 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-11-27 21:09:36.
+      <span class="lastupdated">Last updated on 2021-11-28 00:02:55.
       </span></p>
   </div>
 

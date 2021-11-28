@@ -16,10 +16,10 @@ SETTINGSFILE = f"{NEUTRINODIR}\\settings.yaml"
 def main():
 
     t.print_git()
-    n = Neutrino('default')
+    n = Neutrino("default")
 
     try:
-        l = Link('testlink', n.settings.get('api_url'), n.auth)
+        l = Link("testlink", n.settings.get("api_url"), n.auth)
         t.print_recursive_dict(l.get_user_accounts())
         t.print_recursive_dict(l.get_orders())
         t.print_recursive_dict(
@@ -46,7 +46,7 @@ class Neutrino:
 
     Args:
         cbkey_set (str, optional): Name of Coinbase Pro API key dictionary. If provided, the Neutrino's ``auth`` value will be initialized.
-    
+
     Instance attributes
         * this is a test \n
           this is a continuation
@@ -76,18 +76,7 @@ class Neutrino:
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set="default"
     ):
-        """set up a new coinbase websocket stream
-
-        Args:
-            name (string): stream name
-            product_ids (list): list of strings
-            channels (list): list of channels
-            type (str, optional): message type
-            cbkey_set (str, optional): api keys to use
-
-        Raises:
-            ValueError: if the stream already exists
-        """
+        """set up a new coinbase websocket stream"""
 
         # raise exception if stream already exists
         if name in self.streams:
