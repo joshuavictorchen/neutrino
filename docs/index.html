@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Neutrino &mdash; docs</title>
+  <title>Overview &mdash; docs</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="_static/logo-original.png"/>
@@ -42,7 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Neutrino</a></li>
+<li><a class="reference internal" href="#">Overview</a></li>
+<li><a class="reference internal" href="#neutrino">Neutrino</a></li>
 <li><a class="reference internal" href="#module-neutrino.stream">Stream</a></li>
 <li><a class="reference internal" href="#module-neutrino.link">Link</a></li>
 <li><a class="reference internal" href="#module-neutrino.tools">Tools</a></li>
@@ -62,7 +63,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Neutrino</li>
+      <li>Overview</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/neutronsupervisor/neutrino/blob/master/docs/index.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -78,12 +79,56 @@
 <p class="admonition-title">Warning</p>
 <p>Documentation has only just begun.</p>
 </div>
+<section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h1>
+<ul>
+<li><p><strong>Neutrino</strong> // <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.main.Neutrino</span></code></a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Threads and handles <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a>, and performs operations</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>Stream</strong> // <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.stream.Stream</span></code></a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Connects to the Coinbase Pro WebSocket feed and retrieves ticker, order, etc. data.</p></li>
+<li><p>Performs a <strong>minimal</strong> amount of actions as to not fall behind the WebSocket feed.</p></li>
+<li><p>TBD re: if there should be one instance per coin/channel.</p></li>
+<li><p>TBD re: storing a limited amount of internal data.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>Link</strong> // <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.link.Link</span></code></a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Handles Coinbase Pro API requests.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
 <section id="neutrino">
 <h1>Neutrino<a class="headerlink" href="#neutrino" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Dictionary of Coinbase Pro API keys. If provided, the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
+</dd>
+</dl>
+<dl>
+<dt>Instance attributes</dt><dd><ul>
+<li><p>this is a test</p>
+<p>this is a continuation</p>
+</li>
+<li><p>another bullet</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth_keys">
 <span class="sig-name descname"><span class="pre">update_auth_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth_keys" title="Permalink to this definition"></a></dt>
@@ -229,7 +274,7 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 <span id="link"></span><h1>Link<a class="headerlink" href="#module-neutrino.link" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.link.Link">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Creates an API session and sends/receives API requests/responses.</p>
 <p><em>In-depth documentation TBD.</em></p>
@@ -238,6 +283,12 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>) – Base URL for Coinbase Pro API endpoints.</p></li>
 <li><p><strong>auth</strong> (<a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><em>Authenticator</em></a>) – <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Instance attributes</dt><dd><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>): Stream’s name.</p></li>
 </ul>
 </dd>
 </dl>
@@ -365,7 +416,7 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-11-27 18:09:56.
+      <span class="lastupdated">Last updated on 2021-11-27 21:09:36.
       </span></p>
   </div>
 

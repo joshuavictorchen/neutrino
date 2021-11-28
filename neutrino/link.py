@@ -16,15 +16,19 @@ class Link:
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
         auth (Authenticator): :py:obj:`neutrino.tools.Authenticator`
+    
+    Instance attributes
+        * **name** (*str*): Stream's name.
     """
 
-    def __init__(self, url, auth):
+    def __init__(self, name, url, auth):
 
-        self.session = requests.Session()
-        self.accounts = None
-        self.coins = {}
+        self.name = name
         self.url = url
         self.auth = auth
+        self.session = requests.Session()
+        self.accounts = {}
+        self.coins = {}
 
     def send_api_request(self, method, endpoint, params=None, data=None):
         """Sends an API request and returns the response.

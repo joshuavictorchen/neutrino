@@ -16,10 +16,10 @@ SETTINGSFILE = f"{NEUTRINODIR}\\settings.yaml"
 def main():
 
     t.print_git()
-    n = Neutrino()
+    n = Neutrino('default')
 
     try:
-        l = n.link()
+        l = Link('testlink', n.settings.get('api_url'), n.auth)
         t.print_recursive_dict(l.get_user_accounts())
         t.print_recursive_dict(l.get_orders())
         t.print_recursive_dict(
@@ -42,7 +42,18 @@ def main():
 
 
 class Neutrino:
-    def __init__(self, cbkey_set="default"):
+    """Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.
+
+    Args:
+        cbkey_set (str, optional): Name of Coinbase Pro API key dictionary. If provided, the Neutrino's ``auth`` value will be initialized.
+    
+    Instance attributes
+        * this is a test \n
+          this is a continuation
+        * another bullet
+    """
+
+    def __init__(self, cbkey_set=None):
 
         self.settings = t.parse_yaml(SETTINGSFILE, echo_yaml=False)
         self.cbkeys = t.parse_yaml(self.settings.get("keys_file"), echo_yaml=False)
@@ -61,11 +72,6 @@ class Neutrino:
         """update the keys used for authenticated coinbase websocket and API requests"""
 
         self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
-
-    def link(self):
-        """temporary test method"""
-
-        return Link(self.settings.get("api_url"), self.auth)
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set="default"
@@ -124,7 +130,7 @@ class Neutrino:
             if not stream_data or parsed_message_count == stream_data[0]:
                 continue
             parsed_message_count += 1
-            print(f"-- streamed: {stream_data[0]} | parsed: {parsed_message_count} --")
+            # print(f"-- streamed: {stream_data[0]} | parsed: {parsed_message_count} --")
 
             # perform actions based on message type
             message = stream_data[1]
