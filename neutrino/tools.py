@@ -2,7 +2,7 @@ import yaml
 import sys
 import time
 from dateutil.parser import isoparse
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import hmac
 import base64
 import hashlib
@@ -128,32 +128,69 @@ def vert_list(value, rjust=1):
         return return_string.strip()
 
 
-def iso_to_local(iso_string):
-    """convert an ISO 8601 string to a datetime object (local timezone)"""
+def local_to_ISO_time_strings(local_time_string, time_format=TIME_FORMAT):
+    """Converts a local time string to an ISO 8601 time string.
 
-    return isoparse(iso_string).replace(tzinfo=timezone.utc).astimezone(tz=None)
+    Example use case: converting user-specified start/end times in Link.get_product_candles().
 
+    Args:
+        local_time_string (string): Time string with the specified time_format.
+        time_format (string, optional): Format of local_time_string.
 
-def local_to_iso(time_string, time_format):
-    """convert a formatted time string to ISO 8601"""
+    Returns:
+        str: ISO 8601 time string.
+    """
 
-    datetime.utcfromtimestamp(
-        int(time.mktime(time.strptime(time_string, time_format)))
-    ).isoformat
-
-
-def dt_to_string(dt, time_format=TIME_FORMAT):
-    """convert a datetime object to a formatted string"""
-
-    return datetime.strftime(dt, time_format)
-
-
-def string_to_dt(time_string, time_format=TIME_FORMAT):
-
-    return datetime.strptime(time_string, time_format)
+    # use epoch as an intermediary for conversion
+    return datetime.utcfromtimestamp(
+        datetime.timestamp(datetime.strptime(local_time_string, time_format))
+    ).isoformat()
 
 
-def iso_to_local_string(iso_string, time_format=TIME_FORMAT):
-    """convert an ISO 8601 string to a formatted local time string"""
+def ISO_to_local_time_dt(ISO_time_string):
+    """Converts an ISO 8601 time string to a local-timezone datetime object.
 
-    return dt_to_string(iso_to_local(iso_string), time_format)
+    Example use case: converting API-retrieved timestamps to a usable format for data processing.
+
+    Args:
+        ISO_time_string (str): ISO 8601 time string.
+
+    Returns:
+        datetime: Datetime object (local timezone).
+    """
+
+    return isoparse(ISO_time_string).replace(tzinfo=timezone.utc).astimezone(tz=None)
+
+
+def ISO_to_local_time_string(ISO_time_string, time_format=TIME_FORMAT):
+    """Converts an ISO 8601 time string to a local time string.
+
+    Example use case: converting API-retrieved timestamps to local time format for output to the console.
+
+    Args:
+        ISO_time_string (str): ISO 8601 time string.
+        time_format (str, optional): Format of the returned local time string.
+
+    Returns:
+        str: Local time string.
+    """
+
+    return datetime.strftime(ISO_to_local_time_dt(ISO_time_string), time_format)
+
+
+def add_minutes_to_time_string(time_string, minute_delta, time_format=TIME_FORMAT):
+    """Adds minutes to a given time string and returns the result as another time string.
+
+    Args:
+        time_string (str): Original time string.
+        minute_delta (int): Minutes to add to the original time string. Can be negative.
+        time_format (str, optional): Format of the provided and returned time strings.
+
+    Returns:
+        str: Result from time_string plus minute_delta.
+    """
+
+    return datetime.strftime(
+        datetime.strptime(time_string, time_format) + timedelta(minutes=minute_delta),
+        time_format,
+    )

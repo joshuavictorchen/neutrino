@@ -7,6 +7,7 @@
   <title>Overview &mdash; docs</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/neutrino-custom.css" type="text/css" />
     <link rel="shortcut icon" href="_static/logo-original.png"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -317,6 +318,24 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 <dd><p>get the ledger (transaction history) for the specified user account</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.link.Link.get_transfers">
+<span class="sig-name descname"><span class="pre">get_transfers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_transfers" title="Permalink to this definition"></a></dt>
+<dd><p>get all fund transfers for the authenticated account</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.link.Link.get_fees">
+<span class="sig-name descname"><span class="pre">get_fees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_fees" title="Permalink to this definition"></a></dt>
+<dd><p>get all fee rates and 30-day trade volume for the authenticated account</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.link.Link.get_product_candles">
+<span class="sig-name descname"><span class="pre">get_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_product_candles" title="Permalink to this definition"></a></dt>
+<dd><p>get historical product candles</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -362,32 +381,84 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.iso_to_local">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">iso_to_local</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.iso_to_local" title="Permalink to this definition"></a></dt>
-<dd><p>convert an ISO 8601 string to a datetime object (local timezone)</p>
+<dt class="sig sig-object py" id="neutrino.tools.local_to_ISO_time_strings">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">local_to_ISO_time_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_time_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.local_to_ISO_time_strings" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a local time string to an ISO 8601 time string.</p>
+<p>Example use case: converting user-specified start/end times in Link.get_product_candles().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>local_time_string</strong> (<em>string</em>) – Time string with the specified time_format.</p></li>
+<li><p><strong>time_format</strong> (<em>string</em><em>, </em><em>optional</em>) – Format of local_time_string.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ISO 8601 time string.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.local_to_iso">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">local_to_iso</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.local_to_iso" title="Permalink to this definition"></a></dt>
-<dd><p>convert a formatted time string to ISO 8601</p>
+<dt class="sig sig-object py" id="neutrino.tools.ISO_to_local_time_dt">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">ISO_to_local_time_dt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ISO_time_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.ISO_to_local_time_dt" title="Permalink to this definition"></a></dt>
+<dd><p>Converts an ISO 8601 time string to a local-timezone datetime object.</p>
+<p>Example use case: converting API-retrieved timestamps to a usable format for data processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ISO_time_string</strong> (<em>str</em>) – ISO 8601 time string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Datetime object (local timezone).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>datetime</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.dt_to_string">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">dt_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.dt_to_string" title="Permalink to this definition"></a></dt>
-<dd><p>convert a datetime object to a formatted string</p>
+<dt class="sig sig-object py" id="neutrino.tools.ISO_to_local_time_string">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">ISO_to_local_time_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ISO_time_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.ISO_to_local_time_string" title="Permalink to this definition"></a></dt>
+<dd><p>Converts an ISO 8601 time string to a local time string.</p>
+<p>Example use case: converting API-retrieved timestamps to local time format for output to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ISO_time_string</strong> (<em>str</em>) – ISO 8601 time string.</p></li>
+<li><p><strong>time_format</strong> (<em>str</em><em>, </em><em>optional</em>) – Format of the returned local time string.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Local time string.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.string_to_dt">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">string_to_dt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.string_to_dt" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.iso_to_local_string">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">iso_to_local_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.iso_to_local_string" title="Permalink to this definition"></a></dt>
-<dd><p>convert an ISO 8601 string to a formatted local time string</p>
+<dt class="sig sig-object py" id="neutrino.tools.add_minutes_to_time_string">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">add_minutes_to_time_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minute_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.add_minutes_to_time_string" title="Permalink to this definition"></a></dt>
+<dd><p>Adds minutes to a given time string and returns the result as another time string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_string</strong> (<em>str</em>) – Original time string.</p></li>
+<li><p><strong>minute_delta</strong> (<em>int</em>) – Minutes to add to the original time string. Can be negative.</p></li>
+<li><p><strong>time_format</strong> (<em>str</em><em>, </em><em>optional</em>) – Format of the provided and returned time strings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Result from time_string plus minute_delta.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -401,7 +472,7 @@ which kills the Stream upon receipt of the next WebSocket message.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-11-28 00:07:59.
+      <span class="lastupdated">Last updated on 2021-12-04 14:39:51.
       </span></p>
   </div>
 

@@ -20,11 +20,12 @@ def main():
 
     try:
         l = Link("testlink", n.settings.get("api_url"), n.auth)
-        t.print_recursive_dict(l.get_user_accounts())
-        t.print_recursive_dict(l.get_orders())
-        t.print_recursive_dict(
-            l.get_account_ledger(n.test_parameters.get("test_account_id"))
-        )
+        # print(l.get_product_candles("BTC-USD", granularity = 60, start = '2021-01-01 00:00', end = '2021-01-01 01:00'))
+        # t.print_recursive_dict(l.get_user_accounts())
+        # t.print_recursive_dict(l.get_orders())
+        # t.print_recursive_dict(
+        #    l.get_account_ledger(n.test_parameters.get("test_account_id"))
+        # )
         n.configure_new_stream("teststream", ["BTC-USD"], ["ticker"])
         n.start_stream("teststream")
         n.parse_stream_messages("teststream")
@@ -158,7 +159,7 @@ class Neutrino:
         # output data to console
         print(
             " "
-            + t.iso_to_local_string(message.get("time"), "%Y-%m-%d %H:%M:%S")
+            + t.ISO_to_local_time_string(message.get("time"), "%Y-%m-%d %H:%M:%S")
             + f' | {ticker_product} {pdelta} | {message.get("price")}'
         )
 

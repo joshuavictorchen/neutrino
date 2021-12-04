@@ -1,11 +1,8 @@
 import neutrino.tools as t
-from threading import Thread
-from websocket import create_connection
 import requests
-import traceback
 import json
-import time
-from neutrino.stream import Stream
+import pandas as pd
+from datetime import datetime
 
 
 class Link:
@@ -106,6 +103,54 @@ class Link:
         [ledger_dict.update({i.get("id"): i}) for i in ledger_list]
 
         return ledger_dict
+
+    def get_transfers(self, **kwargs):
+        """get all fund transfers for the authenticated account"""
+
+        transfers_list = json.loads(
+            self.send_api_request("GET", "/transfers", params=kwargs).text
+        )
+
+        transfers_dict = {}
+        for i in transfers_list:
+            transfers_dict.update({i.get("id"): i})
+
+        return transfers_dict
+
+    def get_fees(self, **kwargs):
+        """get all fee rates and 30-day trade volume for the authenticated account"""
+
+        fees_dict = json.loads(
+            self.send_api_request("GET", "/fees", params=kwargs).text
+        )
+
+        return fees_dict
+
+    def get_product_candles(self, product_id, granularity=60, start=None, end=None):
+        """get historical product candles"""
+
+        if start:
+            start = t.local_to_ISO_time_strings(start)
+
+        if end:
+            end = t.local_to_ISO_time_strings(end)
+
+        params_dict = {"granularity": granularity, "start": start, "end": end}
+
+        candles_list = json.loads(
+            self.send_api_request(
+                "GET", f"/products/{product_id}/candles", params=params_dict
+            ).text
+        )
+
+        for i in candles_list:
+            i[0] = datetime.strftime(datetime.fromtimestamp(i[0]), "%Y-%m-%d %H:%M")
+
+        candles_df = pd.DataFrame(
+            candles_list, columns=["time", "low", "high", "open", "close", "volume"]
+        )
+
+        return candles_df
 
 
 if __name__ == "__main__":
