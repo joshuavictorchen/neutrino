@@ -50,7 +50,7 @@ class Neutrino:
     Instance attributes
         * this is a test \n
           this is a continuation of the first bullet on a new line
-        * another bullet
+        * another bullet test
     """
 
     def __init__(self, cbkey_set=None):
