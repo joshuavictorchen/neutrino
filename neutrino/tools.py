@@ -1,14 +1,14 @@
-import yaml
+import base64
+import git
+import hashlib
+import hmac
+import os
 import sys
 import time
-from dateutil.parser import isoparse
+import yaml
 from datetime import datetime, timezone, timedelta
-import hmac
-import base64
-import hashlib
+from dateutil.parser import isoparse
 from requests.auth import AuthBase
-import git
-import os
 
 TIME_FORMAT = "%Y-%m-%d %H:%M"
 

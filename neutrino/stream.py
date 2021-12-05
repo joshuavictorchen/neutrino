@@ -2,7 +2,6 @@ import json
 import neutrino.tools as t
 import time
 import traceback
-from threading import Thread
 from websocket import create_connection
 
 

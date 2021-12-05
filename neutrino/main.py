@@ -1,8 +1,7 @@
 import os
-from neutrino.link import Link
-import time
-import sys
 import neutrino.tools as t
+import sys
+from neutrino.link import Link
 from neutrino.stream import Stream
 from threading import Thread
 
