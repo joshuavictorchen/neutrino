@@ -8,7 +8,7 @@ from websocket import create_connection
 class Stream:
     """Opens a WebSocket connection and streams/stores Coinbase Pro data.
 
-    *In-depth documentation TBD.*
+    *Detailed documentation to be created.*
 
     .. note::
 
@@ -80,7 +80,7 @@ class Stream:
     def stream(self):
         """Opens a WebSocket connection and streams data from the Coinbase Pro API until the Stream is killed.
 
-        .. warning:: **TODO:**
+        .. admonition:: TODO
 
             * Check for (and handle) message errors.
             * Add stored data and periodically flush it (i.e., for live minute-avg calcs, etc.).
@@ -113,7 +113,7 @@ class Stream:
         """Sets the Stream's ``kill_order`` attribute to ``True``,
         which kills the Stream upon receipt of the next WebSocket message.
 
-        .. warning:: **TODO:**
+        .. admonition:: TODO
 
             * Kill the stream immediately instead of depending on the receipt of a new message.
         """

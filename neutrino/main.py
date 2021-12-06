@@ -20,15 +20,16 @@ def main():
     try:
         l = Link("testlink", n.settings.get("api_url"), n.auth)
         # print(l.get_product_candles("BTC-USD", granularity = 60, start = '2021-01-01 00:00', end = '2021-01-01 01:00'))
-        # t.print_recursive_dict(l.get_user_accounts())
-        # t.print_recursive_dict(l.get_orders())
+        t.print_recursive_dict(
+            l.get_orders(product_id="BTC-USD", status=["all"], sorting="asc")
+        )
         # t.print_recursive_dict(
         #    l.get_account_ledger(n.test_parameters.get("test_account_id"))
         # )
-        n.configure_new_stream("teststream", ["BTC-USD"], ["ticker"])
-        n.start_stream("teststream")
-        n.parse_stream_messages("teststream")
-        n.streams.get("teststream").kill()
+        # n.configure_new_stream("teststream", ["BTC-USD"], ["ticker"])
+        # n.start_stream("teststream")
+        # n.parse_stream_messages("teststream")
+        # n.streams.get("teststream").kill()
     except KeyboardInterrupt as e:
         for stream in n.streams:
             n.streams.get(stream).kill()
