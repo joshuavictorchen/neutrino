@@ -45,7 +45,7 @@ class Neutrino:
     Instance attributes
         * this is a test \n
           this is a continuation of the first bullet on a new line
-        * another bullet test
+        * this is another bullet test 
     """
 
     def __init__(self, cbkey_set=None):
@@ -96,7 +96,7 @@ class Neutrino:
         self.threads[name] = thread
 
     def start_stream(self, stream_name):
-        """start a configured coinbase websocket stream thread"""
+        """starts a configured coinbase websocket stream thread"""
 
         self.threads.get(stream_name).start()
 
