@@ -19,13 +19,7 @@ def main():
 
     try:
         l = Link("testlink", n.settings.get("api_url"), n.auth)
-        # print(l.get_product_candles("BTC-USD", granularity = 60, start = '2021-01-01 00:00', end = '2021-01-01 01:00'))
-        t.print_recursive_dict(
-            l.get_orders(product_id="BTC-USD", status=["all"], sorting="asc")
-        )
-        # t.print_recursive_dict(
-        #    l.get_account_ledger(n.test_parameters.get("test_account_id"))
-        # )
+        t.print_recursive_dict(l.get_account_transfers())
         # n.configure_new_stream("teststream", ["BTC-USD"], ["ticker"])
         # n.start_stream("teststream")
         # n.parse_stream_messages("teststream")
@@ -70,14 +64,14 @@ class Neutrino:
             self.update_auth_keys(cbkey_set)
 
     def update_auth_keys(self, cbkey_set):
-        """update the keys used for authenticated coinbase websocket and API requests"""
+        """updates the keys used for authenticated coinbase websocket and API requests"""
 
         self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set="default"
     ):
-        """set up a new coinbase websocket stream"""
+        """sets up a new coinbase websocket stream"""
 
         # raise exception if stream already exists
         if name in self.streams:

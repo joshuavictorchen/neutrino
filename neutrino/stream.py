@@ -8,8 +8,6 @@ from websocket import create_connection
 class Stream:
     """Opens a WebSocket connection and streams/stores Coinbase Pro data.
 
-    *Detailed documentation to be created.*
-
     .. note::
 
         Authentication is currently handled using a plaintext dictionary in the following format.
@@ -23,6 +21,19 @@ class Stream:
                 passphrase: <passphrase-string>
             }
 
+    **Instance attributes:** \n
+        * **name** (*str*): Stream's name.
+        * **url** (*str*): URL endpoint for the Coinbase Pro WebSocket feed.
+        * **request** (*str*): Request sent to the WebSocket endpoint upon connection. \
+            Configured during Stream instantiation.
+        * **socket** (*WebSocket*): Stream's WebSocket object.
+        * **active** (*bool*): :py:obj:`True` if the Stream has a live (connected) WebSocket object, :py:obj:`False` otherwise.
+        * **kill_order** (*bool*): :py:obj:`True` if the WebSocket connection should be closed on the next iteration, \
+            :py:obj:`False` otherwise.
+        * **stored_messages** (*list(dict)*): *to be created*
+        * **latest_message** (*tuple(int, dict)*): Tuple containing the total number of WebSocket messages received, \
+            along with the latest WebSocket message received.
+
     Args:
         name (str): Unique name for this Stream object.
         url (str): URL endpoint for the Coinbase Pro WebSocket feed.
@@ -30,21 +41,8 @@ class Stream:
                     (usually 'subscribe').
         product_ids (list(str)): List of coin trading pairs (i.e., ['BTC-USD']).
         channels (list(str)): List of channels specified for the WebSocket connection (i.e., ['ticker']).
-        auth_keys (dict(str), optional): Dictionary of Coinbase Pro API keys. \
+        auth_keys (dict, optional): Dictionary of Coinbase Pro API keys. \
             If provided, the Stream's WebSocket connection will be authenticated.
-    
-    Instance attributes
-        * **name** (*str*): Stream's name.
-        * **url** (*str*): URL endpoint for the Coinbase Pro WebSocket feed.
-        * **request** (*str*): Request sent to the WebSocket endpoint upon connection. \
-            Configured during Stream instantiation.
-        * **socket** (*WebSocket*): Stream's WebSocket object.
-        * **active** (*bool*): ``True`` if the Stream has a live (connected) WebSocket object, ``False`` otherwise.
-        * **kill_order** (*bool*): ``True`` if the WebSocket connection should be closed on the next iteration, \
-            ``False`` otherwise.
-        * **stored_messages** (*list(dict(str))*): *to be created*
-        * **latest_message** (*tuple(int, dict(str))*): Tuple containing the total number of WebSocket messages received, \
-            along with the latest WebSocket message received.
     """
 
     def __init__(self, name, url, type, product_ids, channels, auth_keys=None):
@@ -78,7 +76,8 @@ class Stream:
         self.latest_message = ()
 
     def stream(self):
-        """Opens a WebSocket connection and streams data from the Coinbase Pro API until the Stream is killed.
+        """Opens a WebSocket connection and streams data from the Coinbase Exchange websocket feed \
+            until the Stream is killed.
 
         .. admonition:: TODO
 
@@ -110,7 +109,7 @@ class Stream:
         self.close()
 
     def kill(self):
-        """Sets the Stream's ``kill_order`` attribute to ``True``,
+        """Sets the Stream's :py:obj:`kill_order` attribute to :py:obj:`True`, \
         which kills the Stream upon receipt of the next WebSocket message.
 
         .. admonition:: TODO
@@ -121,7 +120,7 @@ class Stream:
         self.kill_order = True
 
     def close(self):
-        """Closes the Stream's WebSocket connection and sets its ``active`` attribute to ``False``."""
+        """Closes the Stream's WebSocket connection and sets its :py:obj:`active` attribute to :py:obj:`False`."""
 
         self.socket.close()
         self.active = False
