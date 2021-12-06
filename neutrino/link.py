@@ -105,8 +105,8 @@ class Link:
         Args:
             account_id (str): Trading account ID for a given coin.
             **kwargs (various, optional):
-                * **start_date** (*str*): Filter results by minimum posted date (``%Y-%m-%d %H:%M``).
-                * **end_date** (*str*): Filter results by maximum posted date (``%Y-%m-%d %H:%M``).
+                * **start_date** (*str*): Filter by minimum posted date (``%Y-%m-%d %H:%M``).
+                * **end_date** (*str*): Filter by maximum posted date (``%Y-%m-%d %H:%M``).
                 * **before** (*str*): Used for pagination. Sets start cursor to ``before`` date.
                 * **after** (*str*): Used for pagination. Sets end cursor to ``after`` date.
                 * **limit** (*int*): Limit on number of results to return.
@@ -206,8 +206,8 @@ class Link:
                 * **sortedBy** (*str*): Sort criteria for results: \
                     ``created_at``, ``price``, ``size``, ``order_id``, ``side``, ``type``.
                 * **sorting** (*str*): Sort results by ``asc`` or ``desc``.
-                * **start_date** (*str*): Filter results by minimum posted date (``%Y-%m-%d %H:%M``).
-                * **end_date** (*str*): Filter results by maximum posted date (``%Y-%m-%d %H:%M``).
+                * **start_date** (*str*): Filter by minimum posted date (``%Y-%m-%d %H:%M``).
+                * **end_date** (*str*): Filter by maximum posted date (``%Y-%m-%d %H:%M``).
                 * **before** (*str*): Used for pagination. Sets start cursor to ``before`` date.
                 * **after** (*str*): Used for pagination. Sets end cursor to ``after`` date.
                 * **limit** (*int*): Limit on number of results to return.
