@@ -19,11 +19,12 @@ def main():
 
     try:
         l = Link("testlink", n.settings.get("api_url"), n.auth)
+        # t.print_recursive_dict({'abc':{'def':['abc', 'def', 'ghi']}})
         t.print_recursive_dict(l.get_account_transfers())
-        # n.configure_new_stream("teststream", ["BTC-USD"], ["ticker"])
-        # n.start_stream("teststream")
-        # n.parse_stream_messages("teststream")
-        # n.streams.get("teststream").kill()
+        n.configure_new_stream("teststream", ["BTC-USD"], ["ticker"])
+        n.start_stream("teststream")
+        n.parse_stream_messages("teststream")
+        n.streams.get("teststream").kill()
     except KeyboardInterrupt as e:
         for stream in n.streams:
             n.streams.get(stream).kill()
@@ -39,13 +40,16 @@ def main():
 class Neutrino:
     """Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.
 
+    .. note::
+
+        Authentication is currently handled using a plaintext YAML file defined in ``settings.yaml``. \
+        It will be updated to use a more secure method in the future.
+
     Args:
         cbkey_set (str, optional): Name of Coinbase Pro API key dictionary. If provided, the Neutrino's ``auth`` value will be initialized.
 
-    Instance attributes
-        * this is a test \n
-          this is a continuation of the first bullet on a new line
-        * this is another bullet test
+    **Instance attributes:** \n
+        * **placeholder** (*placeholder*): Placeholder text.
     """
 
     def __init__(self, cbkey_set=None):
@@ -64,14 +68,31 @@ class Neutrino:
             self.update_auth_keys(cbkey_set)
 
     def update_auth_keys(self, cbkey_set):
-        """updates the keys used for authenticated coinbase websocket and API requests"""
+        """Updates the keys used for authenticating Coinbase WebSocket and API requests.
+
+        Args:
+            cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
+        """
 
         self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
 
     def configure_new_stream(
-        self, name, product_ids, channels, type="subscribe", cbkey_set="default"
+        self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"
     ):
-        """sets up a new coinbase websocket stream"""
+        """Instantiates and configures a new :py:obj:`neutrino.stream.Stream` object.
+
+        Updates ``self.streams`` and ``self.threads`` with this object and corresponding thread.
+
+        Args:
+            name (str): User-specified name of the new :py:obj:`neutrino.stream.Stream` object.
+            product_ids (list(str)): List of coin trading pairs (i.e., ['BTC-USD']).
+            channels (list(str)): List of channels specified for the WebSocket connection (i.e., ['ticker']).
+            type (str): Type of message that is sent to the WebSocket endpoint upon opening a connection. Defaults to "subscribe".
+            cbkey_set_name (str, optional): Name of the ``cbkey_set`` dictionary defined in the cbkeys file. Defaults to "default".
+
+        Raises:
+            ValueError: If the specified stream name already exists.
+        """
 
         # raise exception if stream already exists
         if name in self.streams:
@@ -80,7 +101,7 @@ class Neutrino:
         # TODO: error handling and reqs checking for arguments
 
         # get keys for authentication - default is the 'default' key name; if no key is provided, then None is passed (no auth)
-        auth_keys = self.cbkeys.get(cbkey_set)
+        auth_keys = self.cbkeys.get(cbkey_set_name)
 
         # initialize a stream + thread, and add to self.streams and self.threads
         stream = Stream(
@@ -96,15 +117,19 @@ class Neutrino:
         self.threads[name] = thread
 
     def start_stream(self, stream_name):
-        """starts a configured coinbase websocket stream thread"""
+        """Starts the thread for a configured Coinbase WebSocket stream.
+
+        Args:
+            stream_name (str): Name of the configured Coinbase WebSocket stream to be started.
+        """
 
         self.threads.get(stream_name).start()
 
     def parse_stream_messages(self, stream_name):
-        """test function to parse stream messages
+        """Test function to parse stream messages.
 
         Args:
-            stream_name (string): name of stream whom's messages to parse
+            stream_name (string): Name of stream whom's messages to parse.
         """
 
         parsed_message_count = 0
@@ -131,7 +156,11 @@ class Neutrino:
                 print()
 
     def handle_ticker_message(self, message):
-        """temporary test actions taken upon receipt of a ticker websocket message"""
+        """Temporary test actions taken upon receipt of a Coinbase WebSocket ticker message from :py:obj:`neutrino.stream.Stream`.
+
+        Args:
+            message (dict): Placeholder, TBD.
+        """
 
         ticker_product = message.get("product_id")
 

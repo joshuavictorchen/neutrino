@@ -8,19 +8,6 @@ from websocket import create_connection
 class Stream:
     """Opens a WebSocket connection and streams/stores Coinbase Pro data.
 
-    .. note::
-
-        Authentication is currently handled using a plaintext dictionary in the following format.
-        It will be updated to use a more secure method in the future:
-
-        .. code-block::
-
-            {
-                public: <public-key-string>,
-                private: <secret-key-string>,
-                passphrase: <passphrase-string>
-            }
-
     **Instance attributes:** \n
         * **name** (*str*): Stream's name.
         * **url** (*str*): URL endpoint for the Coinbase Pro WebSocket feed.

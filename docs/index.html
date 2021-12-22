@@ -77,7 +77,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Documentation has only just begun.</p>
+<p>Documentation is incomplete.</p>
 </div>
 <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h1>
@@ -85,7 +85,7 @@
 <li><p><strong>Neutrino</strong> // <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.main.Neutrino</span></code></a></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Threads and handles <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a>, and performs operations</p></li>
+<li><p>Manages <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a>. Performs operations as directed by the user.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -102,7 +102,8 @@
 <li><p><strong>Link</strong> // <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.link.Link</span></code></a></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Handles Coinbase Pro API requests.</p></li>
+<li><p>Handles Coinbase Pro API requests. Used to get account information, place orders, etc.</p></li>
+<li><p>TBD re: data structure.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -115,45 +116,71 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Authentication is currently handled using a plaintext YAML file defined in <code class="docutils literal notranslate"><span class="pre">settings.yaml</span></code>.         It will be updated to use a more secure method in the future.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>cbkey_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Coinbase Pro API key dictionary. If provided, the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
 </dd>
 </dl>
-<dl>
-<dt>Instance attributes</dt><dd><ul>
-<li><p>this is a test</p>
-<p>this is a continuation of the first bullet on a new line</p>
-</li>
-<li><p>this is another bullet test</p></li>
+<p><strong>Instance attributes:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>placeholder</strong> (<em>placeholder</em>): Placeholder text.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth_keys">
 <span class="sig-name descname"><span class="pre">update_auth_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth_keys" title="Permalink to this definition"></a></dt>
-<dd><p>updates the keys used for authenticated coinbase websocket and API requests</p>
+<dd><p>Updates the keys used for authenticating Coinbase WebSocket and API requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a>.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
-<span class="sig-name descname"><span class="pre">configure_new_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subscribe'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.configure_new_stream" title="Permalink to this definition"></a></dt>
-<dd><p>sets up a new coinbase websocket stream</p>
+<span class="sig-name descname"><span class="pre">configure_new_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subscribe'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.configure_new_stream" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiates and configures a new <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.stream.Stream</span></code></a> object.</p>
+<p>Updates <code class="docutils literal notranslate"><span class="pre">self.streams</span></code> and <code class="docutils literal notranslate"><span class="pre">self.threads</span></code> with this object and corresponding thread.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – User-specified name of the new <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.stream.Stream</span></code></a> object.</p></li>
+<li><p><strong>product_ids</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of coin trading pairs (i.e., [‘BTC-USD’]).</p></li>
+<li><p><strong>channels</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of channels specified for the WebSocket connection (i.e., [‘ticker’]).</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – Type of message that is sent to the WebSocket endpoint upon opening a connection. Defaults to “subscribe”.</p></li>
+<li><p><strong>cbkey_set_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the <code class="docutils literal notranslate"><span class="pre">cbkey_set</span></code> dictionary defined in the cbkeys file. Defaults to “default”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the specified stream name already exists.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.start_stream">
 <span class="sig-name descname"><span class="pre">start_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.start_stream" title="Permalink to this definition"></a></dt>
-<dd><p>starts a configured coinbase websocket stream thread</p>
+<dd><p>Starts the thread for a configured Coinbase WebSocket stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stream_name</strong> (<em>str</em>) – Name of the configured Coinbase WebSocket stream to be started.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.parse_stream_messages">
 <span class="sig-name descname"><span class="pre">parse_stream_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.parse_stream_messages" title="Permalink to this definition"></a></dt>
-<dd><p>test function to parse stream messages</p>
+<dd><p>Test function to parse stream messages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>stream_name</strong> (<em>string</em>) – name of stream whom’s messages to parse</p>
+<dd class="field-odd"><p><strong>stream_name</strong> (<em>string</em>) – Name of stream whom’s messages to parse.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -161,7 +188,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.handle_ticker_message">
 <span class="sig-name descname"><span class="pre">handle_ticker_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.handle_ticker_message" title="Permalink to this definition"></a></dt>
-<dd><p>temporary test actions taken upon receipt of a ticker websocket message</p>
+<dd><p>Temporary test actions taken upon receipt of a Coinbase WebSocket ticker message from <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.stream.Stream</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – Placeholder, TBD.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -174,18 +206,6 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.stream.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Opens a WebSocket connection and streams/stores Coinbase Pro data.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Authentication is currently handled using a plaintext dictionary in the following format.
-It will be updated to use a more secure method in the future:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="n">public</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">public</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="n">private</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">secret</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="n">passphrase</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">passphrase</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
 <p><strong>Instance attributes:</strong></p>
 <blockquote>
 <div><ul class="simple">
@@ -399,7 +419,7 @@ It will be updated to use a more secure method in the future:</p>
         <span class="n">completed_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
          <span class="n">canceled_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
         <span class="n">processed_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-              <span class="n">amount</span><span class="p">:</span> <span class="n">reqquired</span>
+              <span class="n">amount</span><span class="p">:</span> <span class="n">required</span>
              <span class="n">details</span><span class="p">:</span> <span class="p">{</span>
                               <span class="n">is_instant_usd</span><span class="p">:</span>
                           <span class="n">coinbase_payout_at</span><span class="p">:</span>
@@ -550,39 +570,143 @@ It will be updated to use a more secure method in the future:</p>
 <dt class="sig sig-object py" id="neutrino.tools.Authenticator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">Authenticator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Authenticator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">requests.auth.AuthBase</span></code></p>
-<p>custom callable authentication class for coinbase websocket and API authentication
-<a class="reference external" href="https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication">https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication</a></p>
+<p>Custom callable authentication class for Coinbase WebSocket and API authentication:</p>
+<p><a class="reference external" href="https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication">https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication</a></p>
+<p><strong>Instance attributes:</strong></p>
+<ul>
+<li><p><strong>cbkey_set</strong> (<em>dict</em>): Dictionary of API keys with the following format:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+        <span class="n">public</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">public</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+       <span class="n">private</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">secret</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+    <span class="n">passphrase</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">passphrase</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.generate_auth_headers">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">generate_auth_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.generate_auth_headers" title="Permalink to this definition"></a></dt>
-<dd><p>generate headers for coinbase websocket and API authentication
-<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication">https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication</a></p>
+<dd><p>Generates headers for authenticated Coinbase WebSocket and API messages:</p>
+<p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication">https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> (<em>str</em>) – String representing the current time in seconds since the Epoch.</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Formatted message to be authenticated.</p></li>
+<li><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Authenticator</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Dictionary of authentication headers with the following format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+            <span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="s1">&#39;Application/JSON&#39;</span>
+          <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">SIGN</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">base64</span><span class="o">-</span><span class="n">encoded</span><span class="o">-</span><span class="n">message</span><span class="o">-</span><span class="n">signature</span><span class="o">&gt;</span>
+     <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">TIMESTAMP</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">message</span><span class="o">-</span><span class="n">timestamp</span><span class="o">&gt;</span>
+           <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">KEY</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">public</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+    <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">PASSPHRASE</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">passphrase</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.print_git">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">print_git</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.print_git" title="Permalink to this definition"></a></dt>
-<dd><p>print metadata on local neutrino repo</p>
+<dd><p>Prints metadata on the local neutrino repository in the format of:</p>
+<p><code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">|</span> <span class="pre">&lt;branch&gt;-&lt;commit&gt;-&lt;is_modified&gt;</span></code></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.parse_yaml">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">parse_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_spaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.parse_yaml" title="Permalink to this definition"></a></dt>
-<dd><p>parse a yaml file, return a dict, and optionally echo formatted data to the console</p>
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">parse_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.parse_yaml" title="Permalink to this definition"></a></dt>
+<dd><p>Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>str</em>) – Path to the supplied YAML file.</p></li>
+<li><p><strong>echo_yaml</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to print the formatted loaded dict to the console. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary of contents loaded from the supplied YAML file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.print_recursive_dict">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">print_recursive_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_spaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.print_recursive_dict" title="Permalink to this definition"></a></dt>
-<dd><p>print a formatted nested dictionary to the console</p>
+<dd><p>Prints a formatted nested dictionary to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – Dictionary of values that can be converted to strings.</p></li>
+<li><p><strong>indent_spaces</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of leading whitespaces to insert before each element. Defaults to 3.</p></li>
+<li><p><strong>indent_step</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of whitespaces to increase the indentation by, for each level of <code class="docutils literal notranslate"><span class="pre">dict</span></code> nesting. Defaults to 2.</p></li>
+<li><p><strong>recursion</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not this method is being called by itself. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the function was executed successfully.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># example console output for an input of {&#39;123&#39;:{&#39;456&#39;:[&#39;aaa&#39;, &#39;bbb&#39;, &#39;ccc&#39;]}}</span>
+
+<span class="s2">&quot;</span>
+   <span class="mi">123</span> <span class="p">:</span>
+         <span class="mi">456</span> <span class="p">:</span> <span class="n">aaa</span>
+               <span class="n">bbb</span>
+               <span class="n">ccc</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.vert_list">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">vert_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rjust</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.vert_list" title="Permalink to this definition"></a></dt>
-<dd><p>return a formatted string that displays a list as a column</p>
+<dt class="sig sig-object py" id="neutrino.tools.list_to_string">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">list_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leading_whitespaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.list_to_string" title="Permalink to this definition"></a></dt>
+<dd><p>Takes a list and returns a formatted string containing each element delimited by newlines.</p>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<p>Incorporate <a class="reference internal" href="#neutrino.tools.print_recursive_dict" title="neutrino.tools.print_recursive_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_recursive_dict</span></code></a> for lists with dictionary elements, i.e. <code class="docutils literal notranslate"><span class="pre">[{},</span> <span class="pre">{}]</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>list</em>) – A list of elements that can be represented by strings.</p></li>
+<li><p><strong>leading_whitespaces</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of leading whitespaces to insert before each element. Defaults to 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Formatted string containing each element of the provided list delimited by newlines, with <code class="docutils literal notranslate"><span class="pre">leading_whitespaces</span></code> leading whitespaces before each element.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># example returned string for an input of [&#39;abc&#39;, &#39;def&#39;, &#39;ghi&#39;]</span>
+
+<span class="s2">&quot; abc</span><span class="se">\n</span><span class="s2"> def</span><span class="se">\n</span><span class="s2"> ghi&quot;</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -677,7 +801,7 @@ It will be updated to use a more secure method in the future:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-06 01:52:41.
+      <span class="lastupdated">Last updated on 2021-12-22 13:52:51.
       </span></p>
   </div>
 

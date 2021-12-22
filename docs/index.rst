@@ -3,14 +3,14 @@
 
 .. warning::
 
-   Documentation has only just begun.
+   Documentation is incomplete.
 
 Overview
 --------
 
 * **Neutrino** // :py:obj:`neutrino.main.Neutrino`
 
-   * Threads and handles :py:obj:`Streams<neutrino.stream.Stream>` and :py:obj:`Links<neutrino.link.Link>`, and performs operations
+   * Manages :py:obj:`Streams<neutrino.stream.Stream>` and :py:obj:`Links<neutrino.link.Link>`. Performs operations as directed by the user.
 
 * **Stream** // :py:obj:`neutrino.stream.Stream`
    
@@ -21,7 +21,8 @@ Overview
 
 * **Link** // :py:obj:`neutrino.link.Link`
 
-   * Handles Coinbase Pro API requests.
+   * Handles Coinbase Pro API requests. Used to get account information, place orders, etc.
+   * TBD re: data structure.
 
 Neutrino
 --------

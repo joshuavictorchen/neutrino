@@ -168,7 +168,7 @@ class Link:
                         completed_at: required, ISO 8601
                          canceled_at: required, ISO 8601
                         processed_at: required, ISO 8601
-                              amount: reqquired
+                              amount: required
                              details: {
                                               is_instant_usd:
                                           coinbase_payout_at:

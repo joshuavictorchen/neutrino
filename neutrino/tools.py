@@ -14,15 +14,29 @@ TIME_FORMAT = "%Y-%m-%d %H:%M"
 
 
 class Authenticator(AuthBase):
-    """custom callable authentication class for coinbase websocket and API authentication
-    https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication"""
+    """Custom callable authentication class for Coinbase WebSocket and API authentication:
+
+    https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication
+
+    **Instance attributes:** \n
+    * **cbkey_set** (*dict*): Dictionary of API keys with the following format:
+
+        .. code-block::
+
+            {
+                    public: <public-key-string>
+                   private: <secret-key-string>
+                passphrase: <passphrase-string>
+            }
+
+    """
 
     def __init__(self, cbkey_set):
 
         self.cbkey_set = cbkey_set
 
     def __call__(self, request):
-        """modify and return a request with authentication headers"""
+        """Adds authentication headers to a request and returns the modified request."""
 
         timestamp = str(time.time())
         message = "".join(
@@ -36,8 +50,28 @@ class Authenticator(AuthBase):
 
 
 def generate_auth_headers(timestamp, message, cbkey_set):
-    """generate headers for coinbase websocket and API authentication
-    https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication"""
+    """Generates headers for authenticated Coinbase WebSocket and API messages:
+
+    https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication
+
+    Args:
+        timestamp (str): String representing the current time in seconds since the Epoch.
+        message (str): Formatted message to be authenticated.
+        cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`Authenticator`.
+
+    Returns:
+        dict: Dictionary of authentication headers with the following format:
+
+        .. code-block::
+
+            {
+                        Content-Type: 'Application/JSON'
+                      CB-ACCESS-SIGN: <base64-encoded-message-signature>
+                 CB-ACCESS-TIMESTAMP: <message-timestamp>
+                       CB-ACCESS-KEY: <public-key-string>
+                CB-ACCESS-PASSPHRASE: <passphrase-string>
+            }
+    """
 
     message = message.encode("ascii")
     hmac_key = base64.b64decode(cbkey_set.get("private"))
@@ -53,78 +87,149 @@ def generate_auth_headers(timestamp, message, cbkey_set):
 
 
 def print_git():
-    """print metadata on local neutrino repo"""
+    """Prints metadata on the local neutrino repository in the format of:
 
+    ``n | <branch>-<commit>-<is_modified>``
+    """
+
+    # instantiate a repo object for the neutrino repository
     repo = git.Repo(
         f"{os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))}",
         search_parent_directories=True,
     )
 
+    # get repo attributes
     branch_name = repo.active_branch.name
     commit_id = repo.head.object.hexsha[:7]
     is_dirty = repo.is_dirty(untracked_files=True)
 
+    # format print statement
     output = f"\n n | {branch_name}-{commit_id}"
     if is_dirty:
         output += "-modified"
 
+    # print repo attributes
     print(output)
 
 
-def parse_yaml(filepath, echo_yaml=True, indent_spaces=3, indent_step=2):
-    """parse a yaml file, return a dict, and optionally echo formatted data to the console"""
+def parse_yaml(filepath, echo_yaml=True):
+    """Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.
 
+    Args:
+        filepath (str): Path to the supplied YAML file.
+        echo_yaml (bool, optional): Whether or not to print the formatted loaded dict to the console. Defaults to True.
+
+    Returns:
+        dict: Dictionary of contents loaded from the supplied YAML file.
+    """
+
+    # open the file and load its data into a dict
     with open(filepath) as stream:
         try:
             yaml_data = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             sys.exit(exc)
 
+    # if echo_yaml is True, then print the formatted dict to the console
     if echo_yaml:
-        print_recursive_dict(yaml_data, indent_spaces, indent_step)
+        print_recursive_dict(yaml_data)
 
     return yaml_data
 
 
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
-    """print a formatted nested dictionary to the console"""
+    """Prints a formatted nested dictionary to the console.
 
+    Args:
+        data (dict): Dictionary of values that can be converted to strings.
+        indent_spaces (int, optional): Number of leading whitespaces to insert before each element. Defaults to 3.
+        indent_step (int, optional): Number of whitespaces to increase the indentation by, for each level of ``dict`` nesting. Defaults to 2.
+        recursion (bool, optional): Whether or not this method is being called by itself. Defaults to False.
+
+    Returns:
+        bool: ``True`` if the function was executed successfully.
+
+        .. code-block::
+
+            # example console output for an input of {'123':{'456':['aaa', 'bbb', 'ccc']}}
+
+            "
+               123 :
+                     456 : aaa
+                           bbb
+                           ccc"
+
+    """
+
+    # print a newline once, prior to the formatted dictionary
     if not recursion:
         print()
+
+    # loop through the dictionary
     for key, value in data.items():
+
+        # the right-justification for each key is equal to the length of the longest key
         rjust = len(max(data, key=len))
+
+        # if the value is a dictionary, then recursively call this function to print the inner dictionary
         if isinstance(value, dict):
             print(" " * indent_spaces + f"{key.rjust(rjust)} : ")
             print_recursive_dict(
-                vert_list(value, rjust),
-                indent_spaces + indent_step + rjust + 1,
+                list_to_string(value, rjust),
+                indent_spaces
+                + indent_step
+                + rjust
+                + 1,  # adjust the indentation level of the inner dictionary
                 indent_step,
                 True,
             )
+
+        # if the value is not a dictionary, then print the key-value pair
         else:
             print(
                 " " * indent_spaces
-                + f"{key.rjust(rjust)} : {vert_list(value, rjust + indent_spaces + 3)}"
+                + f"{key.rjust(rjust)} : {list_to_string(value, rjust + indent_spaces + 3)}"
             )
 
     return True
 
 
-def vert_list(value, rjust=1):
-    """return a formatted string that displays a list as a column"""
+def list_to_string(value, leading_whitespaces=1):
+    """Takes a list and returns a formatted string containing each element delimited by newlines.
 
-    # TODO: update to make recursive for [{}, {}] values
+    .. admonition:: TODO
 
+        Incorporate :py:obj:`print_recursive_dict` for lists with dictionary elements, i.e. ``[{}, {}]``.
+
+    Args:
+        value (list): A list of elements that can be represented by strings.
+        leading_whitespaces (int, optional): Number of leading whitespaces to insert before each element. Defaults to 1.
+
+    Returns:
+        str: Formatted string containing each element of the provided list delimited by newlines, with ``leading_whitespaces`` leading whitespaces before each element.
+
+        .. code-block::
+
+            # example returned string for an input of ['abc', 'def', 'ghi']
+
+            " abc\\n def\\n ghi"
+    """
+
+    # just return the same value if it's not a list
     if not isinstance(value, list):
         return value
+    # if the list is empty, then return a blank string
     elif len(value) == 0:
         return ""
+    # if the list has only one element, then return that element
     elif len(value) == 1:
         return value[0]
+    # if the list has more than one element, then return a string containing each element delimited by newlines
+    # add leading_whitespaces number of leading whitespaces before each element
     else:
         return_string = str(value[0]) + "\n"
         for i in range(1, len(value)):
-            return_string += (" " * rjust) + str(value[i]) + "\n"
+            return_string += (" " * leading_whitespaces) + str(value[i]) + "\n"
         return return_string.strip()
 
 
