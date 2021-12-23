@@ -304,21 +304,24 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.send_api_request">
-<span class="sig-name descname"><span class="pre">send_api_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.send_api_request" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">send_api_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.send_api_request" title="Permalink to this definition"></a></dt>
 <dd><p>Sends an API request to the specified Coinbase Exchange endpoint and returns the response.</p>
+<p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/pagination">Paginated requests</a> are handled automatically;         this method iterates through all available <code class="docutils literal notranslate"><span class="pre">after</span></code> cursors for a request.</p>
+<p>This method returns a list of API response elements, which are usually dictionaries but can be other types         depending on the specific request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>method</strong> (<em>str</em>) – API request method (<code class="docutils literal notranslate"><span class="pre">get</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, etc.).</p></li>
 <li><p><strong>endpoint</strong> (<em>str</em>) – API request endpoint.</p></li>
 <li><p><strong>params</strong> (<em>list</em><em>(</em><em>str</em><em>)</em><em>, </em><em>optional</em>) – API request parameters (varies per request).</p></li>
+<li><p><strong>pages</strong> (<em>list</em><em>, </em><em>optional</em>) – Previous data compiled for a paginated requests.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>API response loaded into a dict.</p>
+<dd class="field-even"><p>List of API response elements (usually dictionaries).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -806,7 +809,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-23 00:10:25.
+      <span class="lastupdated">Last updated on 2021-12-23 17:49:39.
       </span></p>
   </div>
 

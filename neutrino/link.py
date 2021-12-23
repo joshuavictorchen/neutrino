@@ -32,27 +32,61 @@ class Link:
         self.session = requests.Session()
         self.coins = {}
 
-    def send_api_request(self, method, endpoint, params=None):
+    def send_api_request(self, method, endpoint, params=None, pages=[]):
         """Sends an API request to the specified Coinbase Exchange endpoint and returns the response.
+
+        `Paginated requests <https://docs.cloud.coinbase.com/exchange/docs/pagination>`__ are handled automatically; \
+        this method iterates through all available ``after`` cursors for a request.
+
+        This method returns a list of API response elements, which are usually dictionaries but can be other types \
+        depending on the specific request.  
 
         Args:
             method (str): API request method (``get``, ``post``, etc.).
             endpoint (str): API request endpoint.
             params (list(str), optional): API request parameters (varies per request).
+            pages (list, optional): Previous data compiled for a paginated requests.
 
         Returns:
-            dict: API response loaded into a dict.
+            list: List of API response elements (usually dictionaries).
         """
 
-        return json.loads(
-            self.session.request(
-                method,
-                self.url + endpoint,
-                params=params,
-                auth=self.auth,
-                timeout=30,
-            ).text
+        # create a fresh list to be returned
+        # this needs to be done to prevent carry-over from unrelated API calls, since lists are mutable
+        list_response = pages.copy()
+
+        # get the api response
+        api_response = self.session.request(
+            method,
+            self.url + endpoint,
+            params=params,
+            auth=self.auth,
+            timeout=30,
         )
+
+        # append or extend this to the list to be returned, depending on the response type
+        if type(api_response.json()) == dict:
+            list_response.append(api_response.json())
+        else:
+            list_response.extend(api_response.json())
+
+        # if there are no 'cb-after' headers, then there is nothing to be paginated, and list_response can be returned
+        if not api_response.headers.get("cb-after"):
+            return list_response
+
+        # otherwise, perform this function recursively until pagination is exhausted
+        else:
+
+            # update the parameters supplied to the recursive call, preserving other parameters, if they exist
+            if params is None:
+                params = {"after": api_response.headers.get("cb-after")}
+            else:
+                params["after"] = api_response.headers.get("cb-after")
+
+            # recursively call this function, carrying the list_response forward so that all 'pages' are returned at the end
+            return self.send_api_request(
+                method, endpoint, params=params, pages=list_response
+            )
 
     def get_accounts(self, exclude_empty_accounts=False):
         """Gets a dict of all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
@@ -278,7 +312,7 @@ class Link:
                 }
         """
 
-        fees_dict = self.send_api_request("GET", "/fees")
+        fees_dict = self.send_api_request("GET", "/fees")[0]
 
         return fees_dict
 

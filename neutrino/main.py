@@ -28,8 +28,12 @@ def main():
     # continuously accept user input
     while True:
 
+        print(
+            "\n -------------------------------------------------------------------------------"
+        )
+
         # gather user input as a list of tokens
-        arg = input("\n>> ").split()
+        arg = input("\n>>> ").split()
 
         # don't do anything if no input was provided
         if len(arg) == 0:
@@ -78,7 +82,7 @@ def main():
                 t.print_recursive_dict(l.get_account_transfers())
 
             elif arg[1] == "orders":
-                t.print_recursive_dict(l.get_orders)
+                t.print_recursive_dict(l.get_orders())
 
             elif arg[1] == "fees":
                 t.print_recursive_dict(l.get_fees())
