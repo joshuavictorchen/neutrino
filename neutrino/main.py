@@ -10,6 +10,9 @@ NEUTRINODIR = (
     f"{os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))}"
 )
 SETTINGSFILE = f"{NEUTRINODIR}\\settings.yaml"
+DIVIDER = (
+    "\n -------------------------------------------------------------------------------"
+)
 
 
 def main():
@@ -28,9 +31,7 @@ def main():
     # continuously accept user input
     while True:
 
-        print(
-            "\n -------------------------------------------------------------------------------"
-        )
+        print(DIVIDER)
 
         # gather user input as a list of tokens
         arg = input("\n>>> ").split()
@@ -70,29 +71,45 @@ def main():
                 )
 
             elif arg[1] == "accounts":
-                t.print_recursive_dict(l.get_accounts())
+                l.get_accounts()
 
             elif arg[1] == "ledger":
                 # TODO: next arg should be an account ID; hardcode with sample ID for now
-                t.print_recursive_dict(
-                    l.get_account_ledger(n.test_parameters.get("test_account_id"))
-                )
+                l.get_account_ledger(n.test_parameters.get("test_account_id"))
 
             elif arg[1] == "transfers":
-                t.print_recursive_dict(l.get_account_transfers())
+                l.get_account_transfers()
 
             elif arg[1] == "orders":
-                t.print_recursive_dict(l.get_orders())
+                l.get_orders()
 
             elif arg[1] == "fees":
-                t.print_recursive_dict(l.get_fees())
+                l.get_fees()
 
             elif arg[1] == "candles":
                 # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
-                print(l.get_product_candles("BTC-USD"))
+                l.get_product_candles("BTC-USD")
 
             else:
                 print(f"\n Unrecognized 'get' method: {arg[1]}")
+
+        # set Link verbosity
+        elif arg[0] == "verbosity":
+
+            # hard-code for now - this is a temporary proof-of-concept
+            if len(arg) == 1:
+                print(
+                    f"\n No verbosity option specified. Acceptable arguments are 'on' or 'off'."
+                )
+
+            elif arg[1] == "on":
+                l.set_verbosity(True)
+
+            elif arg[1] == "off":
+                l.set_verbosity(False)
+
+            else:
+                print(f"\n Unrecognized verbosity specification: {arg[1]}")
 
         # stream data
         elif arg[0] == "stream":
@@ -104,7 +121,7 @@ def main():
                 n.start_stream("teststream")
                 n.parse_stream_messages("teststream")
                 n.streams.get("teststream").kill()
-            except KeyboardInterrupt as e:
+            except KeyboardInterrupt:
                 for stream in n.streams:
                     n.streams.get(stream).kill()
                     n.threads.get(stream).join()
@@ -113,6 +130,7 @@ def main():
             print("\n Unrecognized command.")
 
     print("\n Neutrino annihilated.")
+    print(DIVIDER)
 
 
 class Neutrino:

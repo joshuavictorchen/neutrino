@@ -4,12 +4,15 @@ import pandas as pd
 import requests
 from datetime import datetime
 
+pd.set_option("display.max_rows", None)
+
 
 class Link:
     """Creates an API session and sends/receives API requests/responses.
 
     **Instance attributes:** \n
         * **name** (*str*): :py:obj:`Link`'s name.
+        * **verbose** (*bool*): If ``True``, then API responses are printed to the console.
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*str*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
@@ -24,13 +27,26 @@ class Link:
         auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
     """
 
-    def __init__(self, name, url, auth):
+    def __init__(self, name, url, auth, verbose=True):
 
         self.name = name
+        self.verbose = verbose
         self.url = url
         self.auth = auth
         self.session = requests.Session()
         self.coins = {}
+
+    def set_verbosity(self, verbose):
+        """Updates Link's behavior to print (or not pring) formatted API responses to the console.
+
+        Args:
+            verbose (bool): ``True`` if print statements are desired.
+        """
+
+        self.verbose = verbose
+
+        verb = "begin" if verbose else "stop"
+        print(f"\n Link {self.name} will {verb} printing API responses to the console.")
 
     def send_api_request(self, method, endpoint, params=None, pages=[]):
         """Sends an API request to the specified Coinbase Exchange endpoint and returns the response.
@@ -130,6 +146,9 @@ class Link:
 
         # TODO: append/update this information to self.coins
 
+        if self.verbose:
+            t.print_recursive_dict(account_dict)
+
         return account_dict
 
     def get_account_ledger(self, account_id, **kwargs):
@@ -177,6 +196,9 @@ class Link:
 
         # TODO: append/update this information to self.coins
 
+        if self.verbose:
+            t.print_recursive_dict(ledger_dict)
+
         return ledger_dict
 
     def get_account_transfers(self):
@@ -222,6 +244,9 @@ class Link:
         transfers_dict = {}
         for i in transfers_list:
             transfers_dict.update({i.get("id"): i})
+
+        if self.verbose:
+            t.print_recursive_dict(transfers_dict)
 
         return transfers_dict
 
@@ -293,6 +318,9 @@ class Link:
 
         # TODO: append/update this information to self.coins
 
+        if self.verbose:
+            t.print_recursive_dict(orders_dict)
+
         return orders_dict
 
     def get_fees(self):
@@ -313,6 +341,9 @@ class Link:
         """
 
         fees_dict = self.send_api_request("GET", "/fees")[0]
+
+        if self.verbose:
+            t.print_recursive_dict(fees_dict)
 
         return fees_dict
 
@@ -355,6 +386,9 @@ class Link:
         candles_df = pd.DataFrame(
             candles_list, columns=["time", "low", "high", "open", "close", "volume"]
         )
+
+        if self.verbose:
+            print(candles_df)
 
         return candles_df
 
