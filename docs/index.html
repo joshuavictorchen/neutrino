@@ -113,7 +113,7 @@
 <h1>Neutrino<a class="headerlink" href="#neutrino" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.</p>
 <div class="admonition note">
@@ -122,7 +122,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Coinbase Pro API key dictionary. If provided, the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
+<dd class="field-odd"><p><strong>cbkey_set_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Coinbase Pro API key dictionary. If provided, the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
 </dd>
 </dl>
 <p><strong>Instance attributes:</strong></p>
@@ -135,6 +135,10 @@
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth_keys">
 <span class="sig-name descname"><span class="pre">update_auth_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth_keys" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the keys used for authenticating Coinbase WebSocket and API requests.</p>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<p>Iterate through <code class="docutils literal notranslate"><span class="pre">self.links</span></code> and update Link authentication as well.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a>.</p>
@@ -206,6 +210,7 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.stream.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Opens a WebSocket connection and streams/stores Coinbase Pro data.</p>
+<p>Further reading: <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/overview">https://docs.cloud.coinbase.com/exchange/docs/overview</a></p>
 <p><strong>Instance attributes:</strong></p>
 <blockquote>
 <div><ul class="simple">
@@ -801,7 +806,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-22 13:52:51.
+      <span class="lastupdated">Last updated on 2021-12-23 00:10:25.
       </span></p>
   </div>
 

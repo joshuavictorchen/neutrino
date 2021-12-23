@@ -14,27 +14,101 @@ SETTINGSFILE = f"{NEUTRINODIR}\\settings.yaml"
 
 def main():
 
+    # print repository data
     t.print_git()
+
+    # instantiate a Neutrino
+    # hard-code 'default' cbkey_set_name for now
+    # TODO: make this an input parameter and/or echo list of default values
     n = Neutrino("default")
 
-    try:
-        l = Link("testlink", n.settings.get("api_url"), n.auth)
-        # t.print_recursive_dict({'abc':{'def':['abc', 'def', 'ghi']}})
-        t.print_recursive_dict(l.get_account_transfers())
-        n.configure_new_stream("teststream", ["BTC-USD"], ["ticker"])
-        n.start_stream("teststream")
-        n.parse_stream_messages("teststream")
-        n.streams.get("teststream").kill()
-    except KeyboardInterrupt as e:
-        for stream in n.streams:
-            n.streams.get(stream).kill()
-            n.threads.get(stream).join()
-        try:
-            sys.exit(e)
-        except Exception as e:
-            os._exit(e)
+    # instantiate a Link
+    l = Link("testlink", n.settings.get("api_url"), n.auth)
 
-    print("\n fin")
+    # continuously accept user input
+    while True:
+
+        # gather user input as a list of tokens
+        arg = input("\n>> ").split()
+
+        # don't do anything if no input was provided
+        if len(arg) == 0:
+            continue
+
+        # exit the program if 'quit' or 'q' are entered
+        if arg[0] in ("quit", "q"):
+            break
+
+        # print list of available commands
+        if arg[0] in ("help", "h"):
+            print("\n Help coming soon.")
+
+        # update cbkey_set used for authentication
+        elif arg[0] == "cbkeys":
+
+            # TODO: display default value and prompt user to accept or override this default w/ list of acceptable values
+            if len(arg) == 1:
+                print(
+                    f"\n No keys provided. Please provide a value for cbkey_set_name."
+                )
+
+            else:
+                n.update_auth_keys(arg[1])
+                print(f"\n Neutrino authentication keys changed to: {arg[1]}")
+
+        # parse 'get' statements
+        elif arg[0] == "get":
+
+            # TODO: prompt user w/ list of acceptable values
+            if len(arg) == 1:
+                print(
+                    f"\n No 'get' method provided. Please specify what should be retrieved."
+                )
+
+            elif arg[1] == "accounts":
+                t.print_recursive_dict(l.get_accounts())
+
+            elif arg[1] == "ledger":
+                # TODO: next arg should be an account ID; hardcode with sample ID for now
+                t.print_recursive_dict(
+                    l.get_account_ledger(n.test_parameters.get("test_account_id"))
+                )
+
+            elif arg[1] == "transfers":
+                t.print_recursive_dict(l.get_account_transfers())
+
+            elif arg[1] == "orders":
+                t.print_recursive_dict(l.get_orders)
+
+            elif arg[1] == "fees":
+                t.print_recursive_dict(l.get_fees())
+
+            elif arg[1] == "candles":
+                # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
+                print(l.get_product_candles("BTC-USD"))
+
+            else:
+                print(f"\n Unrecognized 'get' method: {arg[1]}")
+
+        # stream data
+        elif arg[0] == "stream":
+
+            # hard-code for now - in future, split into components, let user append items to lists, etc.
+            # NOTE: this means right now, you can't execute this command more than once within the same instance of the program
+            try:
+                n.configure_new_stream("teststream", ["BTC-USD"], ["ticker", "user"])
+                n.start_stream("teststream")
+                n.parse_stream_messages("teststream")
+                n.streams.get("teststream").kill()
+            except KeyboardInterrupt as e:
+                for stream in n.streams:
+                    n.streams.get(stream).kill()
+                    n.threads.get(stream).join()
+
+        else:
+            print("\n Unrecognized command.")
+
+    print("\n Neutrino annihilated.")
 
 
 class Neutrino:
@@ -46,13 +120,13 @@ class Neutrino:
         It will be updated to use a more secure method in the future.
 
     Args:
-        cbkey_set (str, optional): Name of Coinbase Pro API key dictionary. If provided, the Neutrino's ``auth`` value will be initialized.
+        cbkey_set_name (str, optional): Name of Coinbase Pro API key dictionary. If provided, the Neutrino's ``auth`` value will be initialized.
 
     **Instance attributes:** \n
         * **placeholder** (*placeholder*): Placeholder text.
     """
 
-    def __init__(self, cbkey_set=None):
+    def __init__(self, cbkey_set_name=None):
 
         self.settings = t.parse_yaml(SETTINGSFILE, echo_yaml=False)
         self.cbkeys = t.parse_yaml(self.settings.get("keys_file"), echo_yaml=False)
@@ -65,10 +139,14 @@ class Neutrino:
         self.accounts = None
         self.coins = {}
         if self.cbkeys:
-            self.update_auth_keys(cbkey_set)
+            self.update_auth_keys(cbkey_set_name)
 
     def update_auth_keys(self, cbkey_set):
         """Updates the keys used for authenticating Coinbase WebSocket and API requests.
+
+        .. admonition:: TODO
+
+            Iterate through ``self.links`` and update Link authentication as well.
 
         Args:
             cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.

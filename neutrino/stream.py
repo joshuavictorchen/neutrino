@@ -8,6 +8,8 @@ from websocket import create_connection
 class Stream:
     """Opens a WebSocket connection and streams/stores Coinbase Pro data.
 
+    Further reading: https://docs.cloud.coinbase.com/exchange/docs/overview
+
     **Instance attributes:** \n
         * **name** (*str*): Stream's name.
         * **url** (*str*): URL endpoint for the Coinbase Pro WebSocket feed.
