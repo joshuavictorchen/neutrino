@@ -318,7 +318,7 @@
 <dt class="sig sig-object py" id="neutrino.link.Link.send_api_request">
 <span class="sig-name descname"><span class="pre">send_api_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.send_api_request" title="Permalink to this definition"></a></dt>
 <dd><p>Sends an API request to the specified Coinbase Exchange endpoint and returns the response.</p>
-<p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/pagination">Paginated requests</a> are handled automatically;         this method iterates through all available <code class="docutils literal notranslate"><span class="pre">after</span></code> cursors for a request.</p>
+<p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/pagination">Paginated requests</a> are handled recursively;         this method iterates through all available <code class="docutils literal notranslate"><span class="pre">after</span></code> cursors for a request.</p>
 <p>This method returns a list of API response elements, which are usually dictionaries but can be other types         depending on the specific request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -554,15 +554,11 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.get_product_candles">
-<span class="sig-name descname"><span class="pre">get_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_product_candles" title="Permalink to this definition"></a></dt>
-<dd><p>Gets a DataFrame of a product’s historic candle data. Returns a maximum of 300 candles per request             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles">API Reference</a>).</p>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<ul class="simple">
-<li><p>Configure and document default start/end parameters.</p></li>
-<li><p>Configure ‘pagination’ for &gt;300 candle requests.</p></li>
-</ul>
-</div>
+<span class="sig-name descname"><span class="pre">get_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_product_candles" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a DataFrame of a product’s historic candle data.             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles">API Reference</a>).</p>
+<p>The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively,         as needed, to return all candles within the given <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> bounds.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> bound is given, then the current time is used.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">start</span></code> bound is given, then <code class="docutils literal notranslate"><span class="pre">end</span></code> minus <code class="docutils literal notranslate"><span class="pre">granularity</span></code> times 300 is used (i.e., maximum number of data points for one API call).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -730,8 +726,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.local_to_ISO_time_strings">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">local_to_ISO_time_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_time_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.local_to_ISO_time_strings" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.tools.local_to_ISO_time_string">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">local_to_ISO_time_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_time_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.local_to_ISO_time_string" title="Permalink to this definition"></a></dt>
 <dd><p>Converts a local time string to an ISO 8601 time string.</p>
 <p>Example use case: converting user-specified start/end times in Link.get_product_candles().</p>
 <dl class="field-list simple">
@@ -821,7 +817,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-23 18:21:53.
+      <span class="lastupdated">Last updated on 2021-12-24 11:45:53.
       </span></p>
   </div>
 

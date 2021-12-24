@@ -1,10 +1,11 @@
-import json
 import neutrino.tools as t
 import pandas as pd
 import requests
+import time
 from datetime import datetime
 
 pd.set_option("display.max_rows", None)
+MAX_CANDLE_REQUEST = 300
 
 
 class Link:
@@ -51,7 +52,7 @@ class Link:
     def send_api_request(self, method, endpoint, params=None, pages=[]):
         """Sends an API request to the specified Coinbase Exchange endpoint and returns the response.
 
-        `Paginated requests <https://docs.cloud.coinbase.com/exchange/docs/pagination>`__ are handled automatically; \
+        `Paginated requests <https://docs.cloud.coinbase.com/exchange/docs/pagination>`__ are handled recursively; \
         this method iterates through all available ``after`` cursors for a request.
 
         This method returns a list of API response elements, which are usually dictionaries but can be other types \
@@ -347,14 +348,18 @@ class Link:
 
         return fees_dict
 
-    def get_product_candles(self, product_id, granularity=60, start=None, end=None):
-        """Gets a DataFrame of a product's historic candle data. Returns a maximum of 300 candles per request \
+    def get_product_candles(
+        self, product_id, granularity=60, start=None, end=None, page=None
+    ):
+        """Gets a DataFrame of a product's historic candle data. \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles>`__).
 
-        .. admonition:: TODO
+        The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively, \
+        as needed, to return all candles within the given ``start`` and ``end`` bounds.
 
-            * Configure and document default start/end parameters.
-            * Configure 'pagination' for >300 candle requests.
+        If no ``end`` bound is given, then the current time is used.
+
+        If no ``start`` bound is given, then ``end`` minus ``granularity`` times 300 is used (i.e., maximum number of data points for one API call).
 
         Args:
             product_id (str): The coin trading pair (i.e., 'BTC-USD').
@@ -368,26 +373,91 @@ class Link:
                 ``time``, ``low``, ``high``, ``open``, ``close``, ``volume``
         """
 
-        if start:
-            start = t.local_to_ISO_time_strings(start)
+        # TODO: add robust error handling
 
-        if end:
-            end = t.local_to_ISO_time_strings(end)
+        # determine the maximum number of data points that can be pulled
+        # granularity / 60 <-- get time in minutes
+        # MAX_CANDLE_REQUEST -1 <-- account for fenceposting
+        max_data_pull = granularity / 60 * (MAX_CANDLE_REQUEST - 1)
 
-        params_dict = {"granularity": granularity, "start": start, "end": end}
+        # if no end is given, then use current time
+        if not end:
+            end = time.strftime("%Y-%m-%d %H:%M", time.localtime())
 
+        # if no start is given, then use end minus (granularity * MAX_CANDLE_REQUEST)
+        if not start:
+            start = t.add_minutes_to_time_string(end, -1 * max_data_pull)
+
+        if self.verbose:
+            printed_end = min(end, t.add_minutes_to_time_string(start, max_data_pull))
+            print(
+                f"\n Requesting {product_id} candles from {start} to {printed_end}..."
+            )
+
+        # determine if the number of requested data points exceeds MAX_CANDLE_REQUEST
+        recurse = end > t.add_minutes_to_time_string(start, max_data_pull)
+
+        # define the actual start/end parameters which will be passed into the API request
+        # NOTE: request_start is offset by 1 to get the right timestamp due to Coinbase API behavior
+        request_start = t.add_minutes_to_time_string(start, -1 * granularity / 60)
+        request_end = end
+
+        # if recursion is necessary:
+        # [1] modify the requested end parameter to keep it within the allowable request bounds
+        # [2] update the 'start' variable to the first un-requested timestamp
+        #     (this is to set up the next API request)
+        if recurse:
+            request_end = t.add_minutes_to_time_string(start, max_data_pull)
+            start = t.add_minutes_to_time_string(
+                start, max_data_pull + (granularity / 60)
+            )
+
+        # convert start and end to ISO format
+        request_start = t.local_to_ISO_time_string(request_start)
+        request_end = t.local_to_ISO_time_string(request_end)
+
+        # generate API request parameters
+        params_dict = {
+            "granularity": granularity,
+            "start": request_start,
+            "end": request_end,
+        }
+
+        # send API request
         candles_list = self.send_api_request(
             "GET", f"/products/{product_id}/candles", params=params_dict
         )
 
+        # convert retrieved timestamps
         for i in candles_list:
             i[0] = datetime.strftime(datetime.fromtimestamp(i[0]), "%Y-%m-%d %H:%M")
 
-        candles_df = pd.DataFrame(
-            candles_list, columns=["time", "low", "high", "open", "close", "volume"]
+        # create dataframe from API response and sort records from earliest to latest
+        candles_df = (
+            pd.DataFrame(
+                candles_list, columns=["time", "low", "high", "open", "close", "volume"]
+            )
+            .sort_values(by=["time"], ascending=True)
+            .reset_index(drop=True)
         )
 
+        # append candles_df to results from the previous recursive iterations, if they exist
+        if isinstance(page, pd.DataFrame):
+            candles_df = (
+                page.append(candles_df, ignore_index=True)
+                .sort_values(by=["time"], ascending=True)
+                .reset_index(drop=True)
+            )
+
+        # recursively call this function, if needed, to satisfy the initially-supplied pull bounds
+        # pass candles_df into the recursed call so that it is carried forward
+        if recurse:
+            return self.get_product_candles(
+                product_id, granularity, start, end, candles_df
+            )
+
         if self.verbose:
+            print()
             print(candles_df)
 
         return candles_df

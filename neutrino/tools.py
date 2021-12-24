@@ -233,7 +233,7 @@ def list_to_string(value, leading_whitespaces=1):
         return return_string.strip()
 
 
-def local_to_ISO_time_strings(local_time_string, time_format=TIME_FORMAT):
+def local_to_ISO_time_string(local_time_string, time_format=TIME_FORMAT):
     """Converts a local time string to an ISO 8601 time string.
 
     Example use case: converting user-specified start/end times in Link.get_product_candles().

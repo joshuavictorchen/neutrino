@@ -88,7 +88,10 @@ def main():
 
             elif arg[1] == "candles":
                 # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
-                l.get_product_candles("BTC-USD")
+                # l.get_product_candles("BTC-USD")
+                l.get_product_candles(
+                    "BTC-USD", start="2021-01-01 00:00", end="2021-01-02 00:00"
+                )
 
             else:
                 print(f"\n Unrecognized 'get' method: {arg[1]}")
