@@ -85,7 +85,8 @@ class Stream:
         streamed_message_count = 0
         while not self.kill_order:
             try:
-                # load WebSocket message into dictionary and store it in self.latest_message along with the message count
+                # load WebSocket message into dictionary and store it in self.latest_message
+                # along with the message count
                 message = json.loads(self.socket.recv())
                 streamed_message_count += 1
                 self.latest_message = (streamed_message_count, message)

@@ -129,6 +129,7 @@
 <blockquote>
 <div><ul class="simple">
 <li><p><strong>placeholder</strong> (<em>placeholder</em>): Placeholder text.</p></li>
+<li><p><strong>coins</strong> (<em>dict</em>): To be implemented - dict for each coin containing account info, orders, transfers.</p></li>
 </ul>
 </div></blockquote>
 <dl class="py method">
@@ -286,15 +287,8 @@
 <li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
 <li><p><strong>auth</strong> (<em>str</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
-<li><p><strong>coins</strong> (<em>dict</em>): To be implemented - dict for each coin containing account info, orders, transfers.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<ul class="simple">
-<li><p>Implement overarching <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.coins</span></code>.</p></li>
-</ul>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -339,34 +333,53 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="neutrino.link.Link.load_df_from_API_response_list">
+<span class="sig-name descname"><span class="pre">load_df_from_API_response_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.load_df_from_API_response_list" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a list of dicts from a Coinbase API response to a DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>response_list</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – Response from a Coinbase API request.</p></li>
+<li><p><strong>main_key</strong> (<em>str</em>) – Key containing a unique identifier for a response element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame of values loaded from a Coinbase API response.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.get_accounts">
 <span class="sig-name descname"><span class="pre">get_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_accounts" title="Permalink to this definition"></a></dt>
-<dd><p>Gets a dict of all trading accounts and their holdings for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts">API Reference</a>).</p>
+<dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>exclude_empty_accounts</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> to exclude zero-balance accounts from the returned result.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
+<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
 <span class="p">{</span>
-    <span class="o">&lt;</span><span class="n">coin</span> <span class="n">name</span><span class="o">&gt;</span><span class="p">:</span> <span class="p">{</span>
-                      <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
-                <span class="n">currency</span><span class="p">:</span> <span class="n">required</span>
-                 <span class="n">balance</span><span class="p">:</span> <span class="n">required</span>
-                    <span class="n">hold</span><span class="p">:</span> <span class="n">required</span>
-               <span class="n">available</span><span class="p">:</span> <span class="n">required</span>
-              <span class="n">profile_id</span><span class="p">:</span> <span class="n">required</span>
-         <span class="n">trading_enabled</span><span class="p">:</span> <span class="n">required</span>
-    <span class="p">}</span>
+                 <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
+           <span class="n">currency</span><span class="p">:</span> <span class="n">required</span>
+            <span class="n">balance</span><span class="p">:</span> <span class="n">required</span>
+               <span class="n">hold</span><span class="p">:</span> <span class="n">required</span>
+          <span class="n">available</span><span class="p">:</span> <span class="n">required</span>
+         <span class="n">profile_id</span><span class="p">:</span> <span class="n">required</span>
+    <span class="n">trading_enabled</span><span class="p">:</span> <span class="n">required</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict (for N number of <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;coin</span> <span class="pre">name&gt;</span></code>)</p>
+<dd class="field-odd"><p>DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -374,7 +387,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.get_account_ledger">
 <span class="sig-name descname"><span class="pre">get_account_ledger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_account_ledger" title="Permalink to this definition"></a></dt>
-<dd><p>Gets a dict of ledger activity (anything that would affect the account’s balance) for a given coin account             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger">API Reference</a>).</p>
+<dd><p>Loads a DataFrame with all ledger activity (anything that would affect the account’s balance) for a given coin account             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -391,29 +404,28 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
+<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
 <span class="p">{</span>
-    <span class="o">&lt;</span><span class="n">activity</span> <span class="nb">id</span><span class="o">&gt;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
-           <span class="n">armount</span><span class="p">:</span> <span class="n">required</span>
-        <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-           <span class="n">balance</span><span class="p">:</span> <span class="n">required</span>
-              <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
-           <span class="n">details</span><span class="p">:</span> <span class="p">{</span>
-                <span class="n">order_id</span><span class="p">:</span> <span class="n">required</span>
-              <span class="n">product_id</span><span class="p">:</span> <span class="n">required</span>
-                <span class="n">trade_id</span><span class="p">:</span> <span class="n">required</span>
-           <span class="p">}</span>
-    <span class="p">}</span>
+            <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
+        <span class="n">amount</span><span class="p">:</span> <span class="n">required</span>
+    <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
+       <span class="n">balance</span><span class="p">:</span> <span class="n">required</span>
+          <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
+       <span class="n">details</span><span class="p">:</span> <span class="p">{</span>
+                       <span class="n">order_id</span><span class="p">:</span> <span class="n">required</span>
+                     <span class="n">product_id</span><span class="p">:</span> <span class="n">required</span>
+                       <span class="n">trade_id</span><span class="p">:</span> <span class="n">required</span>
+        <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict (for N number of <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;activity</span> <span class="pre">id&gt;</span></code>)</p>
+<dd class="field-odd"><p>DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -421,43 +433,42 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.get_account_transfers">
 <span class="sig-name descname"><span class="pre">get_account_transfers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_account_transfers" title="Permalink to this definition"></a></dt>
-<dd><p>Gets a dict of in-progress and completed transfers of funds in/out of any of the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s accounts             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers">API Reference</a>).</p>
+<dd><p>Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s accounts             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers">API Reference</a>).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The returned <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;activity</span> <span class="pre">id&gt;</span></code> <code class="docutils literal notranslate"><span class="pre">details</span></code> requirements are not explicitly documented                 in the API Reference. They have been determined via user observation.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
+<dd class="field-odd"><p><p>DataFrame with columns corresponding to the headers listed below.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
 <span class="p">{</span>
-    <span class="o">&lt;</span><span class="n">activity</span> <span class="nb">id</span><span class="o">&gt;</span><span class="p">:</span> <span class="p">{</span>
-                  <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
-                <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
-          <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-        <span class="n">completed_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-         <span class="n">canceled_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-        <span class="n">processed_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-              <span class="n">amount</span><span class="p">:</span> <span class="n">required</span>
-             <span class="n">details</span><span class="p">:</span> <span class="p">{</span>
-                              <span class="n">is_instant_usd</span><span class="p">:</span>
-                          <span class="n">coinbase_payout_at</span><span class="p">:</span>
-                         <span class="n">coinbase_account_id</span><span class="p">:</span> <span class="n">required</span>
-                        <span class="n">coinbase_deposity_id</span><span class="p">:</span>
-                     <span class="n">coinbase_transaction_id</span><span class="p">:</span> <span class="n">required</span>
-                  <span class="n">coinbase_payment_method_id</span><span class="p">:</span>
-                <span class="n">coinbase_payment_method_type</span><span class="p">:</span> <span class="n">required</span>
-            <span class="p">}</span>
-          <span class="n">user_nonce</span><span class="p">:</span> <span class="n">required</span>
-    <span class="p">}</span>
+              <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
+      <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
+    <span class="n">completed_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
+     <span class="n">canceled_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
+    <span class="n">processed_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
+          <span class="n">amount</span><span class="p">:</span> <span class="n">required</span>
+         <span class="n">details</span><span class="p">:</span> <span class="p">{</span>
+                                     <span class="n">is_instant_usd</span><span class="p">:</span>
+                                 <span class="n">coinbase_payout_at</span><span class="p">:</span>
+                                <span class="n">coinbase_account_id</span><span class="p">:</span> <span class="n">required</span>
+                               <span class="n">coinbase_deposity_id</span><span class="p">:</span>
+                            <span class="n">coinbase_transaction_id</span><span class="p">:</span> <span class="n">required</span>
+                         <span class="n">coinbase_payment_method_id</span><span class="p">:</span>
+                       <span class="n">coinbase_payment_method_type</span><span class="p">:</span> <span class="n">required</span>
+         <span class="p">}</span>
+      <span class="n">user_nonce</span><span class="p">:</span> <span class="n">required</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict (for N number of <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;activity</span> <span class="pre">id&gt;</span></code>)</p>
+<dd class="field-even"><p>DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -465,12 +476,10 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.get_orders">
 <span class="sig-name descname"><span class="pre">get_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_orders" title="Permalink to this definition"></a></dt>
-<dd><p>Gets a dict of orders associated with the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders">API Reference</a>).</p>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/pagination">Handle pagination</a>.</p></li>
-</ul>
+<dd><p>Loads a DataFrame with orders associated with the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders">API Reference</a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only open or un-settled orders are returned by default. Specify <code class="docutils literal notranslate"><span class="pre">status=[&quot;all&quot;]</span></code> in the method call             to return all orders.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -489,41 +498,40 @@
 </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
+<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
 <span class="p">{</span>
-    <span class="o">&lt;</span><span class="n">order</span> <span class="nb">id</span><span class="o">&gt;</span><span class="p">:</span> <span class="p">{</span>
-                     <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
-                  <span class="n">price</span><span class="p">:</span>
-                   <span class="n">size</span><span class="p">:</span>
-             <span class="n">product_id</span><span class="p">:</span> <span class="n">required</span>
-             <span class="n">profile_id</span><span class="p">:</span>
-                   <span class="n">side</span><span class="p">:</span> <span class="n">required</span>
-                  <span class="n">funds</span><span class="p">:</span>
-        <span class="n">specified_funds</span><span class="p">:</span>
-                   <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
-              <span class="n">post_only</span><span class="p">:</span> <span class="n">required</span>
-             <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-                <span class="n">done_at</span><span class="p">:</span>
-            <span class="n">done_reason</span><span class="p">:</span>
-          <span class="n">reject_reason</span><span class="p">:</span>
-              <span class="n">fill_fees</span><span class="p">:</span> <span class="n">required</span>
-            <span class="n">filled_size</span><span class="p">:</span> <span class="n">required</span>
-         <span class="n">executed_value</span><span class="p">:</span>
-                 <span class="n">status</span><span class="p">:</span> <span class="n">required</span>
-                <span class="n">settled</span><span class="p">:</span> <span class="n">required</span>
-                   <span class="n">stop</span><span class="p">:</span>
-             <span class="n">stop_price</span><span class="p">:</span>
-         <span class="n">funding_amount</span><span class="p">:</span>
-    <span class="p">}</span>
+                 <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
+              <span class="n">price</span><span class="p">:</span>
+               <span class="n">size</span><span class="p">:</span>
+         <span class="n">product_id</span><span class="p">:</span> <span class="n">required</span>
+         <span class="n">profile_id</span><span class="p">:</span>
+               <span class="n">side</span><span class="p">:</span> <span class="n">required</span>
+              <span class="n">funds</span><span class="p">:</span>
+    <span class="n">specified_funds</span><span class="p">:</span>
+               <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
+          <span class="n">post_only</span><span class="p">:</span> <span class="n">required</span>
+         <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
+            <span class="n">done_at</span><span class="p">:</span>
+        <span class="n">done_reason</span><span class="p">:</span>
+      <span class="n">reject_reason</span><span class="p">:</span>
+          <span class="n">fill_fees</span><span class="p">:</span> <span class="n">required</span>
+        <span class="n">filled_size</span><span class="p">:</span> <span class="n">required</span>
+     <span class="n">executed_value</span><span class="p">:</span>
+             <span class="n">status</span><span class="p">:</span> <span class="n">required</span>
+            <span class="n">settled</span><span class="p">:</span> <span class="n">required</span>
+               <span class="n">stop</span><span class="p">:</span>
+         <span class="n">stop_price</span><span class="p">:</span>
+     <span class="n">funding_amount</span><span class="p">:</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict (for N number of <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;order</span> <span class="pre">id&gt;</span></code>)</p>
+<dd class="field-odd"><p>DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -817,7 +825,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-24 11:45:53.
+      <span class="lastupdated">Last updated on 2021-12-24 19:28:11.
       </span></p>
   </div>
 

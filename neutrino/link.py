@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 
 pd.set_option("display.max_rows", None)
+pd.set_option("display.max_columns", None)
 MAX_CANDLE_REQUEST = 300
 
 
@@ -17,11 +18,6 @@ class Link:
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*str*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
-        * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
-
-    .. admonition:: TODO
-
-        * Implement overarching :py:obj:`self.coins`.
 
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
@@ -35,7 +31,6 @@ class Link:
         self.url = url
         self.auth = auth
         self.session = requests.Session()
-        self.coins = {}
 
     def set_verbosity(self, verbose):
         """Updates Link's behavior to print (or not pring) formatted API responses to the console.
@@ -56,7 +51,7 @@ class Link:
         this method iterates through all available ``after`` cursors for a request.
 
         This method returns a list of API response elements, which are usually dictionaries but can be other types \
-        depending on the specific request.  
+        depending on the specific request.
 
         Args:
             method (str): API request method (``get``, ``post``, etc.).
@@ -105,8 +100,47 @@ class Link:
                 method, endpoint, params=params, pages=list_response
             )
 
+    def load_df_from_API_response_list(self, response_list, main_key):
+        """Converts a list of dicts from a Coinbase API response to a DataFrame.
+
+        Args:
+            response_list (list(dict)): Response from a Coinbase API request.
+            main_key (str): Key containing a unique identifier for a response element.
+
+        Returns:
+            DataFrame: DataFrame of values loaded from a Coinbase API response.
+        """
+
+        # convert list of dicts into dict of dicts
+        data_dict = {}
+        [data_dict.update({i.get(main_key): i}) for i in response_list]
+
+        # create a df object to load data into
+        loaded_df = pd.DataFrame()
+
+        # prep data and load into loaded_df for each coin
+        for data_value_dict in data_dict.values():
+
+            for key, value in data_value_dict.copy().items():
+
+                # the Coinbase API nests multiple items under a 'details' key for certain responses
+                # un-nest these items and delete the 'details' key for these cases
+                if key == "details":
+                    for inner_key, inner_value in value.items():
+                        data_value_dict[inner_key] = [inner_value]
+                    data_value_dict.pop(key, None)
+                else:
+                    data_value_dict[key] = [value]
+
+            # add this data to the df object
+            loaded_df = loaded_df.append(
+                pd.DataFrame.from_dict(data_value_dict), ignore_index=True
+            )
+
+        return loaded_df
+
     def get_accounts(self, exclude_empty_accounts=False):
-        """Gets a dict of all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
+        """Loads a DataFrame with all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts>`__).
 
         Args:
@@ -114,46 +148,43 @@ class Link:
                 Set this to :py:obj:`True` to exclude zero-balance accounts from the returned result.
 
         Returns:
-            dict (for N number of :py:obj:`<coin name>`): .. code-block::
+            DataFrame: DataFrame with columns corresponding to the headers listed below:
+            
+            .. code-block::
 
                 # key definitions can be found in API Reference link above
                 # types, response requirements, and notes are described below
 
                 {
-                    <coin name>: {
-                                      id: required
-                                currency: required
-                                 balance: required
-                                    hold: required
-                               available: required
-                              profile_id: required
-                         trading_enabled: required
-                    }
+                                 id: required
+                           currency: required
+                            balance: required
+                               hold: required
+                          available: required
+                         profile_id: required
+                    trading_enabled: required
                 }
         """
 
         # obtain the API response as a list of dicts
         account_list = self.send_api_request("GET", "/accounts")
 
-        account_dict = {}
-        [account_dict.update({i.get("currency"): i}) for i in account_list]
+        # load data into df
+        account_df = self.load_df_from_API_response_list(account_list, "currency")
 
+        # exclude accounts with <= 0 balance, if applicable
         if exclude_empty_accounts:
-            account_dict = {
-                key: value
-                for key, value in account_dict.items()
-                if float(value.get("balance")) != 0
-            }
-
-        # TODO: append/update this information to self.coins
+            account_df = account_df[
+                account_df["balance"].astype(float) > 0
+            ].reset_index(drop=True)
 
         if self.verbose:
-            t.print_recursive_dict(account_dict)
+            print(account_df)
 
-        return account_dict
+        return account_df
 
     def get_account_ledger(self, account_id, **kwargs):
-        """Gets a dict of ledger activity (anything that would affect the account's balance) for a given coin account \
+        """Loads a DataFrame with all ledger activity (anything that would affect the account's balance) for a given coin account \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__).
 
         Args:
@@ -167,43 +198,43 @@ class Link:
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
 
         Returns:
-            dict (for N number of :py:obj:`<activity id>`): .. code-block::
+            DataFrame: DataFrame with columns corresponding to the headers listed below. \
+            Note that the ``details`` values are treated as columns in the returned DataFrame:
+            
+            .. code-block::
 
                 # key definitions can be found in API Reference link above
                 # types, response requirements, and notes are described below
 
                 {
-                    <activity id>: {
-                                id: required
-                           armount: required
-                        created_at: required, ISO 8601
-                           balance: required
-                              type: required
-                           details: {
-                                order_id: required
-                              product_id: required
-                                trade_id: required
-                           }
-                    }
+                            id: required
+                        amount: required
+                    created_at: required, ISO 8601
+                       balance: required
+                          type: required
+                       details: {
+                                       order_id: required
+                                     product_id: required
+                                       trade_id: required
+                        }
                 }
         """
 
+        # obtain the API response as a list of dicts
         ledger_list = self.send_api_request(
             "GET", f"/accounts/{account_id}/ledger", params=kwargs
         )
 
-        ledger_dict = {}
-        [ledger_dict.update({i.get("id"): i}) for i in ledger_list]
-
-        # TODO: append/update this information to self.coins
+        # load data into df
+        ledger_df = self.load_df_from_API_response_list(ledger_list, "id")
 
         if self.verbose:
-            t.print_recursive_dict(ledger_dict)
+            print(ledger_df)
 
-        return ledger_dict
+        return ledger_df
 
     def get_account_transfers(self):
-        """Gets a dict of in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
+        """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers>`__).
 
         .. note::
@@ -212,52 +243,53 @@ class Link:
                 in the API Reference. They have been determined via user observation.
 
         Returns:
-            dict (for N number of :py:obj:`<activity id>`): .. code-block::
+            DataFrame: DataFrame with columns corresponding to the headers listed below. \
+            Note that the ``details`` values are treated as columns in the returned DataFrame:
+
+            .. code-block::
 
                 # key definitions can be found in API Reference link above
                 # types, response requirements, and notes are described below
 
                 {
-                    <activity id>: {
-                                  id: required
-                                type: required
-                          created_at: required, ISO 8601
-                        completed_at: required, ISO 8601
-                         canceled_at: required, ISO 8601
-                        processed_at: required, ISO 8601
-                              amount: required
-                             details: {
-                                              is_instant_usd:
-                                          coinbase_payout_at:
-                                         coinbase_account_id: required
-                                        coinbase_deposity_id:
-                                     coinbase_transaction_id: required
-                                  coinbase_payment_method_id:
-                                coinbase_payment_method_type: required
-                            }
-                          user_nonce: required
-                    }
+                              id: required
+                            type: required
+                      created_at: required, ISO 8601
+                    completed_at: required, ISO 8601
+                     canceled_at: required, ISO 8601
+                    processed_at: required, ISO 8601
+                          amount: required
+                         details: {
+                                                     is_instant_usd:
+                                                 coinbase_payout_at:
+                                                coinbase_account_id: required
+                                               coinbase_deposity_id:
+                                            coinbase_transaction_id: required
+                                         coinbase_payment_method_id:
+                                       coinbase_payment_method_type: required
+                         }
+                      user_nonce: required
                 }
         """
-
+        # obtain the API response as a list of dicts
         transfers_list = self.send_api_request("GET", "/transfers")
 
-        transfers_dict = {}
-        for i in transfers_list:
-            transfers_dict.update({i.get("id"): i})
+        # load data into df
+        transfers_df = self.load_df_from_API_response_list(transfers_list, "id")
 
         if self.verbose:
-            t.print_recursive_dict(transfers_dict)
+            print(transfers_df)
 
-        return transfers_dict
+        return transfers_df
 
     def get_orders(self, **kwargs):
-        """Gets a dict of orders associated with the authenticated :py:obj:`Link` \
+        """Loads a DataFrame with orders associated with the authenticated :py:obj:`Link` \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders>`__).
 
-        .. admonition:: TODO
-
-            * `Handle pagination <https://docs.cloud.coinbase.com/exchange/docs/pagination>`__.
+        .. note::
+        
+            Only open or un-settled orders are returned by default. Specify ``status=["all"]`` in the method call \
+            to return all orders.
 
         Args:
             **kwargs (various, optional):
@@ -275,54 +307,49 @@ class Link:
                     ``open``, ``pending``, ``rejected``, ``done``, ``active``, ``received``, ``all``.
 
         Returns:
-            dict (for N number of :py:obj:`<order id>`): .. code-block::
+            DataFrame: DataFrame with columns corresponding to the headers listed below:
+            
+            .. code-block::
 
                 # key definitions can be found in API Reference link above
                 # types, response requirements, and notes are described below
 
                 {
-                    <order id>: {
-                                     id: required
-                                  price:
-                                   size:
-                             product_id: required
-                             profile_id:
-                                   side: required
-                                  funds:
-                        specified_funds:
-                                   type: required
-                              post_only: required
-                             created_at: required, ISO 8601
-                                done_at:
-                            done_reason:
-                          reject_reason:
-                              fill_fees: required
-                            filled_size: required
-                         executed_value:
-                                 status: required
-                                settled: required
-                                   stop:
-                             stop_price:
-                         funding_amount:
-                    }
+                                 id: required
+                              price:
+                               size:
+                         product_id: required
+                         profile_id:
+                               side: required
+                              funds:
+                    specified_funds:
+                               type: required
+                          post_only: required
+                         created_at: required, ISO 8601
+                            done_at:
+                        done_reason:
+                      reject_reason:
+                          fill_fees: required
+                        filled_size: required
+                     executed_value:
+                             status: required
+                            settled: required
+                               stop:
+                         stop_price:
+                     funding_amount:
                 }
         """
 
+        # obtain the API response as a list of dicts
         orders_list = self.send_api_request("GET", "/orders", params=kwargs)
 
-        orders_dict = {}
-        for i in orders_list:
-            if orders_dict.get(i.get("product_id")):
-                orders_dict.get(i.get("product_id")).update({i.get("id"): i})
-            else:
-                orders_dict.update({i.get("product_id"): {i.get("id"): i}})
-
-        # TODO: append/update this information to self.coins
+        # load data into df
+        orders_df = self.load_df_from_API_response_list(orders_list, "id")
 
         if self.verbose:
-            t.print_recursive_dict(orders_dict)
+            print(orders_df)
 
-        return orders_dict
+        return orders_df
 
     def get_fees(self):
         """Gets the fee rates and 30-day trailing volume for the authenticated :py:obj:`Link`'s profile \

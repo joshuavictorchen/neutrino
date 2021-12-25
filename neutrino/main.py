@@ -81,7 +81,7 @@ def main():
                 l.get_account_transfers()
 
             elif arg[1] == "orders":
-                l.get_orders()
+                l.get_orders(status=["all"])
 
             elif arg[1] == "fees":
                 l.get_fees()
@@ -149,6 +149,7 @@ class Neutrino:
 
     **Instance attributes:** \n
         * **placeholder** (*placeholder*): Placeholder text.
+        * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
     def __init__(self, cbkey_set_name=None):
@@ -239,8 +240,11 @@ class Neutrino:
         while True:
             # get streamed data, which is a tuple of the form: (message count, message)
             stream_data = self.streams.get(stream_name).latest_message
+
+            # skip to next iteration if no data is present, or if the most recent data has already been parsed
             if not stream_data or parsed_message_count == stream_data[0]:
                 continue
+
             parsed_message_count += 1
             # print(f"-- streamed: {stream_data[0]} | parsed: {parsed_message_count} --")
 
