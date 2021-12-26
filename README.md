@@ -2,7 +2,7 @@
 
 # neutrino
 
-This project is under construction. Inspired by, but distinct from, 
+This project is under construction.
 
 * [Rudimentary API documentation](https://neutronsupervisor.github.io/neutrino/)
 
@@ -25,4 +25,4 @@ Navigate into a directory of your choice and grab the code from this repository:
 
 ---
 
-This project is inspired by, but distinct from and completely unaffiliated with, Dan Paquin's [coinbasepro-python](https://github.com/danpaquin/coinbasepro-python).
+###### This project is inspired by (but distinct from and completely unaffiliated with) Dan Paquin's [coinbasepro-python](https://github.com/danpaquin/coinbasepro-python).
