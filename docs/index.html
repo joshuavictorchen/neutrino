@@ -133,13 +133,9 @@
 </ul>
 </div></blockquote>
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth_keys">
-<span class="sig-name descname"><span class="pre">update_auth_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth_keys" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth">
+<span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the keys used for authenticating Coinbase WebSocket and API requests.</p>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<p>Iterate through <code class="docutils literal notranslate"><span class="pre">self.links</span></code> and update Link authentication as well.</p>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a>.</p>
@@ -285,7 +281,7 @@
 <li><p><strong>name</strong> (<em>str</em>): <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s name.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>): If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then API responses are printed to the console.</p></li>
 <li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
-<li><p><strong>auth</strong> (<em>str</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
+<li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
 </ul>
 </div></blockquote>
@@ -304,6 +300,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if print statements are desired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.link.Link.update_auth">
+<span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.update_auth" title="Permalink to this definition"></a></dt>
+<dd><p>Update authentication for the link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>auth</strong> (<a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><em>Authenticator</em></a>) – <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -825,7 +832,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-24 19:28:11.
+      <span class="lastupdated">Last updated on 2021-12-26 12:57:22.
       </span></p>
   </div>
 

@@ -25,9 +25,6 @@ def main():
     # TODO: make this an input parameter and/or echo list of default values
     n = Neutrino("default")
 
-    # instantiate a Link
-    l = Link("testlink", n.settings.get("api_url"), n.auth)
-
     # continuously accept user input
     while True:
 
@@ -58,7 +55,7 @@ def main():
                 )
 
             else:
-                n.update_auth_keys(arg[1])
+                n.update_auth(arg[1])
                 print(f"\n Neutrino authentication keys changed to: {arg[1]}")
 
         # parse 'get' statements
@@ -71,25 +68,25 @@ def main():
                 )
 
             elif arg[1] == "accounts":
-                l.get_accounts()
+                n.link.get_accounts()
 
             elif arg[1] == "ledger":
                 # TODO: next arg should be an account ID; hardcode with sample ID for now
-                l.get_account_ledger(n.test_parameters.get("test_account_id"))
+                n.link.get_account_ledger(n.test_parameters.get("test_account_id"))
 
             elif arg[1] == "transfers":
-                l.get_account_transfers()
+                n.link.get_account_transfers()
 
             elif arg[1] == "orders":
-                l.get_orders(status=["all"])
+                n.link.get_orders(status=["all"])
 
             elif arg[1] == "fees":
-                l.get_fees()
+                n.link.get_fees()
 
             elif arg[1] == "candles":
                 # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
                 # l.get_product_candles("BTC-USD")
-                l.get_product_candles(
+                n.link.get_product_candles(
                     "BTC-USD", start="2021-01-01 00:00", end="2021-01-02 00:00"
                 )
 
@@ -106,10 +103,10 @@ def main():
                 )
 
             elif arg[1] == "on":
-                l.set_verbosity(True)
+                n.link.set_verbosity(True)
 
             elif arg[1] == "off":
-                l.set_verbosity(False)
+                n.link.set_verbosity(False)
 
             else:
                 print(f"\n Unrecognized verbosity specification: {arg[1]}")
@@ -159,26 +156,26 @@ class Neutrino:
         self.test_parameters = t.parse_yaml(
             self.settings.get("test_parameters_file"), echo_yaml=False
         )
+
+        if self.cbkeys:
+            self.update_auth(cbkey_set_name)
+
+        self.link = Link("default_link", self.settings.get("api_url"), self.auth)
         self.streams = {}
         self.threads = {}
-        self.links = {}
-        self.accounts = None
         self.coins = {}
-        if self.cbkeys:
-            self.update_auth_keys(cbkey_set_name)
 
-    def update_auth_keys(self, cbkey_set):
+    def update_auth(self, cbkey_set):
         """Updates the keys used for authenticating Coinbase WebSocket and API requests.
-
-        .. admonition:: TODO
-
-            Iterate through ``self.links`` and update Link authentication as well.
 
         Args:
             cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
         """
 
         self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
+
+        if hasattr(self, "link"):
+            self.link.update_auth(self.auth)
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"

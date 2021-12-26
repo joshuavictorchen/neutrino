@@ -16,7 +16,7 @@ class Link:
         * **name** (*str*): :py:obj:`Link`'s name.
         * **verbose** (*bool*): If ``True``, then API responses are printed to the console.
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
-        * **auth** (*str*): :py:obj:`neutrino.tools.Authenticator` callable.
+        * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
 
     Args:
@@ -29,7 +29,7 @@ class Link:
         self.name = name
         self.verbose = verbose
         self.url = url
-        self.auth = auth
+        self.update_auth(auth)
         self.session = requests.Session()
 
     def set_verbosity(self, verbose):
@@ -43,6 +43,15 @@ class Link:
 
         verb = "begin" if verbose else "stop"
         print(f"\n Link {self.name} will {verb} printing API responses to the console.")
+
+    def update_auth(self, auth):
+        """Update authentication for the link.
+
+        Args:
+            auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
+        """
+
+        self.auth = auth
 
     def send_api_request(self, method, endpoint, params=None, pages=[]):
         """Sends an API request to the specified Coinbase Exchange endpoint and returns the response.
