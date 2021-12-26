@@ -142,24 +142,21 @@ class Neutrino:
         It will be updated to use a more secure method in the future.
 
     Args:
-        cbkey_set_name (str, optional): Name of Coinbase Pro API key dictionary. If provided, the Neutrino's ``auth`` value will be initialized.
+        cbkey_set_name (str): Name of Coinbase Pro API key dictionary with which the Neutrino's ``auth`` value will be initialized.
 
     **Instance attributes:** \n
         * **placeholder** (*placeholder*): Placeholder text.
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
-    def __init__(self, cbkey_set_name=None):
+    def __init__(self, cbkey_set_name):
 
         self.settings = t.parse_yaml(SETTINGSFILE, echo_yaml=False)
         self.cbkeys = t.parse_yaml(self.settings.get("keys_file"), echo_yaml=False)
         self.test_parameters = t.parse_yaml(
             self.settings.get("test_parameters_file"), echo_yaml=False
         )
-
-        if self.cbkeys:
-            self.update_auth(cbkey_set_name)
-
+        self.update_auth(cbkey_set_name)
         self.link = Link("default_link", self.settings.get("api_url"), self.auth)
         self.streams = {}
         self.threads = {}

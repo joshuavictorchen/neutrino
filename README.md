@@ -2,13 +2,17 @@
 
 # neutrino
 
-This project has just begun.
+This project is under construction. Inspired by, but distinct from, 
 
 * [Rudimentary API documentation](https://neutronsupervisor.github.io/neutrino/)
 
 ## Installation
 
-Prerequisites: Python 3.8+ and Git 2.33+
+Prerequisites:
+
+* Python 3.8+
+* Git 2.33+
+* Coinbase API keys
 
 Navigate into a directory of your choice and grab the code from this repository:
 
@@ -18,3 +22,7 @@ Navigate into a directory of your choice and grab the code from this repository:
 
     cd neutrino
     pip install -U -e .
+
+---
+
+This project is inspired by, but distinct from and completely unaffiliated with, Dan Paquin's [coinbasepro-python](https://github.com/danpaquin/coinbasepro-python).

@@ -26,33 +26,32 @@ class Stream:
     Args:
         name (str): Unique name for this Stream object.
         url (str): URL endpoint for the Coinbase Pro WebSocket feed.
-        type (str): Type of message that is sent to the WebSocket endpoint upon opening a connection
-                    (usually 'subscribe').
+        type (str): Type of message that is sent to the WebSocket endpoint upon opening a connection \
+            (usually 'subscribe').
         product_ids (list(str)): List of coin trading pairs (i.e., ['BTC-USD']).
         channels (list(str)): List of channels specified for the WebSocket connection (i.e., ['ticker']).
-        auth_keys (dict, optional): Dictionary of Coinbase Pro API keys. \
-            If provided, the Stream's WebSocket connection will be authenticated.
+        auth_keys (dict(str)): Dictionary of Coinbase Pro API keys with which the Stream's WebSocket connection \
+            will be authenticated.
     """
 
-    def __init__(self, name, url, type, product_ids, channels, auth_keys=None):
+    def __init__(self, name, url, type, product_ids, channels, auth_keys):
 
         # create request for the stream
         request = {"type": type, "product_ids": product_ids, "channels": channels}
 
-        # if auth_keys are provided, then authenticate by updating the request with auth fields
-        if auth_keys:
-            timestamp = str(time.time())
-            auth_headers = t.generate_auth_headers(
-                timestamp, timestamp + "GET/users/self/verify", auth_keys
-            )
-            request.update(
-                {
-                    "signature": auth_headers.get("CB-ACCESS-SIGN"),
-                    "key": auth_headers.get("CB-ACCESS-KEY"),
-                    "passphrase": auth_headers.get("CB-ACCESS-PASSPHRASE"),
-                    "timestamp": auth_headers.get("CB-ACCESS-TIMESTAMP"),
-                }
-            )
+        # authenticate by updating the request with auth fields
+        timestamp = str(time.time())
+        auth_headers = t.generate_auth_headers(
+            timestamp, timestamp + "GET/users/self/verify", auth_keys
+        )
+        request.update(
+            {
+                "signature": auth_headers.get("CB-ACCESS-SIGN"),
+                "key": auth_headers.get("CB-ACCESS-KEY"),
+                "passphrase": auth_headers.get("CB-ACCESS-PASSPHRASE"),
+                "timestamp": auth_headers.get("CB-ACCESS-TIMESTAMP"),
+            }
+        )
 
         # establish attributes
         self.name = name

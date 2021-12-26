@@ -113,7 +113,7 @@
 <h1>Neutrino<a class="headerlink" href="#neutrino" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.</p>
 <div class="admonition note">
@@ -122,7 +122,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cbkey_set_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Coinbase Pro API key dictionary. If provided, the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
+<dd class="field-odd"><p><strong>cbkey_set_name</strong> (<em>str</em>) – Name of Coinbase Pro API key dictionary with which the Neutrino’s <code class="docutils literal notranslate"><span class="pre">auth</span></code> value will be initialized.</p>
 </dd>
 </dl>
 <p><strong>Instance attributes:</strong></p>
@@ -204,7 +204,7 @@
 <span id="stream"></span><h1>Stream<a class="headerlink" href="#module-neutrino.stream" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.stream.Stream">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.stream.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.stream.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Opens a WebSocket connection and streams/stores Coinbase Pro data.</p>
 <p>Further reading: <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/overview">https://docs.cloud.coinbase.com/exchange/docs/overview</a></p>
@@ -226,11 +226,10 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – Unique name for this Stream object.</p></li>
 <li><p><strong>url</strong> (<em>str</em>) – URL endpoint for the Coinbase Pro WebSocket feed.</p></li>
-<li><p><strong>type</strong> (<em>str</em>) – Type of message that is sent to the WebSocket endpoint upon opening a connection
-(usually ‘subscribe’).</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – Type of message that is sent to the WebSocket endpoint upon opening a connection             (usually ‘subscribe’).</p></li>
 <li><p><strong>product_ids</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of coin trading pairs (i.e., [‘BTC-USD’]).</p></li>
 <li><p><strong>channels</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of channels specified for the WebSocket connection (i.e., [‘ticker’]).</p></li>
-<li><p><strong>auth_keys</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary of Coinbase Pro API keys.             If provided, the Stream’s WebSocket connection will be authenticated.</p></li>
+<li><p><strong>auth_keys</strong> (<em>dict</em><em>(</em><em>str</em><em>)</em>) – Dictionary of Coinbase Pro API keys with which the Stream’s WebSocket connection             will be authenticated.</p></li>
 </ul>
 </dd>
 </dl>
@@ -832,7 +831,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-26 12:57:22.
+      <span class="lastupdated">Last updated on 2021-12-26 17:01:07.
       </span></p>
   </div>
 
