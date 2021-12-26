@@ -12,7 +12,7 @@ Prerequisites:
 
 * Python 3.8+
 * Git 2.33+
-* Coinbase API keys
+* Coinbase Pro API keys
 
 Navigate into a directory of your choice and grab the code from this repository:
 

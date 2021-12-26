@@ -16,12 +16,13 @@ class Stream:
         * **request** (*str*): Request sent to the WebSocket endpoint upon connection. \
             Configured during Stream instantiation.
         * **socket** (*WebSocket*): Stream's WebSocket object.
-        * **active** (*bool*): :py:obj:`True` if the Stream has a live (connected) WebSocket object, :py:obj:`False` otherwise.
-        * **kill_order** (*bool*): :py:obj:`True` if the WebSocket connection should be closed on the next iteration, \
-            :py:obj:`False` otherwise.
+        * **active** (*bool*): ``True`` if the Stream has a live (connected) WebSocket object, ``False`` otherwise.
+        * **kill_order** (*bool*): ``True`` if the WebSocket connection should be closed on the next iteration, \
+            ``False`` otherwise.
         * **stored_messages** (*list(dict)*): *to be created*
         * **latest_message** (*tuple(int, dict)*): Tuple containing the total number of WebSocket messages received, \
             along with the latest WebSocket message received.
+        * **killed** (*bool*): ``True`` if the Stream has already been started and killed. Dead Streams cannot be revived.
 
     Args:
         name (str): Unique name for this Stream object.
@@ -62,6 +63,7 @@ class Stream:
         self.kill_order = False
         self.stored_messages = []
         self.latest_message = ()
+        self.killed = False
 
     def stream(self):
         """Opens a WebSocket connection and streams data from the Coinbase Exchange websocket feed \
@@ -109,8 +111,10 @@ class Stream:
         self.kill_order = True
 
     def close(self):
-        """Closes the Stream's WebSocket connection and sets its :py:obj:`active` attribute to :py:obj:`False`."""
+        """Closes the Stream's WebSocket connection and sets its ``active`` attribute to ``False`` \
+            and ``killed`` attribute to ``True``."""
 
         self.socket.close()
         self.active = False
+        self.killed = True
         print(f"\n stream '{self.name}' closed")

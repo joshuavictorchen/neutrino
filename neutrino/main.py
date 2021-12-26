@@ -1,6 +1,6 @@
 import os
+import neutrino.interface as i
 import neutrino.tools as t
-import sys
 from neutrino.link import Link
 from neutrino.stream import Stream
 from threading import Thread
@@ -10,9 +10,6 @@ NEUTRINODIR = (
     f"{os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))}"
 )
 SETTINGSFILE = f"{NEUTRINODIR}\\settings.yaml"
-DIVIDER = (
-    "\n -------------------------------------------------------------------------------"
-)
 
 
 def main():
@@ -25,116 +22,17 @@ def main():
     # TODO: make this an input parameter and/or echo list of default values
     n = Neutrino("default")
 
-    # continuously accept user input
-    while True:
+    # perform actions
+    i.interact(n)
 
-        print(DIVIDER)
-
-        # gather user input as a list of tokens
-        arg = input("\n>>> ").split()
-
-        # don't do anything if no input was provided
-        if len(arg) == 0:
-            continue
-
-        # exit the program if 'quit' or 'q' are entered
-        if arg[0] in ("quit", "q"):
-            break
-
-        # print list of available commands
-        if arg[0] in ("help", "h"):
-            print("\n Help coming soon.")
-
-        # update cbkey_set used for authentication
-        elif arg[0] == "cbkeys":
-
-            # TODO: display default value and prompt user to accept or override this default w/ list of acceptable values
-            if len(arg) == 1:
-                print(
-                    f"\n No keys provided. Please provide a value for cbkey_set_name."
-                )
-
-            else:
-                n.update_auth(arg[1])
-                print(f"\n Neutrino authentication keys changed to: {arg[1]}")
-
-        # parse 'get' statements
-        elif arg[0] == "get":
-
-            # TODO: prompt user w/ list of acceptable values
-            if len(arg) == 1:
-                print(
-                    f"\n No 'get' method provided. Please specify what should be retrieved."
-                )
-
-            elif arg[1] == "accounts":
-                n.link.get_accounts()
-
-            elif arg[1] == "ledger":
-                # TODO: next arg should be an account ID; hardcode with sample ID for now
-                n.link.get_account_ledger(n.test_parameters.get("test_account_id"))
-
-            elif arg[1] == "transfers":
-                n.link.get_account_transfers()
-
-            elif arg[1] == "orders":
-                n.link.get_orders(status=["all"])
-
-            elif arg[1] == "fees":
-                n.link.get_fees()
-
-            elif arg[1] == "candles":
-                # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
-                # l.get_product_candles("BTC-USD")
-                n.link.get_product_candles(
-                    "BTC-USD", start="2021-01-01 00:00", end="2021-01-02 00:00"
-                )
-
-            else:
-                print(f"\n Unrecognized 'get' method: {arg[1]}")
-
-        # set Link verbosity
-        elif arg[0] == "verbosity":
-
-            # hard-code for now - this is a temporary proof-of-concept
-            if len(arg) == 1:
-                print(
-                    f"\n No verbosity option specified. Acceptable arguments are 'on' or 'off'."
-                )
-
-            elif arg[1] == "on":
-                n.link.set_verbosity(True)
-
-            elif arg[1] == "off":
-                n.link.set_verbosity(False)
-
-            else:
-                print(f"\n Unrecognized verbosity specification: {arg[1]}")
-
-        # stream data
-        elif arg[0] == "stream":
-
-            # hard-code for now - in future, split into components, let user append items to lists, etc.
-            # NOTE: this means right now, you can't execute this command more than once within the same instance of the program
-            try:
-                n.configure_new_stream("teststream", ["BTC-USD"], ["ticker", "user"])
-                n.start_stream("teststream")
-                n.parse_stream_messages("teststream")
-                n.streams.get("teststream").kill()
-            except KeyboardInterrupt:
-                for stream in n.streams:
-                    n.streams.get(stream).kill()
-                    n.threads.get(stream).join()
-
-        else:
-            print("\n Unrecognized command.")
-
+    # exit program
     print("\n Neutrino annihilated.")
-    print(DIVIDER)
+    print(i.DIVIDER)
 
 
 class Neutrino:
-    """Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.
+    """Handles :py:obj:`Streams<neutrino.stream.Stream>` (WebSocket feed messages) and :py:obj:`Links<neutrino.link.Link>` (API requests/responses). \
+        Framework for performing Coinbase Pro actions.
 
     .. note::
 
@@ -177,12 +75,12 @@ class Neutrino:
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"
     ):
-        """Instantiates and configures a new :py:obj:`neutrino.stream.Stream` object.
+        """Instantiates and configures a new :py:obj:`Stream<neutrino.stream.Stream>` object.
 
         Updates ``self.streams`` and ``self.threads`` with this object and corresponding thread.
 
         Args:
-            name (str): User-specified name of the new :py:obj:`neutrino.stream.Stream` object.
+            name (str): User-specified name of the new :py:obj:`Stream<neutrino.stream.Stream>` object.
             product_ids (list(str)): List of coin trading pairs (i.e., ['BTC-USD']).
             channels (list(str)): List of channels specified for the WebSocket connection (i.e., ['ticker']).
             type (str): Type of message that is sent to the WebSocket endpoint upon opening a connection. Defaults to "subscribe".
@@ -192,9 +90,9 @@ class Neutrino:
             ValueError: If the specified stream name already exists.
         """
 
-        # raise exception if stream already exists
+        # notify user that configuration is being overwritten, if applicable
         if name in self.streams:
-            raise ValueError(f"\n stream '{name}' already exists")
+            print(f"\n Overwriting configuration for stream: {name}")
 
         # TODO: error handling and reqs checking for arguments
 
@@ -214,20 +112,44 @@ class Neutrino:
         self.streams[name] = stream
         self.threads[name] = thread
 
+        print(f"\n Stream {name} configured:\n")
+        print(f"       type: {type}")
+        print(f"   products: {product_ids}")
+        print(f"   channels: {channels}")
+
     def start_stream(self, stream_name):
-        """Starts the thread for a configured Coinbase WebSocket stream.
+        """Starts the thread for a configured Coinbase WebSocket :py:obj:`Stream<neutrino.stream.Stream>`.
 
         Args:
-            stream_name (str): Name of the configured Coinbase WebSocket stream to be started.
+            stream_name (str): Name of the configured Coinbase WebSocket :py:obj:`Stream<neutrino.stream.Stream>` to be started.
         """
 
-        self.threads.get(stream_name).start()
+        # don't start the stream if it has already previously been run
+        if not self.streams.get(stream_name).killed:
+            self.threads.get(stream_name).start()
+        else:
+            raise Exception(
+                f"\n Cannot revive a dead stream - please reconfigure this stream or start a new one."
+            )
 
-    def parse_stream_messages(self, stream_name):
-        """Test function to parse stream messages.
+    def stop_stream(self, stream_name):
+        """Closes a configured Coinbase WebSocket :py:obj:`Stream<neutrino.stream.Stream>` and stops its Thread.
 
         Args:
-            stream_name (string): Name of stream whom's messages to parse.
+            stream_name (str): Name of the configured Coinbase WebSocket :py:obj:`Stream<neutrino.stream.Stream>` to be stopped.
+        """
+
+        # perform close-out actions for the Stream object
+        self.streams.get(stream_name).kill()
+
+        # join the existing Thread
+        self.threads.get(stream_name).join()
+
+    def parse_stream_messages(self, stream_name):
+        """Test function to parse :py:obj:`Stream<neutrino.stream.Stream>` messages.
+
+        Args:
+            stream_name (string): Name of :py:obj:`Stream<neutrino.stream.Stream>` whom's messages to parse.
         """
 
         parsed_message_count = 0
@@ -257,7 +179,7 @@ class Neutrino:
                 print()
 
     def handle_ticker_message(self, message):
-        """Temporary test actions taken upon receipt of a Coinbase WebSocket ticker message from :py:obj:`neutrino.stream.Stream`.
+        """Temporary test actions taken upon receipt of a Coinbase WebSocket ticker message from a :py:obj:`Stream<neutrino.stream.Stream>`.
 
         Args:
             message (dict): Placeholder, TBD.

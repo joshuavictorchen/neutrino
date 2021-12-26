@@ -85,7 +85,9 @@
 <li><p><strong>Neutrino</strong> // <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.main.Neutrino</span></code></a></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Manages <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a>. Performs operations as directed by the user.</p></li>
+<li><p>Manages <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a>.</p></li>
+<li><p>Performs operations as directed by the user.</p></li>
+<li><p>TBD re: data structure.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -103,7 +105,6 @@
 <blockquote>
 <div><ul class="simple">
 <li><p>Handles Coinbase Pro API requests. Used to get account information, place orders, etc.</p></li>
-<li><p>TBD re: data structure.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -115,7 +116,7 @@
 <dt class="sig sig-object py" id="neutrino.main.Neutrino">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Handles Streams (WebSocket feed messages) and Links (API requests/responses). Framework for performing Coinbase Pro actions.</p>
+<p>Handles <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> (WebSocket feed messages) and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a> (API requests/responses).         Framework for performing Coinbase Pro actions.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Authentication is currently handled using a plaintext YAML file defined in <code class="docutils literal notranslate"><span class="pre">settings.yaml</span></code>.         It will be updated to use a more secure method in the future.</p>
@@ -146,12 +147,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
 <span class="sig-name descname"><span class="pre">configure_new_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subscribe'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.configure_new_stream" title="Permalink to this definition"></a></dt>
-<dd><p>Instantiates and configures a new <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.stream.Stream</span></code></a> object.</p>
+<dd><p>Instantiates and configures a new <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
 <p>Updates <code class="docutils literal notranslate"><span class="pre">self.streams</span></code> and <code class="docutils literal notranslate"><span class="pre">self.threads</span></code> with this object and corresponding thread.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – User-specified name of the new <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.stream.Stream</span></code></a> object.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – User-specified name of the new <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p></li>
 <li><p><strong>product_ids</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of coin trading pairs (i.e., [‘BTC-USD’]).</p></li>
 <li><p><strong>channels</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of channels specified for the WebSocket connection (i.e., [‘ticker’]).</p></li>
 <li><p><strong>type</strong> (<em>str</em>) – Type of message that is sent to the WebSocket endpoint upon opening a connection. Defaults to “subscribe”.</p></li>
@@ -167,10 +168,21 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.start_stream">
 <span class="sig-name descname"><span class="pre">start_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.start_stream" title="Permalink to this definition"></a></dt>
-<dd><p>Starts the thread for a configured Coinbase WebSocket stream.</p>
+<dd><p>Starts the thread for a configured Coinbase WebSocket <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>stream_name</strong> (<em>str</em>) – Name of the configured Coinbase WebSocket stream to be started.</p>
+<dd class="field-odd"><p><strong>stream_name</strong> (<em>str</em>) – Name of the configured Coinbase WebSocket <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> to be started.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.stop_stream">
+<span class="sig-name descname"><span class="pre">stop_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.stop_stream" title="Permalink to this definition"></a></dt>
+<dd><p>Closes a configured Coinbase WebSocket <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> and stops its Thread.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stream_name</strong> (<em>str</em>) – Name of the configured Coinbase WebSocket <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> to be stopped.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -178,10 +190,10 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.parse_stream_messages">
 <span class="sig-name descname"><span class="pre">parse_stream_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.parse_stream_messages" title="Permalink to this definition"></a></dt>
-<dd><p>Test function to parse stream messages.</p>
+<dd><p>Test function to parse <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> messages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>stream_name</strong> (<em>string</em>) – Name of stream whom’s messages to parse.</p>
+<dd class="field-odd"><p><strong>stream_name</strong> (<em>string</em>) – Name of <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> whom’s messages to parse.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -189,7 +201,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.handle_ticker_message">
 <span class="sig-name descname"><span class="pre">handle_ticker_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.handle_ticker_message" title="Permalink to this definition"></a></dt>
-<dd><p>Temporary test actions taken upon receipt of a Coinbase WebSocket ticker message from <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.stream.Stream</span></code></a>.</p>
+<dd><p>Temporary test actions taken upon receipt of a Coinbase WebSocket ticker message from a <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – Placeholder, TBD.</p>
@@ -197,6 +209,19 @@
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<span class="target" id="module-neutrino.interface"></span><dl class="py function">
+<dt class="sig sig-object py" id="neutrino.interface.interact">
+<span class="sig-prename descclassname"><span class="pre">neutrino.interface.</span></span><span class="sig-name descname"><span class="pre">interact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neutrino</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.interface.interact" title="Permalink to this definition"></a></dt>
+<dd><p>Temporary rudimentary command-line interface that executes Neutrino-related commands from user input.</p>
+<p>This function is wrapped in a <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">True</span></code> block to execute an arbitrary number of commands     until terminated by the user.</p>
+<p>Further documentation TBD. This is currently mostly used for testing/debugging during development. To be updated to use something like <code class="docutils literal notranslate"><span class="pre">argparse</span></code> for implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>neutrino</strong> (<a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><em>Neutrino</em></a>) – An initialized <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino</span></code></a> object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -215,10 +240,11 @@
 <li><p><strong>url</strong> (<em>str</em>): URL endpoint for the Coinbase Pro WebSocket feed.</p></li>
 <li><p><strong>request</strong> (<em>str</em>): Request sent to the WebSocket endpoint upon connection.             Configured during Stream instantiation.</p></li>
 <li><p><strong>socket</strong> (<em>WebSocket</em>): Stream’s WebSocket object.</p></li>
-<li><p><strong>active</strong> (<em>bool</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if the Stream has a live (connected) WebSocket object, <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
-<li><p><strong>kill_order</strong> (<em>bool</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if the WebSocket connection should be closed on the next iteration,             <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
+<li><p><strong>active</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the Stream has a live (connected) WebSocket object, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
+<li><p><strong>kill_order</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the WebSocket connection should be closed on the next iteration,             <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
 <li><p><strong>stored_messages</strong> (<em>list(dict)</em>): <em>to be created</em></p></li>
 <li><p><strong>latest_message</strong> (<em>tuple(int, dict)</em>): Tuple containing the total number of WebSocket messages received,             along with the latest WebSocket message received.</p></li>
+<li><p><strong>killed</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the Stream has already been started and killed. Dead Streams cannot be revived.</p></li>
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
@@ -261,7 +287,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.stream.Stream.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream.close" title="Permalink to this definition"></a></dt>
-<dd><p>Closes the Stream’s WebSocket connection and sets its <code class="xref py py-obj docutils literal notranslate"><span class="pre">active</span></code> attribute to <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<dd><p>Closes the Stream’s WebSocket connection and sets its <code class="docutils literal notranslate"><span class="pre">active</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">False</span></code>             and <code class="docutils literal notranslate"><span class="pre">killed</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -831,7 +857,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-26 17:01:07.
+      <span class="lastupdated">Last updated on 2021-12-26 18:18:13.
       </span></p>
   </div>
 
