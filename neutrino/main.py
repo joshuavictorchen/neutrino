@@ -72,6 +72,34 @@ class Neutrino:
         if hasattr(self, "link"):
             self.link.update_auth(self.auth)
 
+    def get_all_link_data(self):
+
+        # test method
+
+        # get all active accounts
+        account_df = self.link.get_accounts(exclude_empty_accounts=True)
+        account_df.to_csv(
+            self.settings.get("csv_directory") + "\\accounts.csv", index=False
+        )
+
+        # export ledgers for all those accounts
+        for i in account_df.index:
+            self.link.get_account_ledger(account_df.at[i, "id"]).to_csv(
+                self.settings.get("csv_directory")
+                + f"\\{account_df.at[i, 'currency']}.csv",
+                index=False,
+            )
+
+        # get all transfers
+        self.link.get_account_transfers().to_csv(
+            self.settings.get("csv_directory") + "\\transfers.csv", index=False
+        )
+
+        # get all orders
+        self.link.get_orders(status=["all"]).to_csv(
+            self.settings.get("csv_directory") + "\\orders.csv", index=False
+        )
+
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"
     ):

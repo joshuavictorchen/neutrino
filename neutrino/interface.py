@@ -82,6 +82,9 @@ def interact(neutrino):
                     "BTC-USD", start="2021-01-01 00:00", end="2021-01-02 00:00"
                 )
 
+            elif arg[1] == "all":
+                neutrino.get_all_link_data()
+
             else:
                 print(f"\n Unrecognized 'get' method: {arg[1]}")
 

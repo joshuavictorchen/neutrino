@@ -28,3 +28,6 @@ api_url: https://api.pro.coinbase.com
 
 # test file with other sensitive info
 test_parameters_file: C:\Users\Me\Documents\python\test_parameters.neutrino-private
+
+# test folder for csv "database" collection
+csv_directory: C:\Users\Me\Documents\python\database
