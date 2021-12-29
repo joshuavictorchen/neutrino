@@ -40,14 +40,15 @@ class Neutrino:
         It will be updated to use a more secure method in the future.
 
     Args:
-        cbkey_set_name (str): Name of Coinbase Pro API key dictionary with which the Neutrino's ``auth`` value will be initialized.
+        cbkey_set_name (str, optional): Name of Coinbase Pro API key dictionary \
+            with which the Neutrino's ``auth`` value will be initialized. Defaults to "default".
 
     **Instance attributes:** \n
         * **placeholder** (*placeholder*): Placeholder text.
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
-    def __init__(self, cbkey_set_name):
+    def __init__(self, cbkey_set_name="default"):
 
         self.settings = t.parse_yaml(SETTINGSFILE, echo_yaml=False)
         self.cbkeys = t.parse_yaml(self.settings.get("keys_file"), echo_yaml=False)
@@ -72,31 +73,42 @@ class Neutrino:
         if hasattr(self, "link"):
             self.link.update_auth(self.auth)
 
-    def get_all_link_data(self):
+    def get_all_link_data(self, save=False):
 
         # test method
 
         # get all active accounts
         account_df = self.link.get_accounts(exclude_empty_accounts=True)
+
+        # export ledgers for all those accounts
+        ledgers = {}
+        for i in account_df.index:
+            ledgers[i] = self.link.get_account_ledger(account_df.at[i, "id"])
+
+        # get all transfers
+        transfers_df = self.link.get_usd_transfers()
+
+        # get all orders
+        orders_df = self.link.get_orders(status=["all"])
+
+        # return without saving CSVs if save = False
+        if not save:
+            return
+
+        # save CSVs
         account_df.to_csv(
             self.settings.get("csv_directory") + "\\accounts.csv", index=False
         )
-
-        # export ledgers for all those accounts
         for i in account_df.index:
-            self.link.get_account_ledger(account_df.at[i, "id"]).to_csv(
+            ledgers.get(i).to_csv(
                 self.settings.get("csv_directory")
                 + f"\\{account_df.at[i, 'currency']}.csv",
                 index=False,
             )
-
-        # get all transfers
-        self.link.get_account_transfers().to_csv(
+        transfers_df.to_csv(
             self.settings.get("csv_directory") + "\\transfers.csv", index=False
         )
-
-        # get all orders
-        self.link.get_orders(status=["all"]).to_csv(
+        orders_df.to_csv(
             self.settings.get("csv_directory") + "\\orders.csv", index=False
         )
 

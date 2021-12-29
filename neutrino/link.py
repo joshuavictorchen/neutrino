@@ -6,6 +6,7 @@ from datetime import datetime
 
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_columns", None)
+pd.set_option("display.expand_frame_repr", False)
 MAX_CANDLE_REQUEST = 300
 
 
@@ -18,19 +19,30 @@ class Link:
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
+        * **accounts** (*DataFrame*): DataFrame of values returned from :py:obj:`Link.get_accounts`.
+        * **ledgers** (*dict(DataFrame)*): Dictionary of DataFrames returned from :py:obj:`Link.get_account_ledger` \
+            (one entry per retrieved ``account_id`` in the form of ``{account_id: DataFrame}``).
+        * **transfers** (*DataFrame*): DataFrame of values returned from :py:obj:`Link.get_usd_transfers`.
+        * **orders** (*DataFrame*): DataFrame of values returned from :py:obj:`Link.get_orders`.
+        * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.get_fees`.
 
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
         auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
     """
 
-    def __init__(self, name, url, auth, verbose=True):
+    def __init__(self, name, url, auth, verbose=False):
 
         self.name = name
         self.verbose = verbose
         self.url = url
         self.update_auth(auth)
         self.session = requests.Session()
+        self.accounts = None
+        self.ledgers = {}
+        self.transfers = None
+        self.orders = None
+        self.fees = {}
 
     def set_verbosity(self, verbose):
         """Updates Link's behavior to print (or not pring) formatted API responses to the console.
@@ -187,6 +199,9 @@ class Link:
                 account_df["balance"].astype(float) > 0
             ].reset_index(drop=True)
 
+        # update object attribute
+        self.accounts = account_df
+
         if self.verbose:
             print(account_df)
 
@@ -237,12 +252,15 @@ class Link:
         # load data into df
         ledger_df = self.load_df_from_API_response_list(ledger_list, "id")
 
+        # update object attribute
+        self.ledgers.update({account_id: ledger_df})
+
         if self.verbose:
             print(ledger_df)
 
         return ledger_df
 
-    def get_account_transfers(self):
+    def get_usd_transfers(self):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers>`__).
 
@@ -285,6 +303,9 @@ class Link:
 
         # load data into df
         transfers_df = self.load_df_from_API_response_list(transfers_list, "id")
+
+        # update object attribute
+        self.transfers = transfers_df
 
         if self.verbose:
             print(transfers_df)
@@ -355,6 +376,9 @@ class Link:
         # load data into df
         orders_df = self.load_df_from_API_response_list(orders_list, "id")
 
+        # update object attribute
+        self.orders = orders_df
+
         if self.verbose:
             print(orders_df)
 
@@ -378,6 +402,9 @@ class Link:
         """
 
         fees_dict = self.send_api_request("GET", "/fees")[0]
+
+        # update object attribute
+        self.fees = fees_dict
 
         if self.verbose:
             t.print_recursive_dict(fees_dict)

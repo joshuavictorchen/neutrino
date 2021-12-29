@@ -15,6 +15,8 @@ def interact(neutrino):
         neutrino (Neutrino): An initialized :py:obj:`Neutrino<neutrino.main.Neutrino>` object.
     """
 
+    neutrino.link.set_verbosity(True)
+
     # continuously accept user input
     while True:
 
@@ -83,7 +85,7 @@ def interact(neutrino):
                 )
 
             elif arg[1] == "all":
-                neutrino.get_all_link_data()
+                neutrino.get_all_link_data(save=True)
 
             else:
                 print(f"\n Unrecognized 'get' method: {arg[1]}")
