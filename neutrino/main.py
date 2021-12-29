@@ -91,6 +91,9 @@ class Neutrino:
         # get all orders
         orders_df = self.link.get_orders(status=["all"])
 
+        # get fees
+        self.link.get_fees()
+
         # return without saving CSVs if save = False
         if not save:
             return
