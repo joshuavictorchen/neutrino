@@ -146,6 +146,7 @@ class Link:
 
                 # the Coinbase API nests multiple items under a 'details' key for certain responses
                 # un-nest these items and delete the 'details' key for these cases
+                # finally, put all values into list format so that they can be loaded via pd.DataFrame.from_dict()
                 if key == "details":
                     for inner_key, inner_value in value.items():
                         data_value_dict[inner_key] = [inner_value]
@@ -160,13 +161,15 @@ class Link:
 
         return loaded_df
 
-    def get_accounts(self, exclude_empty_accounts=False):
+    def get_accounts(self, relevant_only=True, exclude_empty_accounts=False):
         """Loads a DataFrame with all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts>`__).
 
         Args:
+            relevant_only (bool, optional): The API retuns all accounts for all available coins by default. \
+                Set this to ``True`` to only include accounts that have seen activity in the past in the returned result.
             exclude_empty_accounts (bool, optional): The API retuns all accounts for all available coins by default. \
-                Set this to :py:obj:`True` to exclude zero-balance accounts from the returned result.
+                Set this to ``True`` to exclude zero-balance accounts from the returned result.
 
         Returns:
             DataFrame: DataFrame with columns corresponding to the headers listed below:
@@ -192,6 +195,20 @@ class Link:
 
         # load data into df
         account_df = self.load_df_from_API_response_list(account_list, "currency")
+
+        # filter to only accounts that have had some activity at any point in time, if applicable
+        if relevant_only:
+            # use order history to get list of currencies where activity has been seen
+            orders_df = self.get_orders(status=["all"])
+            currencies = (
+                orders_df["product_id"]
+                .apply(lambda x: x.split("-")[0])
+                .unique()
+                .tolist()
+            )
+            account_df = account_df[
+                account_df["currency"].isin(currencies)
+            ].reset_index(drop=True)
 
         # exclude accounts with <= 0 balance, if applicable
         if exclude_empty_accounts:
@@ -260,7 +277,7 @@ class Link:
 
         return ledger_df
 
-    def get_usd_transfers(self):
+    def get_transfers(self):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers>`__).
 

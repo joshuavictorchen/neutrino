@@ -315,7 +315,7 @@
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
 <li><p><strong>accounts</strong> (<em>DataFrame</em>): DataFrame of values returned from <a class="reference internal" href="#neutrino.link.Link.get_accounts" title="neutrino.link.Link.get_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_accounts</span></code></a>.</p></li>
 <li><p><strong>ledgers</strong> (<em>dict(DataFrame)</em>): Dictionary of DataFrames returned from <a class="reference internal" href="#neutrino.link.Link.get_account_ledger" title="neutrino.link.Link.get_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_account_ledger</span></code></a>             (one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">DataFrame}</span></code>).</p></li>
-<li><p><strong>transfers</strong> (<em>DataFrame</em>): DataFrame of values returned from <a class="reference internal" href="#neutrino.link.Link.get_usd_transfers" title="neutrino.link.Link.get_usd_transfers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code></a>.</p></li>
+<li><p><strong>transfers</strong> (<em>DataFrame</em>): DataFrame of values returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code>.</p></li>
 <li><p><strong>orders</strong> (<em>DataFrame</em>): DataFrame of values returned from <a class="reference internal" href="#neutrino.link.Link.get_orders" title="neutrino.link.Link.get_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_orders</span></code></a>.</p></li>
 <li><p><strong>fees</strong> (<em>dict</em>): Dictionary of Coinbase fee data returned from <a class="reference internal" href="#neutrino.link.Link.get_fees" title="neutrino.link.Link.get_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_fees</span></code></a>.</p></li>
 </ul>
@@ -396,11 +396,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.get_accounts">
-<span class="sig-name descname"><span class="pre">get_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_accounts" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_accounts" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>exclude_empty_accounts</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> to exclude zero-balance accounts from the returned result.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relevant_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to only include accounts that have seen activity in the past in the returned result.</p></li>
+<li><p><strong>exclude_empty_accounts</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to exclude zero-balance accounts from the returned result.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
@@ -473,8 +476,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_usd_transfers">
-<span class="sig-name descname"><span class="pre">get_usd_transfers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_usd_transfers" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.get_transfers">
+<span class="sig-name descname"><span class="pre">get_transfers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_transfers" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s accounts             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers">API Reference</a>).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -867,7 +870,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-29 12:35:11.
+      <span class="lastupdated">Last updated on 2021-12-30 00:12:32.
       </span></p>
   </div>
 

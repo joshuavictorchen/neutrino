@@ -72,7 +72,11 @@ def interact(neutrino):
                 neutrino.link.get_account_transfers()
 
             elif arg[1] == "orders":
-                neutrino.link.get_orders(status=["all"])
+
+                if len(arg) > 2:
+                    neutrino.link.get_orders(status=arg[2:])
+                else:
+                    neutrino.link.get_orders(status=["all"])
 
             elif arg[1] == "fees":
                 neutrino.link.get_fees()
@@ -119,7 +123,7 @@ def interact(neutrino):
 
             # partially hard-code for now - in future, split into components, let user append items to lists, etc.
             elif arg[1] == "configure":
-                neutrino.configure_new_stream(arg[2], ["BTC-USD"], ["ticker", "user"])
+                neutrino.configure_new_stream(arg[2], ["BTC-USD"], ["user"])
 
             elif arg[1] == "start":
                 try:

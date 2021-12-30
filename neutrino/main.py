@@ -78,7 +78,7 @@ class Neutrino:
         # test method
 
         # get all active accounts
-        account_df = self.link.get_accounts(exclude_empty_accounts=True)
+        account_df = self.link.get_accounts()
 
         # export ledgers for all those accounts
         ledgers = {}
@@ -86,7 +86,7 @@ class Neutrino:
             ledgers[i] = self.link.get_account_ledger(account_df.at[i, "id"])
 
         # get all transfers
-        transfers_df = self.link.get_usd_transfers()
+        transfers_df = self.link.get_transfers()
 
         # get all orders
         orders_df = self.link.get_orders(status=["all"])
