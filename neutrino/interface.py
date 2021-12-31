@@ -57,6 +57,8 @@ def interact(neutrino):
             # parse 'get' statements
             elif arg[0] == "get":
 
+                save = True if arg[-1] == "-s" else False
+
                 # TODO: prompt user w/ list of acceptable values
                 if len(arg) == 1:
                     print(
@@ -64,7 +66,7 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "accounts":
-                    neutrino.link.get_accounts()
+                    neutrino.link.get_accounts(save=save)
 
                 elif arg[1] == "ledger":
 
@@ -75,18 +77,18 @@ def interact(neutrino):
                         currency = "BTC"
 
                     neutrino.link.get_account_ledger(
-                        neutrino.link.accounts.get(currency).get("id")
+                        neutrino.link.accounts.get(currency).get("id"), save=save
                     )
 
                 elif arg[1] == "transfers":
-                    neutrino.link.get_account_transfers()
+                    neutrino.link.get_account_transfers(save=save)
 
                 elif arg[1] == "orders":
 
                     if len(arg) > 2:
-                        neutrino.link.get_orders(status=arg[2:])
+                        neutrino.link.get_orders(save=save, status=arg[2:])
                     else:
-                        neutrino.link.get_orders(status=["all"])
+                        neutrino.link.get_orders(save=save)
 
                 elif arg[1] == "fees":
                     neutrino.link.get_fees()
@@ -97,7 +99,7 @@ def interact(neutrino):
                     neutrino.link.get_product_candles("BTC-USD")
 
                 elif arg[1] == "all":
-                    neutrino.get_all_link_data(save=True)
+                    neutrino.get_all_link_data(save=save)
 
                 else:
                     print(f"\n Unrecognized 'get' method: {arg[1]}")

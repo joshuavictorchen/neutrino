@@ -56,7 +56,12 @@ class Neutrino:
             self.settings.get("test_parameters_file"), echo_yaml=False
         )
         self.update_auth(cbkey_set_name)
-        self.link = Link("default_link", self.settings.get("api_url"), self.auth)
+        self.link = Link(
+            "default_link",
+            self.settings.get("api_url"),
+            self.auth,
+            database_path=self.settings.get("csv_directory"),
+        )
         self.streams = {}
         self.threads = {}
         self.coins = {}
@@ -78,47 +83,21 @@ class Neutrino:
         # test method
 
         # get all active accounts
-        account_df = self.link.get_accounts()
+        account_df = self.link.get_accounts(save=save)
 
         # export ledgers for all those accounts
         ledgers = {}
         for i in account_df.index:
-            ledgers[i] = self.link.get_account_ledger(account_df.at[i, "id"])
+            ledgers[i] = self.link.get_account_ledger(account_df.at[i, "id"], save=save)
 
         # get all transfers
-        transfers_df = self.link.get_transfers()
+        self.link.get_transfers(save=save)
 
         # get all orders
-        orders_df = self.link.get_orders(status=["all"])
+        self.link.get_orders(save=save, status=["all"])
 
         # get fees
         self.link.get_fees()
-
-        # return without saving CSVs if save = False
-        if not save:
-            return
-
-        # save CSVs
-        t.save_dataframe_as_csv(
-            account_df,
-            "account_df",
-            self.settings.get("csv_directory") + "\\accounts.csv",
-        )
-        for i in account_df.index:
-            t.save_dataframe_as_csv(
-                ledgers.get(i),
-                account_df.at[i, "currency"].lower() + "_df",
-                self.settings.get("csv_directory")
-                + f"\\{account_df.at[i, 'currency']}.csv",
-            )
-        t.save_dataframe_as_csv(
-            transfers_df,
-            "transfers_df",
-            self.settings.get("csv_directory") + "\\transfers.csv",
-        )
-        t.save_dataframe_as_csv(
-            orders_df, "orders_df", self.settings.get("csv_directory") + "\\orders.csv"
-        )
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"

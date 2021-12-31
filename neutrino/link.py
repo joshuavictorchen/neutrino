@@ -29,12 +29,14 @@ class Link:
         auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
     """
 
-    def __init__(self, name, url, auth, verbose=False):
+    def __init__(self, name, url, auth, verbose=False, database_path=None):
 
         self.name = name
-        self.verbose = verbose
         self.url = url
         self.update_auth(auth)
+        self.verbose = verbose
+        self.database_path = database_path
+
         self.session = requests.Session()
         self.accounts = None
         self.ledgers = {}
@@ -51,8 +53,9 @@ class Link:
 
         self.verbose = verbose
 
+        # print settings change to console
         verb = "begin" if verbose else "stop"
-        print(f"\n Link {self.name} will {verb} printing API responses to the console.")
+        print(f"\n {self.name} will {verb} printing API responses to the console.")
 
     def update_auth(self, auth):
         """Update authentication for the link.
@@ -62,6 +65,15 @@ class Link:
         """
 
         self.auth = auth
+
+    def update_database_path(self, database_path):
+        """Update the filepath to the folder to which the Link exports CSV files.
+
+        Args:
+            database_path (str): Absolute filepath to the folder to which the Link exports CSV files.
+        """
+
+        self.database_path = database_path
 
     def send_api_request(self, method, endpoint, params=None, pages=[]):
         """Sends an API request to the specified Coinbase Exchange endpoint and returns the response.
@@ -162,7 +174,9 @@ class Link:
 
         return loaded_df
 
-    def get_accounts(self, relevant_only=True, exclude_empty_accounts=False):
+    def get_accounts(
+        self, relevant_only=True, exclude_empty_accounts=False, save=False
+    ):
         """Loads a DataFrame with all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts>`__).
 
@@ -171,6 +185,7 @@ class Link:
                 Set this to ``True`` to only include accounts that have seen activity in the past in the returned result.
             exclude_empty_accounts (bool, optional): The API retuns all accounts for all available coins by default. \
                 Set this to ``True`` to exclude zero-balance accounts from the returned result.
+            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
 
         Returns:
             DataFrame: DataFrame with columns corresponding to the headers listed below:
@@ -224,9 +239,16 @@ class Link:
                 account_df["balance"].astype(float) > 0
             ].reset_index(drop=True)
 
+        # print dataframe to console, if applicable
         if self.verbose:
             print()
             print(account_df)
+
+        # export to CSV, if applicable
+        if save:
+            t.save_dataframe_as_csv(
+                account_df, "account_df", self.database_path + "\\accounts.csv"
+            )
 
         # update object attribute
         account_dict = {}
@@ -235,12 +257,39 @@ class Link:
 
         return account_df
 
-    def get_account_ledger(self, account_id, **kwargs):
+    def get_account_by_id(self, account_id):
+        """Returns a dictionary with information pertaining to a specific ``account_id`` \
+            (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccount>`__).
+
+        Args:
+            account_id (str): Trading account ID for a given coin.
+
+        Returns:
+            dict (str): .. code-block::
+
+                # key definitions can be found in API Reference link above
+                # types, response requirements, and notes are described below
+
+                {
+                                 id: required
+                           currency: required
+                            balance: required
+                               hold: required
+                          available: required
+                         profile_id: required
+                    trading_enabled: required
+                }
+        """
+
+        return self.send_api_request("GET", f"/accounts/{account_id}")[0]
+
+    def get_account_ledger(self, account_id, save=False, **kwargs):
         """Loads a DataFrame with all ledger activity (anything that would affect the account's balance) for a given coin account \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__).
 
         Args:
             account_id (str): Trading account ID for a given coin.
+            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
             **kwargs (various, optional):
                 * **start_date** (*str*): Filter by minimum posted date (``%Y-%m-%d %H:%M``).
                 * **end_date** (*str*): Filter by maximum posted date (``%Y-%m-%d %H:%M``).
@@ -289,13 +338,23 @@ class Link:
         [ledger_dict.update({i.get("id"): i}) for i in ledger_list]
         self.ledgers.update({account_id: ledger_dict})
 
+        # print dataframe to console, if applicable
         if self.verbose:
             print()
             print(ledger_df)
 
+        # export to CSV, if applicable
+        coin = self.get_account_by_id(account_id).get("currency")
+        if save:
+            t.save_dataframe_as_csv(
+                ledger_df,
+                f"ledger-{coin}_df",
+                self.database_path + f"\ledger-{coin}.csv",
+            )
+
         return ledger_df
 
-    def get_transfers(self):
+    def get_transfers(self, save=False):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers>`__).
 
@@ -303,6 +362,9 @@ class Link:
 
             The returned :py:obj:`<activity id>` ``details`` requirements are not explicitly documented \
                 in the API Reference. They have been determined via user observation.
+
+        Args:
+            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
 
         Returns:
             DataFrame: DataFrame with columns corresponding to the headers listed below. \
@@ -345,22 +407,28 @@ class Link:
             transfers_dict.update({i.get("id"): i})
         self.transfers = transfers_dict
 
+        # print dataframe to console, if applicable
         if self.verbose:
             print()
             print(transfers_df)
 
+        # export to CSV, if applicable
+        if save:
+            t.save_dataframe_as_csv(
+                transfers_df, "transfers_df", self.database_path + "\\transfers.csv"
+            )
+
         return transfers_df
 
-    def get_orders(self, **kwargs):
+    def get_orders(self, save=False, **kwargs):
         """Loads a DataFrame with orders associated with the authenticated :py:obj:`Link` \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders>`__).
 
-        .. note::
-        
-            Only open or un-settled orders are returned by default. Specify ``status=["all"]`` in the method call \
-            to return all orders.
+        All current and historical orders are returned by default. This is distinct from the Coinbase API's default \
+        behavior, which only returns open orders by default.
 
         Args:
+            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
             **kwargs (various, optional):
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
                 * **product_id** (*str*): Filter results by a specific ``product_id``.
@@ -409,6 +477,10 @@ class Link:
                 }
         """
 
+        # default to getting all orders if no 'status' kwarg is provided
+        if not kwargs.get("status"):
+            kwargs["status"] = ["all"]
+
         # obtain the API response as a list of dicts
         orders_list = self.send_api_request("GET", "/orders", params=kwargs)
 
@@ -424,9 +496,16 @@ class Link:
                 orders_dict.update({i.get("product_id"): {i.get("id"): i}})
         self.orders = orders_dict
 
+        # print dataframe to console, if applicable
         if self.verbose:
             print()
             print(orders_df)
+
+        # export to CSV, if applicable
+        if save:
+            t.save_dataframe_as_csv(
+                orders_df, "orders_df", self.database_path + "\\orders.csv"
+            )
 
         return orders_df
 
