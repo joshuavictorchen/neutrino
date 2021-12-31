@@ -50,19 +50,23 @@ class Neutrino:
 
         # establish directory in which neutrino is installed
         self.neutrino_dir = os.path.abspath(
-            os.path.join(
-                os.path.join(__file__, os.pardir), os.pardir
-            )
+            os.path.join(os.path.join(__file__, os.pardir), os.pardir)
         )
 
         # establish locations of files and folders
         self.user_settings_file = self.neutrino_dir + "\\user-settings.yaml"
-        self.template_user_settings_file = self.neutrino_dir + "\\strings\\template-user-settings.yaml"
+        self.template_user_settings_file = (
+            self.neutrino_dir + "\\strings\\template-user-settings.yaml"
+        )
         self.database_path = self.neutrino_dir + "\\database"
 
         # load settings
-        self.user_settings = self.load_yaml_settings(self.user_settings_file, self.template_user_settings_file)
-        self.neutrino_settings = t.parse_yaml(self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False)
+        self.user_settings = t.load_yaml_settings(
+            self.user_settings_file, self.template_user_settings_file
+        )
+        self.neutrino_settings = t.parse_yaml(
+            self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False
+        )
         self.repo = t.retrieve_repo()
 
         # check for updates
@@ -82,33 +86,34 @@ class Neutrino:
         self.threads = {}
         self.coins = {}
 
-    def load_yaml_settings(self, settings_file, settings_template_file):
-
-        # if file does not exist, copy one from the default template
-        if not os.path.isfile(settings_file):
-            # TODO: prompt user to update keys_file defs, etc.
-            shutil.copy2(settings_template_file, settings_file)
-            print(f"\n Settings file generated: {settings_file}")
-        
-        with open(settings_file) as stream:
-            try:
-                settings = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                sys.exit(f"\n Neutrino annihilated - settings file is corrupted:\n\n {exc}")
-        
-        return settings
-
     def check_for_updates(self):
+        """Performs a ``git fetch`` command to check for updates to the current branch of the repository.
 
-        print("\n Checking for updates...", end = "")
+        If updates exist, then prompts the user to execute :py:obj:`Neutrino.update_neutrino`
+
+        Returns:
+            bool: ``True`` if updates are available.
+        """
+
+        print("\n Checking for updates...", end="")
         self.repo.remotes.origin.fetch()
         updates_available = False
-        if sum(1 for i in self.repo.iter_commits(f"{self.repo.active_branch.name}..origin/{self.repo.active_branch.name}")) > 0:
+        if (
+            sum(
+                1
+                for i in self.repo.iter_commits(
+                    f"{self.repo.active_branch.name}..origin/{self.repo.active_branch.name}"
+                )
+            )
+            > 0
+        ):
             updates_available = True
-        
+
         if updates_available:
-            update = input(" updates are available. \
-                \n\n Press [enter] to update the neutrino. Input any other key to continue without updating: ")
+            update = input(
+                " updates are available. \
+                \n\n Press [enter] to update the neutrino. Input any other key to continue without updating: "
+            )
             if update == "":
                 self.update_neutrino(check_completed=True)
                 sys.exit()
@@ -116,29 +121,47 @@ class Neutrino:
             print(" the neutrino is up to date.")
 
         return updates_available
-        
+
     def update_neutrino(self, check_completed=False, force=False):
+        """Performs the following actions to update the neutrino program:
+
+            1. Checks for updates. If no updates are available, the function is exited.
+            2. Performs a ``git pull`` if updates are available.
+            3. Checks ``\\setup\\neutrino-settings.yaml`` to see if a ``pip install`` is required.
+            4. If required, prompts the user to approve the ``pip install`` action.
+            5. If approved, performs the ``pip install`` action.
+            6. Displays the change summary from ``\\setup\\neutrino-settings.yaml``.
+            7. Exits the program, which must be restarted for the changes to take effect.
+
+        Args:
+            check_completed (bool, optional): [description]. Defaults to False.
+            force (bool, optional): [description]. Defaults to False.
+        """
 
         if not check_completed and not force:
             self.check_for_updates()
             return
-        
+
         try:
             # git pull
             self.repo.remotes.origin.pull()
-        
+
             # git submodule update --init
             for submodule in self.repo.submodules:
                 submodule.update(init=True)
-            
+
             # refresh internal settings
-            self.neutrino_settings = t.parse_yaml(self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False)
+            self.neutrino_settings = t.parse_yaml(
+                self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False
+            )
 
             # if a pip install is required for this update, then do a pip install
             # remember to switch to the neutrino directory first, then switch back after
             if self.neutrino_settings.get("pip_install"):
-                pip_install = input(f"\n A pip install is required for this update. \
-                    \n\n Press [enter] to perform this installation. Input any other key to decline: ")
+                pip_install = input(
+                    f"\n A pip install is required for this update. \
+                    \n\n Press [enter] to perform this installation. Input any other key to decline: "
+                )
                 if pip_install == "":
                     print()
                     this_dir = os.getcwd()
@@ -146,17 +169,19 @@ class Neutrino:
                     subprocess.call("pip install -U -e . --user", shell=True)
                     os.chdir(this_dir)
                 else:
-                    print(f"\n WARNING: pip install not performed - some dependencies may be missing.")
-        
+                    print(
+                        f"\n WARNING: pip install not performed - some dependencies may be missing."
+                    )
+
         except Exception as exc:
             print(f"\n Error during self-update process:\n")
             [print(f"   {i}") for i in repr(exc).split("\n")]
             sys.exit(
                 "\n Self-update cancelled. Please check your repository configuration and/or try a manual update."
             )
-        
+
         print(f"\n Update complete - change summary:")
-        for i in self.neutrino_settings.get('changelog'):
+        for i in self.neutrino_settings.get("changelog"):
             print(f"   + {i}")
 
         t.retrieve_repo(verbose=True)
@@ -176,8 +201,18 @@ class Neutrino:
             self.link.update_auth(self.auth)
 
     def get_all_link_data(self, save=False):
+        """Executes all ``get`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s :py:obj:`Link<neutrino.link.Link>`:
 
-        # test method
+        * :py:obj:`Link.get_accounts<neutrino.link.Link.get_accounts>`
+        * :py:obj:`Link.get_account_ledger<neutrino.link.Link.get_account_ledger>` for all accounts
+        * :py:obj:`Link.get_transfers<neutrino.link.Link.get_transfers>`
+        * :py:obj:`Link.get_orders<neutrino.link.Link.get_orders>`
+        * :py:obj:`Link.get_fees<neutrino.link.Link.get_fees>`
+
+        Args:
+            save (bool, optional): Exports data returned from the above ``get`` methods to the ``database`` directory \
+                in CSV format if set to ``True``. Defaults to False.
+        """
 
         # get all active accounts
         account_df = self.link.get_accounts(save=save)

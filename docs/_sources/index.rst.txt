@@ -3,7 +3,9 @@
 
 .. warning::
 
-   Documentation is incomplete.
+   Documentation is extremely rough and incomplete. User manual is nonexistent.
+   
+   This is a proof-of-concept and not intended to be used for anything - yet.
 
 Overview
 --------

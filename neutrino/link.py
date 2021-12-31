@@ -14,6 +14,7 @@ class Link:
     **Instance attributes:** \n
         * **name** (*str*): :py:obj:`Link`'s name.
         * **verbose** (*bool*): If ``True``, then API responses are printed to the console.
+        * **database_path** (*str*): Absolute filepath to the folder to which the Link exports CSV files.
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.

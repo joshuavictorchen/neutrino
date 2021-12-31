@@ -77,7 +77,8 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Documentation is incomplete.</p>
+<p>Documentation is extremely rough and incomplete. User manual is nonexistent.</p>
+<p>This is a proof-of-concept and not intended to be used for anything - yet.</p>
 </div>
 <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h1>
@@ -119,7 +120,7 @@
 <p>Handles <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> (WebSocket feed messages) and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a> (API requests/responses).         Framework for performing Coinbase Pro actions.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Authentication is currently handled using a plaintext YAML file defined in <code class="docutils literal notranslate"><span class="pre">settings.yaml</span></code>.         It will be updated to use a more secure method in the future.</p>
+<p>Authentication is currently handled using a plaintext YAML file defined in <code class="docutils literal notranslate"><span class="pre">user-settings.yaml</span></code>.         It will be updated to use a more secure method in the future.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -134,6 +135,46 @@
 </ul>
 </div></blockquote>
 <dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.check_for_updates">
+<span class="sig-name descname"><span class="pre">check_for_updates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.check_for_updates" title="Permalink to this definition"></a></dt>
+<dd><p>Performs a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">fetch</span></code> command to check for updates to the current branch of the repository.</p>
+<p>If updates exist, then prompts the user to execute <a class="reference internal" href="#neutrino.main.Neutrino.update_neutrino" title="neutrino.main.Neutrino.update_neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino.update_neutrino</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if updates are available.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.update_neutrino">
+<span class="sig-name descname"><span class="pre">update_neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_completed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_neutrino" title="Permalink to this definition"></a></dt>
+<dd><p>Performs the following actions to update the neutrino program:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Checks for updates. If no updates are available, the function is exited.</p></li>
+<li><p>Performs a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> if updates are available.</p></li>
+<li><p>Checks <code class="docutils literal notranslate"><span class="pre">\setup\neutrino-settings.yaml</span></code> to see if a <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> is required.</p></li>
+<li><p>If required, prompts the user to approve the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> action.</p></li>
+<li><p>If approved, performs the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> action.</p></li>
+<li><p>Displays the change summary from <code class="docutils literal notranslate"><span class="pre">\setup\neutrino-settings.yaml</span></code>.</p></li>
+<li><p>Exits the program, which must be restarted for the changes to take effect.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>check_completed</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
+<li><p><strong>force</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth">
 <span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the keys used for authenticating Coinbase WebSocket and API requests.</p>
@@ -147,7 +188,20 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.get_all_link_data">
 <span class="sig-name descname"><span class="pre">get_all_link_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_all_link_data" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Executes all <code class="docutils literal notranslate"><span class="pre">get</span></code> methods of the <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino</span></code></a>’s <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#neutrino.link.Link.get_accounts" title="neutrino.link.Link.get_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_accounts</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.get_account_ledger" title="neutrino.link.Link.get_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_account_ledger</span></code></a> for all accounts</p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.get_transfers" title="neutrino.link.Link.get_transfers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_transfers</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.get_orders" title="neutrino.link.Link.get_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_orders</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.get_fees" title="neutrino.link.Link.get_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_fees</span></code></a></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports data returned from the above <code class="docutils literal notranslate"><span class="pre">get</span></code> methods to the <code class="docutils literal notranslate"><span class="pre">database</span></code> directory                 in CSV format if set to <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to False.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
@@ -310,6 +364,7 @@
 <div><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>): <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s name.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>): If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then API responses are printed to the console.</p></li>
+<li><p><strong>database_path</strong> (<em>str</em>): Absolute filepath to the folder to which the Link exports CSV files.</p></li>
 <li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
 <li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
@@ -737,10 +792,18 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.print_git">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">print_git</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.print_git" title="Permalink to this definition"></a></dt>
-<dd><p>Prints metadata on the local neutrino repository in the format of:</p>
+<dt class="sig sig-object py" id="neutrino.tools.retrieve_repo">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">retrieve_repo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.retrieve_repo" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves metadata on the local neutrino repository. Optionally prints to the console in the format of:</p>
 <p><code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">|</span> <span class="pre">&lt;branch&gt;-&lt;commit&gt;-&lt;is_modified&gt;</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">git.Repo</span></code> object representing the local neutrino repository.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Repo</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -756,6 +819,28 @@
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Dictionary of contents loaded from the supplied YAML file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.load_yaml_settings">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_yaml_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_template_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_yaml_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Loads a dictionary of settings values from a YAML file.</p>
+<p>This YAML file is gitignored so that the repository’s configuration is not affected by user personalization.</p>
+<p>If the YAML file does not exist, then it is copied from the repository’s version controlled template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings_file</strong> (<em>str</em>) – Absolute path to the gitignored YAML file.</p></li>
+<li><p><strong>settings_template_file</strong> (<em>str</em>) – Absolute path to the version controlled YAML template.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary representation of loaded settings from a YAML file.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
@@ -932,7 +1017,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-31 11:51:15.
+      <span class="lastupdated">Last updated on 2021-12-31 15:34:57.
       </span></p>
   </div>
 

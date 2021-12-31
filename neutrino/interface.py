@@ -144,7 +144,7 @@ def interact(neutrino):
                     if neutrino.streams.get(arg[1]).active:
                         neutrino.stop_stream(arg[1])
                     print(f"\n {e}")
-            
+
             elif arg[0] == "update":
 
                 if arg[-1] == "force":

@@ -3,6 +3,7 @@ import git
 import hashlib
 import hmac
 import os
+import shutil
 import sys
 import time
 import yaml
@@ -92,7 +93,7 @@ def retrieve_repo(verbose=False):
     ``n | <branch>-<commit>-<is_modified>``
 
     Returns:
-        Repo: git.Repo object representing the local neutrino repository.
+        Repo: :py:obj:`git.Repo` object representing the local neutrino repository.
     """
 
     # instantiate a repo object for the neutrino repository
@@ -142,6 +143,36 @@ def parse_yaml(filepath, echo_yaml=True):
         print_recursive_dict(yaml_data)
 
     return yaml_data
+
+
+def load_yaml_settings(self, settings_file, settings_template_file):
+    """Loads a dictionary of settings values from a YAML file.
+
+    This YAML file is gitignored so that the repository's configuration is not affected by user personalization.
+
+    If the YAML file does not exist, then it is copied from the repository's version controlled template.
+
+    Args:
+        settings_file (str): Absolute path to the gitignored YAML file.
+        settings_template_file (str): Absolute path to the version controlled YAML template.
+
+    Returns:
+        dict: Dictionary representation of loaded settings from a YAML file.
+    """
+
+    # if file does not exist, copy one from the default template
+    if not os.path.isfile(settings_file):
+        # TODO: prompt user to update keys_file defs, etc.
+        shutil.copy2(settings_template_file, settings_file)
+        print(f"\n Settings file generated: {settings_file}")
+
+    with open(settings_file) as stream:
+        try:
+            settings = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            sys.exit(f"\n Neutrino annihilated - settings file is corrupted:\n\n {exc}")
+
+    return settings
 
 
 def save_dataframe_as_csv(df, df_name, filepath):
