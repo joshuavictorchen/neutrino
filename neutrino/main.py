@@ -53,24 +53,30 @@ class Neutrino:
         )
 
         # establish locations of files and folders
-        self.user_settings_file = Path(self.neutrino_dir) / "user-settings.yaml"
+        self.user_settings_file = self.neutrino_dir / "user-settings.yaml"
         self.template_user_settings_file = (
-            Path(self.neutrino_dir) / "strings/template-user-settings.yaml"
+            self.neutrino_dir / "strings/template-user-settings.yaml"
         )
-        self.database_path = Path(self.neutrino_dir) / "database"
+        self.database_path = self.neutrino_dir / "database"
 
         # load settings
         self.user_settings = t.load_yaml_settings(
             self.user_settings_file, self.template_user_settings_file
         )
         self.neutrino_settings = t.parse_yaml(
-            Path(self.neutrino_dir) / "strings/neutrino-settings.yaml", echo_yaml=False
+            self.neutrino_dir / "strings/neutrino-settings.yaml", echo_yaml=False
         )
         self.repo = t.retrieve_repo()
 
         # check for updates
         if self.user_settings.get("check_for_updates"):
             self.check_for_updates()
+
+        # temporary measure for testing: update keys file to sanbox test keys, if keys_file does not exist
+        if not os.path.isfile(self.user_settings.get("keys_file")):
+            self.user_settings["keys_file"] = (
+                self.neutrino_dir / "tests/sandbox-keys.yaml"
+            )
 
         # establish unique neutrino attributes
         self.cbkeys = t.parse_yaml(self.user_settings.get("keys_file"), echo_yaml=False)
