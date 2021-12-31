@@ -137,6 +137,31 @@ def parse_yaml(filepath, echo_yaml=True):
     return yaml_data
 
 
+def save_dataframe_as_csv(df, df_name, filepath):
+    """Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.
+
+    Args:
+        df (DataFrame): DataFrame to be exported to a CSV file.
+        df_name (str): Name of the DataFrame to be exported.
+        filepath (str): Absolute filepath (including ``<filename>.csv``) to the CSV to be saved.
+    """
+
+    while True:
+        try:
+            df.to_csv(filepath)
+            break
+        except PermissionError:
+            response = input(
+                f"\n Error exporting {df_name} to CSV: {filepath} is currently open.\
+                Close the file and press [enter] to continue. Input any other key to abort: "
+            )
+            if response != "":
+                print(f"\n {df_name} CSV not saved.")
+                return
+
+    print(f" \n {df_name} exported to: {filepath}")
+
+
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
     """Prints a formatted nested dictionary to the console.
 

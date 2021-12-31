@@ -1,3 +1,5 @@
+import traceback
+
 DIVIDER = (
     "\n -------------------------------------------------------------------------------"
 )
@@ -20,123 +22,132 @@ def interact(neutrino):
     # continuously accept user input
     while True:
 
-        print(DIVIDER)
+        try:
 
-        # gather user input as a list of tokens
-        arg = input("\n>>> ").split()
+            print(DIVIDER)
 
-        # don't do anything if no input was provided
-        if len(arg) == 0:
-            continue
+            # gather user input as a list of tokens
+            arg = input("\n>>> ").split()
 
-        # exit the program if 'quit' or 'q' are entered
-        if arg[0] in ("quit", "q"):
-            break
+            # don't do anything if no input was provided
+            if len(arg) == 0:
+                continue
 
-        # print list of available commands
-        if arg[0] in ("help", "h"):
-            print("\n Help coming soon.")
+            # exit the program if 'quit' or 'q' are entered
+            if arg[0] in ("quit", "q"):
+                break
 
-        # update cbkey_set used for authentication
-        elif arg[0] == "cbkeys":
+            # print list of available commands
+            if arg[0] in ("help", "h"):
+                print("\n Help coming soon.")
 
-            # TODO: display default value and prompt user to accept or override this default w/ list of acceptable values
-            if len(arg) == 1:
-                print(
-                    f"\n No keys provided. Please provide a value for cbkey_set_name."
-                )
+            # update cbkey_set used for authentication
+            elif arg[0] == "cbkeys":
 
-            else:
-                neutrino.update_auth(arg[1])
-                print(f"\n Neutrino authentication keys changed to: {arg[1]}")
+                # TODO: display default value and prompt user to accept or override this default w/ list of acceptable values
+                if len(arg) == 1:
+                    print(
+                        f"\n No keys provided. Please provide a value for cbkey_set_name."
+                    )
 
-        # parse 'get' statements
-        elif arg[0] == "get":
-
-            # TODO: prompt user w/ list of acceptable values
-            if len(arg) == 1:
-                print(
-                    f"\n No 'get' method provided. Please specify what should be retrieved."
-                )
-
-            elif arg[1] == "accounts":
-                neutrino.link.get_accounts()
-
-            elif arg[1] == "ledger":
-                # TODO: next arg should be an account ID; hardcode with sample ID for now
-                neutrino.link.get_account_ledger(
-                    neutrino.test_parameters.get("test_account_id")
-                )
-
-            elif arg[1] == "transfers":
-                neutrino.link.get_account_transfers()
-
-            elif arg[1] == "orders":
-
-                if len(arg) > 2:
-                    neutrino.link.get_orders(status=arg[2:])
                 else:
-                    neutrino.link.get_orders(status=["all"])
+                    neutrino.update_auth(arg[1])
+                    print(f"\n Neutrino authentication keys changed to: {arg[1]}")
 
-            elif arg[1] == "fees":
-                neutrino.link.get_fees()
+            # parse 'get' statements
+            elif arg[0] == "get":
 
-            elif arg[1] == "candles":
-                # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
-                # l.get_product_candles("BTC-USD")
-                neutrino.link.get_product_candles(
-                    "BTC-USD", start="2021-01-01 00:00", end="2021-01-02 00:00"
-                )
+                # TODO: prompt user w/ list of acceptable values
+                if len(arg) == 1:
+                    print(
+                        f"\n No 'get' method provided. Please specify what should be retrieved."
+                    )
 
-            elif arg[1] == "all":
-                neutrino.get_all_link_data(save=True)
+                elif arg[1] == "accounts":
+                    neutrino.link.get_accounts()
 
-            else:
-                print(f"\n Unrecognized 'get' method: {arg[1]}")
+                elif arg[1] == "ledger":
 
-        # set Link verbosity
-        elif arg[0] == "verbosity":
+                    if len(arg) > 2:
+                        currency = arg[2]
+                    else:
+                        print("\n No currency provided - using BTC as default:")
+                        currency = "BTC"
 
-            # hard-code for now - this is a temporary proof-of-concept
-            if len(arg) == 1:
-                print(
-                    f"\n No verbosity option specified. Acceptable arguments are 'on' or 'off'."
-                )
+                    neutrino.link.get_account_ledger(
+                        neutrino.link.accounts.get(currency).get("id")
+                    )
 
-            elif arg[1] == "on":
-                neutrino.link.set_verbosity(True)
+                elif arg[1] == "transfers":
+                    neutrino.link.get_account_transfers()
 
-            elif arg[1] == "off":
-                neutrino.link.set_verbosity(False)
+                elif arg[1] == "orders":
 
-            else:
-                print(f"\n Unrecognized verbosity specification: {arg[1]}")
+                    if len(arg) > 2:
+                        neutrino.link.get_orders(status=arg[2:])
+                    else:
+                        neutrino.link.get_orders(status=["all"])
 
-        # stream data
-        elif arg[0] == "stream":
+                elif arg[1] == "fees":
+                    neutrino.link.get_fees()
 
-            # TODO: prompt user w/ list of acceptable values
-            if len(arg) < 3:
-                print(
-                    f"\n Insufficient 'stream' commands specified. Please provide adequate specification."
-                )
+                elif arg[1] == "candles":
+                    # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
+                    # TODO: add start/end args
+                    neutrino.link.get_product_candles("BTC-USD")
 
-            # partially hard-code for now - in future, split into components, let user append items to lists, etc.
-            elif arg[1] == "configure":
-                neutrino.configure_new_stream(arg[2], ["BTC-USD"], ["user"])
+                elif arg[1] == "all":
+                    neutrino.get_all_link_data(save=True)
 
-            elif arg[1] == "start":
+                else:
+                    print(f"\n Unrecognized 'get' method: {arg[1]}")
+
+            # set Link verbosity
+            elif arg[0] == "verbosity":
+
+                # hard-code for now - this is a temporary proof-of-concept
+                if len(arg) == 1:
+                    print(
+                        f"\n No verbosity option specified. Acceptable arguments are 'on' or 'off'."
+                    )
+
+                elif arg[1] == "on":
+                    neutrino.link.set_verbosity(True)
+
+                elif arg[1] == "off":
+                    neutrino.link.set_verbosity(False)
+
+                else:
+                    print(f"\n Unrecognized verbosity specification: {arg[1]}")
+
+            # stream data
+            elif arg[0] == "stream":
+
+                # TODO: prompt user w/ list of acceptable values
+                if len(arg) < 2:
+                    print(
+                        f"\n Stream name not specified. Please specify a stream name."
+                    )
+
+                # partially hard-code for now - in future, split into components, let user append items to lists, etc.
+                neutrino.configure_new_stream(arg[1], ["BTC-USD"], ["ticker", "user"])
                 try:
-                    neutrino.start_stream(arg[2])
-                    neutrino.parse_stream_messages(arg[2])
+                    neutrino.start_stream(arg[1])
+                    neutrino.parse_stream_messages(arg[1])
                 # TODO: implement a cleaner way to kill a stream
                 except KeyboardInterrupt:
-                    neutrino.stop_stream(arg[2])
+                    neutrino.stop_stream(arg[1])
                 # TODO: implement specific errors
                 except Exception as e:
-                    if neutrino.streams.get(arg[2]).active:
-                        neutrino.stop_stream(arg[2])
+                    if neutrino.streams.get(arg[1]).active:
+                        neutrino.stop_stream(arg[1])
                     print(f"\n {e}")
 
-        else:
-            print("\n Unrecognized command.")
+            else:
+                print("\n Unrecognized command.")
+
+        except:
+            print(
+                "\n ERROR: prototype interface has encountered the following exception:\n"
+            )
+            traceback.print_exc()

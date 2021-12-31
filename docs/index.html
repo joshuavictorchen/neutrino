@@ -313,10 +313,10 @@
 <li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
 <li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
-<li><p><strong>accounts</strong> (<em>DataFrame</em>): DataFrame of values returned from <a class="reference internal" href="#neutrino.link.Link.get_accounts" title="neutrino.link.Link.get_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_accounts</span></code></a>.</p></li>
-<li><p><strong>ledgers</strong> (<em>dict(DataFrame)</em>): Dictionary of DataFrames returned from <a class="reference internal" href="#neutrino.link.Link.get_account_ledger" title="neutrino.link.Link.get_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_account_ledger</span></code></a>             (one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">DataFrame}</span></code>).</p></li>
-<li><p><strong>transfers</strong> (<em>DataFrame</em>): DataFrame of values returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code>.</p></li>
-<li><p><strong>orders</strong> (<em>DataFrame</em>): DataFrame of values returned from <a class="reference internal" href="#neutrino.link.Link.get_orders" title="neutrino.link.Link.get_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_orders</span></code></a>.</p></li>
+<li><p><strong>accounts</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.get_accounts" title="neutrino.link.Link.get_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_accounts</span></code></a>.</p></li>
+<li><p><strong>ledgers</strong> (<em>dict(dict)</em>): Nested dictionary representations of DataFrames returned from <a class="reference internal" href="#neutrino.link.Link.get_account_ledger" title="neutrino.link.Link.get_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_account_ledger</span></code></a>,             with one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">{ledger_dict}}</span></code>.</p></li>
+<li><p><strong>transfers</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code>.</p></li>
+<li><p><strong>orders</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.get_orders" title="neutrino.link.Link.get_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_orders</span></code></a>.</p></li>
 <li><p><strong>fees</strong> (<em>dict</em>): Dictionary of Coinbase fee data returned from <a class="reference internal" href="#neutrino.link.Link.get_fees" title="neutrino.link.Link.get_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_fees</span></code></a>.</p></li>
 </ul>
 </div></blockquote>
@@ -449,12 +449,12 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
+<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below,             in addition to an <code class="docutils literal notranslate"><span class="pre">account_id</span></code> column.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
 <span class="p">{</span>
-            <span class="nb">id</span><span class="p">:</span> <span class="n">required</span>
+            <span class="nb">id</span><span class="p">:</span> <span class="n">required</span> <span class="p">(</span><span class="n">note</span><span class="p">:</span> <span class="n">this</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">transaction</span> <span class="nb">id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">the</span> <span class="n">account</span> <span class="nb">id</span><span class="p">)</span>
         <span class="n">amount</span><span class="p">:</span> <span class="n">required</span>
     <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
        <span class="n">balance</span><span class="p">:</span> <span class="n">required</span>
@@ -717,6 +717,21 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.save_dataframe_as_csv">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">save_dataframe_as_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.save_dataframe_as_csv" title="Permalink to this definition"></a></dt>
+<dd><p>Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be exported to a CSV file.</p></li>
+<li><p><strong>df_name</strong> (<em>str</em>) – Name of the DataFrame to be exported.</p></li>
+<li><p><strong>filepath</strong> (<em>str</em>) – Absolute filepath (including <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;.csv</span></code>) to the CSV to be saved.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.print_recursive_dict">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">print_recursive_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_spaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.print_recursive_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Prints a formatted nested dictionary to the console.</p>
@@ -870,7 +885,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-30 00:12:32.
+      <span class="lastupdated">Last updated on 2021-12-30 22:57:51.
       </span></p>
   </div>
 

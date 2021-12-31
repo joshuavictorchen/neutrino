@@ -2,11 +2,9 @@ import neutrino.tools as t
 import pandas as pd
 import requests
 import time
+from copy import deepcopy
 from datetime import datetime
 
-pd.set_option("display.max_rows", None)
-pd.set_option("display.max_columns", None)
-pd.set_option("display.expand_frame_repr", False)
 MAX_CANDLE_REQUEST = 300
 
 
@@ -19,11 +17,11 @@ class Link:
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
-        * **accounts** (*DataFrame*): DataFrame of values returned from :py:obj:`Link.get_accounts`.
-        * **ledgers** (*dict(DataFrame)*): Dictionary of DataFrames returned from :py:obj:`Link.get_account_ledger` \
-            (one entry per retrieved ``account_id`` in the form of ``{account_id: DataFrame}``).
-        * **transfers** (*DataFrame*): DataFrame of values returned from :py:obj:`Link.get_usd_transfers`.
-        * **orders** (*DataFrame*): DataFrame of values returned from :py:obj:`Link.get_orders`.
+        * **accounts** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_accounts`.
+        * **ledgers** (*dict(dict)*): Nested dictionary representations of DataFrames returned from :py:obj:`Link.get_account_ledger`, \
+            with one entry per retrieved ``account_id`` in the form of ``{account_id: {ledger_dict}}``.
+        * **transfers** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_usd_transfers`.
+        * **orders** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_orders`.
         * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.get_fees`.
 
     Args:
@@ -132,6 +130,9 @@ class Link:
             DataFrame: DataFrame of values loaded from a Coinbase API response.
         """
 
+        # create a deepcopy in order to prevent carry-over to/from unrelated method calls, since lists are mutable
+        response_list = deepcopy(response_list)
+
         # convert list of dicts into dict of dicts
         data_dict = {}
         [data_dict.update({i.get(main_key): i}) for i in response_list]
@@ -198,6 +199,11 @@ class Link:
 
         # filter to only accounts that have had some activity at any point in time, if applicable
         if relevant_only:
+
+            # set verbosity to false to prevent orders_df from displaying, then change it back to its original state
+            verbosity = self.verbose
+            self.verbose = False
+
             # use order history to get list of currencies where activity has been seen
             orders_df = self.get_orders(status=["all"])
             currencies = (
@@ -210,17 +216,22 @@ class Link:
                 account_df["currency"].isin(currencies)
             ].reset_index(drop=True)
 
+            self.verbose = verbosity
+
         # exclude accounts with <= 0 balance, if applicable
         if exclude_empty_accounts:
             account_df = account_df[
                 account_df["balance"].astype(float) > 0
             ].reset_index(drop=True)
 
-        # update object attribute
-        self.accounts = account_df
-
         if self.verbose:
+            print()
             print(account_df)
+
+        # update object attribute
+        account_dict = {}
+        [account_dict.update({i.get("currency"): i}) for i in account_list]
+        self.accounts = account_dict
 
         return account_df
 
@@ -239,7 +250,8 @@ class Link:
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the headers listed below. \
+            DataFrame: DataFrame with columns corresponding to the headers listed below, \
+            in addition to an ``account_id`` column. \
             Note that the ``details`` values are treated as columns in the returned DataFrame:
             
             .. code-block::
@@ -248,7 +260,7 @@ class Link:
                 # types, response requirements, and notes are described below
 
                 {
-                            id: required
+                            id: required (note: this is the transaction id and not the account id)
                         amount: required
                     created_at: required, ISO 8601
                        balance: required
@@ -269,10 +281,16 @@ class Link:
         # load data into df
         ledger_df = self.load_df_from_API_response_list(ledger_list, "id")
 
+        # add account_id as a column
+        ledger_df["account_id"] = account_id
+
         # update object attribute
-        self.ledgers.update({account_id: ledger_df})
+        ledger_dict = {}
+        [ledger_dict.update({i.get("id"): i}) for i in ledger_list]
+        self.ledgers.update({account_id: ledger_dict})
 
         if self.verbose:
+            print()
             print(ledger_df)
 
         return ledger_df
@@ -322,9 +340,13 @@ class Link:
         transfers_df = self.load_df_from_API_response_list(transfers_list, "id")
 
         # update object attribute
-        self.transfers = transfers_df
+        transfers_dict = {}
+        for i in transfers_list:
+            transfers_dict.update({i.get("id"): i})
+        self.transfers = transfers_dict
 
         if self.verbose:
+            print()
             print(transfers_df)
 
         return transfers_df
@@ -394,9 +416,16 @@ class Link:
         orders_df = self.load_df_from_API_response_list(orders_list, "id")
 
         # update object attribute
-        self.orders = orders_df
+        orders_dict = {}
+        for i in orders_list:
+            if orders_dict.get(i.get("product_id")):
+                orders_dict.get(i.get("product_id")).update({i.get("id"): i})
+            else:
+                orders_dict.update({i.get("product_id"): {i.get("id"): i}})
+        self.orders = orders_dict
 
         if self.verbose:
+            print()
             print(orders_df)
 
         return orders_df
