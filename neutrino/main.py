@@ -107,7 +107,7 @@ class Neutrino:
             updates_available = True
         
         if updates_available:
-            update = input("\n updates are available. \
+            update = input(" updates are available. \
                 \n\n Press [enter] to update the neutrino. Input any other key to continue without updating: ")
             if update == "":
                 self.update_neutrino(check_completed=True)
