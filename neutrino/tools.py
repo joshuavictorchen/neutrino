@@ -145,7 +145,7 @@ def parse_yaml(filepath, echo_yaml=True):
     return yaml_data
 
 
-def load_yaml_settings(self, settings_file, settings_template_file):
+def load_yaml_settings(settings_file, settings_template_file):
     """Loads a dictionary of settings values from a YAML file.
 
     This YAML file is gitignored so that the repository's configuration is not affected by user personalization.

@@ -1,9 +1,14 @@
 import unittest
+import neutrino
 
 
-class TestCbproLink(unittest.TestCase):
-    def test_test(self):
-        self.assertEqual(1, 1)
+class TestNeutrino(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.neutrino = neutrino.Neutrino()
+
+    def test_instantiation(self):
+        self.assertTrue(type(self.neutrino) == neutrino.Neutrino)
 
 
 if __name__ == "__main__":
