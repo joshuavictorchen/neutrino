@@ -148,12 +148,12 @@ def save_dataframe_as_csv(df, df_name, filepath):
 
     while True:
         try:
-            df.to_csv(filepath)
+            df.to_csv(filepath, index=False)
             break
         except PermissionError:
             response = input(
                 f"\n Error exporting {df_name} to CSV: {filepath} is currently open.\
-                Close the file and press [enter] to continue. Input any other key to abort: "
+                \n Close the file and press [enter] to continue. Input any other key to abort: "
             )
             if response != "":
                 print(f"\n {df_name} CSV not saved.")

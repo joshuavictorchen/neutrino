@@ -99,20 +99,25 @@ class Neutrino:
             return
 
         # save CSVs
-        account_df.to_csv(
-            self.settings.get("csv_directory") + "\\accounts.csv", index=False
+        t.save_dataframe_as_csv(
+            account_df,
+            "account_df",
+            self.settings.get("csv_directory") + "\\accounts.csv",
         )
         for i in account_df.index:
-            ledgers.get(i).to_csv(
+            t.save_dataframe_as_csv(
+                ledgers.get(i),
+                account_df.at[i, "currency"].lower() + "_df",
                 self.settings.get("csv_directory")
                 + f"\\{account_df.at[i, 'currency']}.csv",
-                index=False,
             )
-        transfers_df.to_csv(
-            self.settings.get("csv_directory") + "\\transfers.csv", index=False
+        t.save_dataframe_as_csv(
+            transfers_df,
+            "transfers_df",
+            self.settings.get("csv_directory") + "\\transfers.csv",
         )
-        orders_df.to_csv(
-            self.settings.get("csv_directory") + "\\orders.csv", index=False
+        t.save_dataframe_as_csv(
+            orders_df, "orders_df", self.settings.get("csv_directory") + "\\orders.csv"
         )
 
     def configure_new_stream(
