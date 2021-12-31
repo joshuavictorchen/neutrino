@@ -1,7 +1,7 @@
 *.neutrino-private
 .vscode
 notebooks/
-csv-database/
+database/
 user-settings.yaml
 
 # Byte-compiled / optimized / DLL files

@@ -5,6 +5,7 @@ import subprocess
 import sys
 from neutrino.link import Link
 from neutrino.stream import Stream
+from pathlib import Path
 from threading import Thread
 
 
@@ -47,23 +48,23 @@ class Neutrino:
     def __init__(self, cbkey_set_name="default"):
 
         # establish directory in which neutrino is installed
-        self.neutrino_dir = os.path.abspath(
-            os.path.join(os.path.join(__file__, os.pardir), os.pardir)
+        self.neutrino_dir = Path(
+            os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))
         )
 
         # establish locations of files and folders
-        self.user_settings_file = self.neutrino_dir + "\\user-settings.yaml"
+        self.user_settings_file = Path(self.neutrino_dir) / "user-settings.yaml"
         self.template_user_settings_file = (
-            self.neutrino_dir + "\\strings\\template-user-settings.yaml"
+            Path(self.neutrino_dir) / "strings/template-user-settings.yaml"
         )
-        self.database_path = self.neutrino_dir + "\\database"
+        self.database_path = Path(self.neutrino_dir) / "database"
 
         # load settings
         self.user_settings = t.load_yaml_settings(
             self.user_settings_file, self.template_user_settings_file
         )
         self.neutrino_settings = t.parse_yaml(
-            self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False
+            Path(self.neutrino_dir) / "strings/neutrino-settings.yaml", echo_yaml=False
         )
         self.repo = t.retrieve_repo()
 
@@ -78,7 +79,7 @@ class Neutrino:
             "default_link",
             self.neutrino_settings.get("api_url"),
             self.auth,
-            database_path=self.database_path,
+            self.database_path,
         )
         self.streams = {}
         self.threads = {}

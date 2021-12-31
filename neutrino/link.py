@@ -4,6 +4,7 @@ import requests
 import time
 from copy import deepcopy
 from datetime import datetime
+from pathlib import Path
 
 MAX_CANDLE_REQUEST = 300
 
@@ -14,7 +15,8 @@ class Link:
     **Instance attributes:** \n
         * **name** (*str*): :py:obj:`Link`'s name.
         * **verbose** (*bool*): If ``True``, then API responses are printed to the console.
-        * **database_path** (*str*): Absolute filepath to the folder to which the Link exports CSV files.
+        * **database_path** (*Path*): :py:obj:`Path` object containing the absolute filepath to the folder \
+            to which the Link exports CSV files.
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
@@ -30,13 +32,13 @@ class Link:
         auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
     """
 
-    def __init__(self, name, url, auth, verbose=False, database_path=None):
+    def __init__(self, name, url, auth, database_path, verbose=False):
 
         self.name = name
         self.url = url
         self.update_auth(auth)
         self.verbose = verbose
-        self.database_path = database_path
+        self.database_path = Path(database_path)
 
         self.session = requests.Session()
         self.accounts = None
@@ -74,7 +76,7 @@ class Link:
             database_path (str): Absolute filepath to the folder to which the Link exports CSV files.
         """
 
-        self.database_path = database_path
+        self.database_path = Path(database_path)
 
     def send_api_request(self, method, endpoint, params=None, pages=[]):
         """Sends an API request to the specified Coinbase Exchange endpoint and returns the response.
@@ -248,7 +250,7 @@ class Link:
         # export to CSV, if applicable
         if save:
             t.save_dataframe_as_csv(
-                account_df, "account_df", self.database_path + "\\accounts.csv"
+                account_df, "account_df", self.database_path / "accounts.csv"
             )
 
         # update object attribute
@@ -350,7 +352,7 @@ class Link:
             t.save_dataframe_as_csv(
                 ledger_df,
                 f"ledger-{coin}_df",
-                self.database_path + f"\ledger-{coin}.csv",
+                self.database_path / f"ledger-{coin}.csv",
             )
 
         return ledger_df
@@ -416,7 +418,7 @@ class Link:
         # export to CSV, if applicable
         if save:
             t.save_dataframe_as_csv(
-                transfers_df, "transfers_df", self.database_path + "\\transfers.csv"
+                transfers_df, "transfers_df", self.database_path / "transfers.csv"
             )
 
         return transfers_df
@@ -505,7 +507,7 @@ class Link:
         # export to CSV, if applicable
         if save:
             t.save_dataframe_as_csv(
-                orders_df, "orders_df", self.database_path + "\\orders.csv"
+                orders_df, "orders_df", self.database_path / "orders.csv"
             )
 
         return orders_df
