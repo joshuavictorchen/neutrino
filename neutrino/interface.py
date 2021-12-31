@@ -144,6 +144,13 @@ def interact(neutrino):
                     if neutrino.streams.get(arg[1]).active:
                         neutrino.stop_stream(arg[1])
                     print(f"\n {e}")
+            
+            elif arg[0] == "update":
+
+                if arg[-1] == "force":
+                    neutrino.update_neutrino(check_completed=True)
+                else:
+                    neutrino.update_neutrino()
 
             else:
                 print("\n Unrecognized command.")

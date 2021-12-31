@@ -1,21 +1,19 @@
 import os
 import neutrino.interface as i
 import neutrino.tools as t
+import shutil
+import subprocess
+import sys
+import yaml
 from neutrino.link import Link
 from neutrino.stream import Stream
 from threading import Thread
 
 
-NEUTRINODIR = (
-    f"{os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))}"
-)
-SETTINGSFILE = f"{NEUTRINODIR}\\settings.yaml"
-
-
 def main():
 
     # print repository data
-    t.print_git()
+    t.retrieve_repo(verbose=True)
 
     # instantiate a Neutrino
     # hard-code 'default' cbkey_set_name for now
@@ -36,7 +34,7 @@ class Neutrino:
 
     .. note::
 
-        Authentication is currently handled using a plaintext YAML file defined in ``settings.yaml``. \
+        Authentication is currently handled using a plaintext YAML file defined in ``user-settings.yaml``. \
         It will be updated to use a more secure method in the future.
 
     Args:
@@ -50,21 +48,113 @@ class Neutrino:
 
     def __init__(self, cbkey_set_name="default"):
 
-        self.settings = t.parse_yaml(SETTINGSFILE, echo_yaml=False)
-        self.cbkeys = t.parse_yaml(self.settings.get("keys_file"), echo_yaml=False)
-        self.test_parameters = t.parse_yaml(
-            self.settings.get("test_parameters_file"), echo_yaml=False
+        # establish directory in which neutrino is installed
+        self.neutrino_dir = os.path.abspath(
+            os.path.join(
+                os.path.join(__file__, os.pardir), os.pardir
+            )
         )
+
+        # establish locations of files and folders
+        self.user_settings_file = self.neutrino_dir + "\\user-settings.yaml"
+        self.template_user_settings_file = self.neutrino_dir + "\\strings\\template-user-settings.yaml"
+        self.database_path = self.neutrino_dir + "\\database"
+
+        # load settings
+        self.user_settings = self.load_yaml_settings(self.user_settings_file, self.template_user_settings_file)
+        self.neutrino_settings = t.parse_yaml(self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False)
+        self.repo = t.retrieve_repo()
+
+        # check for updates
+        if self.user_settings.get("check_for_updates"):
+            self.check_for_updates()
+
+        # establish unique neutrino attributes
+        self.cbkeys = t.parse_yaml(self.user_settings.get("keys_file"), echo_yaml=False)
         self.update_auth(cbkey_set_name)
         self.link = Link(
             "default_link",
-            self.settings.get("api_url"),
+            self.neutrino_settings.get("api_url"),
             self.auth,
-            database_path=self.settings.get("csv_directory"),
+            database_path=self.database_path,
         )
         self.streams = {}
         self.threads = {}
         self.coins = {}
+
+    def load_yaml_settings(self, settings_file, settings_template_file):
+
+        # if file does not exist, copy one from the default template
+        if not os.path.isfile(settings_file):
+            # TODO: prompt user to update keys_file defs, etc.
+            shutil.copy2(settings_template_file, settings_file)
+            print(f"\n Settings file generated: {settings_file}")
+        
+        with open(settings_file) as stream:
+            try:
+                settings = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                sys.exit(f"\n Neutrino annihilated - settings file is corrupted:\n\n {exc}")
+        
+        return settings
+
+    def check_for_updates(self):
+
+        print("\n Checking for updates...", end = "")
+        self.repo.remotes.origin.fetch()
+        updates_available = False
+        if sum(1 for i in self.repo.iter_commits(f"{self.repo.active_branch.name}..origin/{self.repo.active_branch.name}")) > 0:
+            updates_available = True
+        
+        if updates_available:
+            update = input("\n updates are available. \
+                \n Press [enter] to update the neutrino. Input any other key to continue without updating: ")
+            if update == "":
+                self.update_neutrino(check_completed=True)
+                sys.exit()
+        else:
+            print(" the neutrino is up to date.")
+
+        return updates_available
+        
+    def update_neutrino(self, check_completed=False, force=False):
+
+        if not check_completed and not force:
+            self.check_for_updates()
+            return
+        
+        try:
+            # git pull
+            self.repo.remotes.origin.pull()
+        
+            # git submodule update --init
+            for submodule in self.repo.submodules:
+                submodule.update(init=True)
+            
+            # refresh internal settings
+            self.neutrino_settings = t.parse_yaml(self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False)
+
+            # if a pip install is required for this update, then do a pip install
+            # remember to switch to the neutrino directory first, then switch back after
+            if self.neutrino_settings.get("pip_install"):
+                print(f"\n A pip install is required for this update.\n")
+                this_dir = os.getcwd()
+                os.chdir(self.neutrino_dir)
+                subprocess.call("pip install -U -e . --user", shell=True)
+                os.chdir(this_dir)
+        
+        except Exception as exc:
+            print(f"\n Error during self-update process:\n")
+            [print(f"   {i}") for i in repr(exc).split("\n")]
+            sys.exit(
+                "\n Self-update cancelled. Please check your repository configuration and/or try a manual update."
+            )
+        
+        print(f"\n Update complete.")
+
+        t.retrieve_repo(verbose=True)
+
+        print(f"\n Change summary: {self.neutrino_settings.get('changelog')}")
 
     def update_auth(self, cbkey_set):
         """Updates the keys used for authenticating Coinbase WebSocket and API requests.
@@ -129,7 +219,7 @@ class Neutrino:
         # initialize a stream + thread, and add to self.streams and self.threads
         stream = Stream(
             name,
-            self.settings.get("stream_url"),
+            self.neutrino_settings.get("stream_url"),
             type,
             product_ids,
             channels,

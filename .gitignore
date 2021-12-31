@@ -1,6 +1,8 @@
 *.neutrino-private
 .vscode
 notebooks/
+csv-database/
+user-settings.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

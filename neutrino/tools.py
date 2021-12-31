@@ -86,10 +86,13 @@ def generate_auth_headers(timestamp, message, cbkey_set):
     }
 
 
-def print_git():
-    """Prints metadata on the local neutrino repository in the format of:
+def retrieve_repo(verbose=False):
+    """Retrieves metadata on the local neutrino repository. Optionally prints to the console in the format of:
 
     ``n | <branch>-<commit>-<is_modified>``
+
+    Returns:
+        Repo: git.Repo object representing the local neutrino repository.
     """
 
     # instantiate a repo object for the neutrino repository
@@ -98,18 +101,22 @@ def print_git():
         search_parent_directories=True,
     )
 
-    # get repo attributes
-    branch_name = repo.active_branch.name
-    commit_id = repo.head.object.hexsha[:7]
-    is_dirty = repo.is_dirty(untracked_files=True)
+    # print repo attributes, if applicable
+    if verbose:
 
-    # format print statement
-    output = f"\n n | {branch_name}-{commit_id}"
-    if is_dirty:
-        output += "-modified"
+        # get repo attributes
+        branch_name = repo.active_branch.name
+        commit_id = repo.head.object.hexsha[:7]
+        is_dirty = repo.is_dirty(untracked_files=True)
 
-    # print repo attributes
-    print(output)
+        # format output
+        output = f"\n n | {branch_name}-{commit_id}"
+        if is_dirty:
+            output += "-modified"
+
+        print(output)
+
+    return repo
 
 
 def parse_yaml(filepath, echo_yaml=True):

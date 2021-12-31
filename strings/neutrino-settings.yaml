@@ -1,0 +1,11 @@
+---
+
+# cbpro websocket feed endpoint URL
+stream_url: wss://ws-feed.pro.coinbase.com
+
+# cbpro API URL
+api_url: https://api.pro.coinbase.com
+
+# update info
+pip_install: False
+changelog: --
