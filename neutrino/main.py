@@ -157,7 +157,7 @@ class Neutrino:
 
             # refresh internal settings
             self.neutrino_settings = t.parse_yaml(
-                self.neutrino_dir + "\\strings\\neutrino-settings.yaml", echo_yaml=False
+                self.neutrino_dir / "strings/neutrino-settings.yaml", echo_yaml=False
             )
 
             # if a pip install is required for this update, then do a pip install

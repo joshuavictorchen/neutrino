@@ -147,7 +147,7 @@ def interact(neutrino):
 
             elif arg[0] == "update":
 
-                if arg[-1] == "force":
+                if arg[-1] == "-f":
                     neutrino.update_neutrino(check_completed=True)
                 else:
                     neutrino.update_neutrino()
