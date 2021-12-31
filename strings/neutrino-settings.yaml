@@ -7,5 +7,7 @@ stream_url: wss://ws-feed.pro.coinbase.com
 api_url: https://api.pro.coinbase.com
 
 # update info
-pip_install: False
-changelog: --
+pip_install: True
+changelog:
+  - placeholder 1
+  - placeholder 2

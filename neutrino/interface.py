@@ -155,8 +155,11 @@ def interact(neutrino):
             else:
                 print("\n Unrecognized command.")
 
-        except:
-            print(
-                "\n ERROR: prototype interface has encountered the following exception:\n"
-            )
-            traceback.print_exc()
+        except Exception as exc:
+            if exc == "\n Neutrino annihilated.":
+                break
+            else:
+                print(
+                    "\n ERROR: prototype interface has encountered the following exception:\n"
+                )
+                traceback.print_exc()

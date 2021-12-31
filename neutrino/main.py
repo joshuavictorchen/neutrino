@@ -1,5 +1,5 @@
 import os
-import neutrino.interface as i
+import neutrino.interface as interface
 import neutrino.tools as t
 import shutil
 import subprocess
@@ -21,11 +21,11 @@ def main():
     n = Neutrino("default")
 
     # perform actions
-    i.interact(n)
+    interface.interact(n)
 
     # exit program
     print("\n Neutrino annihilated.")
-    print(i.DIVIDER)
+    print(interface.DIVIDER)
 
 
 class Neutrino:
@@ -108,7 +108,7 @@ class Neutrino:
         
         if updates_available:
             update = input("\n updates are available. \
-                \n Press [enter] to update the neutrino. Input any other key to continue without updating: ")
+                \n\n Press [enter] to update the neutrino. Input any other key to continue without updating: ")
             if update == "":
                 self.update_neutrino(check_completed=True)
                 sys.exit()
@@ -137,11 +137,16 @@ class Neutrino:
             # if a pip install is required for this update, then do a pip install
             # remember to switch to the neutrino directory first, then switch back after
             if self.neutrino_settings.get("pip_install"):
-                print(f"\n A pip install is required for this update.\n")
-                this_dir = os.getcwd()
-                os.chdir(self.neutrino_dir)
-                subprocess.call("pip install -U -e . --user", shell=True)
-                os.chdir(this_dir)
+                pip_install = input(f"\n A pip install is required for this update. \
+                    \n\n Press [enter] to perform this installation. Input any other key to decline: ")
+                if pip_install == "":
+                    print()
+                    this_dir = os.getcwd()
+                    os.chdir(self.neutrino_dir)
+                    subprocess.call("pip install -U -e . --user", shell=True)
+                    os.chdir(this_dir)
+                else:
+                    print(f"\n WARNING: pip install not performed - some dependencies may be missing.")
         
         except Exception as exc:
             print(f"\n Error during self-update process:\n")
@@ -150,11 +155,13 @@ class Neutrino:
                 "\n Self-update cancelled. Please check your repository configuration and/or try a manual update."
             )
         
-        print(f"\n Update complete.")
+        print(f"\n Update complete - change summary:")
+        for i in self.neutrino_settings.get('changelog'):
+            print(f"   + {i}")
 
         t.retrieve_repo(verbose=True)
 
-        print(f"\n Change summary: {self.neutrino_settings.get('changelog')}")
+        sys.exit("\n Neutrino annihilated.")
 
     def update_auth(self, cbkey_set):
         """Updates the keys used for authenticating Coinbase WebSocket and API requests.
