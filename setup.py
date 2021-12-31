@@ -7,7 +7,7 @@ setup(
     entry_points={"console_scripts": ["neutrino = neutrino.main:main"]},
     install_requires=[
         "requests",
-        "websocket",
+        "websocket-client",
         "gitpython",
         "pandas",
         "datetime",

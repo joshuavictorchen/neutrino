@@ -1,10 +1,8 @@
 import os
 import neutrino.interface as interface
 import neutrino.tools as t
-import shutil
 import subprocess
 import sys
-import yaml
 from neutrino.link import Link
 from neutrino.stream import Stream
 from threading import Thread
