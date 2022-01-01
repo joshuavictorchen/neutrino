@@ -590,6 +590,7 @@ class Link:
         recurse = end > t.add_minutes_to_time_string(start, max_data_pull)
 
         # define the actual start/end parameters which will be passed into the API request
+        # retain the original `start` and `end` variables to be passed on recursively, if needed
         request_start = start
         request_end = end
 
