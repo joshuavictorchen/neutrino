@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 MAX_CANDLE_REQUEST = 300
+pd.set_option('display.max_rows', None)
 
 
 class Link:
@@ -589,15 +590,16 @@ class Link:
         recurse = end > t.add_minutes_to_time_string(start, max_data_pull)
 
         # define the actual start/end parameters which will be passed into the API request
-        # NOTE: request_start is offset by 1 to get the right timestamp due to Coinbase API behavior
-        request_start = t.add_minutes_to_time_string(start, -1 * granularity / 60)
+        request_start = start
         request_end = end
 
         # if recursion is necessary:
-        # [1] modify the requested end parameter to keep it within the allowable request bounds
-        # [2] update the 'start' variable to the first un-requested timestamp
+        # [1] update request_start to account for fenceposting
+        # [2] modify the requested end parameter to keep it within the allowable request bounds
+        # [3] update the 'start' variable to the first un-requested timestamp
         #     (this is to set up the next API request)
         if recurse:
+            request_start = t.add_minutes_to_time_string(start, -1 * granularity / 60)
             request_end = t.add_minutes_to_time_string(start, max_data_pull)
             start = t.add_minutes_to_time_string(
                 start, max_data_pull + (granularity / 60)

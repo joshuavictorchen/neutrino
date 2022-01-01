@@ -6,17 +6,20 @@ DIVIDER = (
 
 
 def interact(neutrino):
-    """Temporary rudimentary command-line interface that executes Neutrino-related commands from user input.
+    """Temporary rudimentary command line interface that executes Neutrino-related commands from user input. \
+    The jankiness of this implementation and availability of modules such as ``argparse` are well-understood. \
+    This is mostly used for highly flexible testing/debugging during development.
 
     This function is wrapped in a ``while True`` block to execute an arbitrary number of commands \
     until terminated by the user.
 
-    Further documentation TBD. This is currently mostly used for testing/debugging during development. To be updated to use something like ``argparse`` for implementation.
+    Further documentation TBD.
 
     Args:
         neutrino (Neutrino): An initialized :py:obj:`Neutrino<neutrino.main.Neutrino>` object.
     """
 
+    # set verbosity to True to print outputs to console
     neutrino.link.set_verbosity(True)
 
     # continuously accept user input
@@ -29,9 +32,14 @@ def interact(neutrino):
             # gather user input as a list of tokens
             arg = input("\n>>> ").split()
 
+            # reload user settings (user can update settings file prior to providing new command)
+            neutrino.refresh_user_settings()
+
             # don't do anything if no input was provided
             if len(arg) == 0:
                 continue
+
+            # TODO: get arg metadata (length, etc.)
 
             # exit the program if 'quit' or 'q' are entered
             if arg[0] in ("quit", "q"):
@@ -40,6 +48,10 @@ def interact(neutrino):
             # print list of available commands
             if arg[0] in ("help", "h"):
                 print("\n Help coming soon.")
+            
+            # print neutrino attributes/internal data
+            if arg[0] in ("state"):
+                print("\n State coming soon.")
 
             # update cbkey_set used for authentication
             elif arg[0] == "cbkeys":
@@ -57,6 +69,7 @@ def interact(neutrino):
             # parse 'get' statements
             elif arg[0] == "get":
 
+                # establish whether or not to export retrieved data to CSV
                 save = True if arg[-1] == "-s" else False
 
                 # TODO: prompt user w/ list of acceptable values
@@ -94,9 +107,11 @@ def interact(neutrino):
                     neutrino.link.get_fees()
 
                 elif arg[1] == "candles":
-                    # TODO: next arg should be a coin pair; hardcode with BTC-USD for now
-                    # TODO: add start/end args
-                    neutrino.link.get_product_candles("BTC-USD")
+                    neutrino.link.get_product_candles(
+                        neutrino.user_settings.get("candles").get("product_id"),
+                        granularity=neutrino.user_settings.get("candles").get("granularity"),
+                        start=neutrino.user_settings.get("candles").get("start"),
+                        end=neutrino.user_settings.get("candles").get("end"))
 
                 elif arg[1] == "all":
                     neutrino.get_all_link_data(save=save)

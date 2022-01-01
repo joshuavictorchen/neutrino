@@ -193,6 +193,15 @@ class Neutrino:
 
         sys.exit("\n Neutrino annihilated.")
 
+    def refresh_user_settings(self):
+        """Reloads ``self.user_settings`` from ``self.user_settings_file``. This allows the user to update the \
+            user settings file with different inputs between Neutrino commands.
+        """
+
+        self.user_settings = t.load_yaml_settings(
+            self.user_settings_file, self.template_user_settings_file
+        )
+
     def update_auth(self, cbkey_set):
         """Updates the keys used for authenticating Coinbase WebSocket and API requests.
 
@@ -235,6 +244,14 @@ class Neutrino:
 
         # get fees
         self.link.get_fees()
+
+    def load_product_candles(self, product_id, granularity=60, start=None, end=None):
+
+        # if dbfile exists, then generate pull bounds
+
+        # 
+
+        pass
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"
