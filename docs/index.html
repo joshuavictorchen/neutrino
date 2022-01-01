@@ -212,12 +212,74 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.retrieve_product_candles">
 <span class="sig-name descname"><span class="pre">retrieve_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.retrieve_product_candles" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Performs the following actions to efficiently retrieve the requested product candle dataset:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Loads in a dataframe of <code class="docutils literal notranslate"><span class="pre">product_id</span></code> data from the Neutrino’s <code class="docutils literal notranslate"><span class="pre">database</span></code> directory, if                 such data exists.</p></li>
+<li><p>Inspects the dataframe from Step 1 (if applicable) and augments this data as necessary via                 new API requests.</p></li>
+<li><p>Saves the augmented data to the <code class="docutils literal notranslate"><span class="pre">database</span></code> file, if applicable.</p></li>
+<li><p>Returns a DataFrame of <code class="docutils literal notranslate"><span class="pre">product_id</span></code> candles with the appropriate <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> bounds.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>product_id</strong> (<em>str</em>) – The coin trading pair (i.e., ‘BTC-USD’).</p></li>
+<li><p><strong>granularity</strong> (<em>int</em><em>, </em><em>optional</em>) – Granularity of the returned candles in seconds. Must be one of the following values:                 <code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">300</span></code>, <code class="docutils literal notranslate"><span class="pre">900</span></code>, <code class="docutils literal notranslate"><span class="pre">3600</span></code>, <code class="docutils literal notranslate"><span class="pre">21600</span></code>, <code class="docutils literal notranslate"><span class="pre">86400</span></code>.</p></li>
+<li><p><strong>start</strong> (<em>str</em><em>, </em><em>optional</em>) – Start bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>end</strong> (<em>str</em><em>, </em><em>optional</em>) – End bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the augmented dataset to the <code class="docutils literal notranslate"><span class="pre">database</span></code> file if <code class="docutils literal notranslate"><span class="pre">True</span></code>.                 Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with the following columns for each candle:                 <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">product_id</span></code>, <code class="docutils literal notranslate"><span class="pre">low</span></code>, <code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">open</span></code>, <code class="docutils literal notranslate"><span class="pre">close</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.generate_candle_pull_bounds">
 <span class="sig-name descname"><span class="pre">generate_candle_pull_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candles_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.generate_candle_pull_bounds" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Determines what additional API requests need to be made, if any, to augment a provided dataset             in order to fulfill a request for candle data.</p>
+<blockquote>
+<div><p>This function looks for required pulls:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Before the first <code class="docutils literal notranslate"><span class="pre">candles_df</span></code> entry.</p></li>
+<li><p>After the last <code class="docutils literal notranslate"><span class="pre">candles_df</span></code> entry.</p></li>
+<li><p>Within the <code class="docutils literal notranslate"><span class="pre">candles_df</span></code> entry for an arbitrary amount of internal gaps in the dataset.</p></li>
+</ol>
+</div></blockquote>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>candles_df</strong> (<em>DataFrame</em>) – Initial dataset of candle data for a given <code class="docutils literal notranslate"><span class="pre">product_id</span></code>.</p></li>
+<li><p><strong>granularity</strong> (<em>int</em><em>, </em><em>optional</em>) – Granularity of the returned candles in seconds. Must be one of the following values:                 <code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">300</span></code>, <code class="docutils literal notranslate"><span class="pre">900</span></code>, <code class="docutils literal notranslate"><span class="pre">3600</span></code>, <code class="docutils literal notranslate"><span class="pre">21600</span></code>, <code class="docutils literal notranslate"><span class="pre">86400</span></code>.</p></li>
+<li><p><strong>start</strong> (<em>str</em><em>, </em><em>optional</em>) – Start bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>end</strong> (<em>str</em><em>, </em><em>optional</em>) – End bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Dictionary of required pull bounds in the following form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="n">start_time_1</span><span class="p">:</span> <span class="n">end_time_1</span><span class="p">,</span>
+    <span class="n">start_time_2</span><span class="p">:</span> <span class="n">end_time_2</span><span class="p">,</span>
+    <span class="o">...</span>
+    <span class="n">start_time_n</span><span class="p">:</span> <span class="n">end_time_n</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict (str)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
@@ -740,7 +802,7 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>DataFrame with the following columns for each candle:                 <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">low</span></code>, <code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">open</span></code>, <code class="docutils literal notranslate"><span class="pre">close</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code></p>
+<dd class="field-even"><p>DataFrame with the following columns for each candle:                 <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">product_id</span></code>, <code class="docutils literal notranslate"><span class="pre">low</span></code>, <code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">open</span></code>, <code class="docutils literal notranslate"><span class="pre">close</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>DataFrame</p>
@@ -751,12 +813,42 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.calculate_max_candle_pull_minutes">
 <span class="sig-name descname"><span class="pre">calculate_max_candle_pull_minutes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">granularity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.calculate_max_candle_pull_minutes" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the maximum allowable time range for a single Coinbase API request             for the provided granularity. The API allows a maximum pull of 300 time steps per request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>granularity</strong> (<em>int</em><em>, </em><em>optional</em>) – Granularity of the returned candles in seconds. Must be one of the following values:                 <code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">300</span></code>, <code class="docutils literal notranslate"><span class="pre">900</span></code>, <code class="docutils literal notranslate"><span class="pre">3600</span></code>, <code class="docutils literal notranslate"><span class="pre">21600</span></code>, <code class="docutils literal notranslate"><span class="pre">86400</span></code>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Maximum allowable time range for a single API request in minutes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.augment_candle_bounds">
 <span class="sig-name descname"><span class="pre">augment_candle_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_data_pull</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.augment_candle_bounds" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Update a candle request’s <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> parameters if none are provided.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> time is provided, then the current local time is used.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">start</span></code> time is provided, then <code class="docutils literal notranslate"><span class="pre">start</span></code> is set to the earliest time that fits into         a single API request, as calculated by the <code class="docutils literal notranslate"><span class="pre">end</span></code> time minus <code class="docutils literal notranslate"><span class="pre">max_data_pull</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_data_pull</strong> (<em>int</em>) – Maximum allowable time range for a single API request in minutes.</p></li>
+<li><p><strong>start</strong> (<em>str</em>) – Start bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>end</strong> (<em>str</em>) – End bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> parameters in the form of <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple (str)</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -866,7 +958,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.load_dataframe_from_csv">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_dataframe_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_dataframe_from_csv" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Loads a DataFrame from a CSV file. Importantly, this method ensures that timestamp data is parsed         in a consistent and expected format.</p>
+<blockquote>
+<div><p>Further documentation TBD.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>csv_path</strong> (<em>str</em>) – Absolute path to the CSV file to be loaded into a DataFrame.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame object containing the specified CSV data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.print_recursive_dict">
@@ -1064,7 +1171,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-01 15:23:02.
+      <span class="lastupdated">Last updated on 2022-01-01 15:57:06.
       </span></p>
   </div>
 

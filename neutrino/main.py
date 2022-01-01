@@ -250,6 +250,28 @@ class Neutrino:
     def retrieve_product_candles(
         self, product_id, granularity=60, start=None, end=None, save=False
     ):
+        """Performs the following actions to efficiently retrieve the requested product candle dataset:
+
+            1. Loads in a dataframe of ``product_id`` data from the Neutrino's ``database`` directory, if \
+                such data exists.
+            2. Inspects the dataframe from Step 1 (if applicable) and augments this data as necessary via \
+                new API requests.
+            3. Saves the augmented data to the ``database`` file, if applicable.
+            4. Returns a DataFrame of ``product_id`` candles with the appropriate ``start`` and ``end`` bounds.
+
+        Args:
+            product_id (str): The coin trading pair (i.e., 'BTC-USD').
+            granularity (int, optional): Granularity of the returned candles in seconds. Must be one of the following values: \
+                ``60``, ``300``, ``900``, ``3600``, ``21600``, ``86400``.
+            start (str, optional): Start bound of the request (``%Y-%m-%d %H:%M``).
+            end (str, optional): End bound of the request (``%Y-%m-%d %H:%M``).
+            save (bool, optional): Exports the augmented dataset to the ``database`` file if ``True``. \
+                Defaults to ``False``.
+
+        Returns:
+            DataFrame: DataFrame with the following columns for each candle: \
+                ``time``, ``product_id``, ``low``, ``high``, ``open``, ``close``, ``volume``
+        """
 
         # update start/end bounds if no input was provided
         (start, end) = self.link.augment_candle_bounds(
@@ -307,6 +329,34 @@ class Neutrino:
         return returned_df
 
     def generate_candle_pull_bounds(self, candles_df, granularity, start, end):
+        """Determines what additional API requests need to be made, if any, to augment a provided dataset \
+            in order to fulfill a request for candle data.
+
+            This function looks for required pulls:
+
+                1. Before the first ``candles_df`` entry.
+                2. After the last ``candles_df`` entry.
+                3. Within the ``candles_df`` entry for an arbitrary amount of internal gaps in the dataset.
+
+        Args:
+            candles_df (DataFrame): Initial dataset of candle data for a given ``product_id``.
+            granularity (int, optional): Granularity of the returned candles in seconds. Must be one of the following values: \
+                ``60``, ``300``, ``900``, ``3600``, ``21600``, ``86400``.
+            start (str, optional): Start bound of the request (``%Y-%m-%d %H:%M``).
+            end (str, optional): End bound of the request (``%Y-%m-%d %H:%M``).
+
+        Returns:
+            dict (str): Dictionary of required pull bounds in the following form:
+
+            .. code-block::
+
+                {
+                    start_time_1: end_time_1,
+                    start_time_2: end_time_2,
+                    ...
+                    start_time_n: end_time_n
+                }
+        """
 
         pull_bounds = {}
 

@@ -165,9 +165,23 @@ def save_dataframe_as_csv(df, csv_name, database_path):
 
 
 def load_dataframe_from_csv(csv_path):
+    """Loads a DataFrame from a CSV file. Importantly, this method ensures that timestamp data is parsed \
+        in a consistent and expected format.
 
+        Further documentation TBD.
+
+    Args:
+        csv_path (str): Absolute path to the CSV file to be loaded into a DataFrame.
+
+    Returns:
+        DataFrame: DataFrame object containing the specified CSV data.
+    """
+
+    # read the CSV into a df
     df = pd.read_csv(csv_path)
 
+    # use the add_minutes_to_time_string method (adding 0 minutes) on each column
+    # this ensures proper timestamp formatting for all columns containing generic timestamp strings
     for column in df:
         try:
             df[column] = df[column].apply(lambda x: add_minutes_to_time_string(x, 0))

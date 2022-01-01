@@ -552,7 +552,7 @@ class Link:
 
         Returns:
             DataFrame: DataFrame with the following columns for each candle: \
-                ``time``, ``low``, ``high``, ``open``, ``close``, ``volume``
+                ``time``, ``product_id``, ``low``, ``high``, ``open``, ``close``, ``volume``
         """
 
         # TODO: add robust error handling
@@ -644,6 +644,16 @@ class Link:
         return candles_df
 
     def calculate_max_candle_pull_minutes(self, granularity):
+        """Calculate the maximum allowable time range for a single Coinbase API request \
+            for the provided granularity. The API allows a maximum pull of 300 time steps per request.
+
+        Args:
+            granularity (int, optional): Granularity of the returned candles in seconds. Must be one of the following values: \
+                ``60``, ``300``, ``900``, ``3600``, ``21600``, ``86400``.
+
+        Returns:
+            int: Maximum allowable time range for a single API request in minutes.
+        """
 
         # granularity / 60 <-- get time in minutes
         # MAX_CANDLE_REQUEST -1 <-- account for fenceposting
@@ -651,6 +661,21 @@ class Link:
         return granularity / 60 * (MAX_CANDLE_REQUEST - 1)
 
     def augment_candle_bounds(self, max_data_pull, start, end):
+        """Update a candle request's ``start`` and ``end`` parameters if none are provided.
+
+        If no ``end`` time is provided, then the current local time is used.
+
+        If no ``start`` time is provided, then ``start`` is set to the earliest time that fits into \
+        a single API request, as calculated by the ``end`` time minus ``max_data_pull``.
+
+        Args:
+            max_data_pull (int): Maximum allowable time range for a single API request in minutes.
+            start (str): Start bound of the request (``%Y-%m-%d %H:%M``).
+            end (str): End bound of the request (``%Y-%m-%d %H:%M``).
+
+        Returns:
+            tuple (str): Updated ``start`` and ``end`` parameters in the form of ``(start, end)``.
+        """
 
         # if no end is given, then use current time
         if not end:
