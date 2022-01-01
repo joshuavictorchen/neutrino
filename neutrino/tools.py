@@ -3,6 +3,7 @@ import git
 import hashlib
 import hmac
 import os
+import pandas as pd
 import shutil
 import sys
 import time
@@ -161,6 +162,19 @@ def save_dataframe_as_csv(df, csv_name, database_path):
                 return
 
     print(f" \n {csv_name} exported to: {filepath}")
+
+
+def load_dataframe_from_csv(csv_path):
+
+    df = pd.read_csv(csv_path)
+
+    for column in df:
+        try:
+            df[column] = df[column].apply(lambda x: add_minutes_to_time_string(x, 0))
+        except:
+            pass
+
+    return df
 
 
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):

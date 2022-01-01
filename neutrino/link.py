@@ -558,17 +558,10 @@ class Link:
         # TODO: add robust error handling
 
         # determine the maximum number of data points that can be pulled
-        # granularity / 60 <-- get time in minutes
-        # MAX_CANDLE_REQUEST -1 <-- account for fenceposting
-        max_data_pull = granularity / 60 * (MAX_CANDLE_REQUEST - 1)
+        max_data_pull = self.calculate_max_candle_pull_minutes(granularity)
 
-        # if no end is given, then use current time
-        if not end:
-            end = time.strftime("%Y-%m-%d %H:%M", time.localtime())
-
-        # if no start is given, then use end minus (granularity * MAX_CANDLE_REQUEST)
-        if not start:
-            start = t.add_minutes_to_time_string(end, -1 * max_data_pull)
+        # update start/end bounds if no input was provided
+        (start, end) = self.augment_candle_bounds(max_data_pull, start, end)
 
         if self.verbose:
             printed_end = min(end, t.add_minutes_to_time_string(start, max_data_pull))
@@ -580,7 +573,7 @@ class Link:
         recurse = end > t.add_minutes_to_time_string(start, max_data_pull)
 
         # define the actual start/end parameters which will be passed into the API request
-        # retain the original `start` and `end` variables to be passed on recursively, if needed
+        # retain the original 'start' and 'end' variables to be passed on recursively, if needed
         request_start = start
         request_end = end
 
@@ -649,6 +642,25 @@ class Link:
             print(candles_df)
 
         return candles_df
+
+    def calculate_max_candle_pull_minutes(self, granularity):
+
+        # granularity / 60 <-- get time in minutes
+        # MAX_CANDLE_REQUEST -1 <-- account for fenceposting
+
+        return granularity / 60 * (MAX_CANDLE_REQUEST - 1)
+
+    def augment_candle_bounds(self, max_data_pull, start, end):
+
+        # if no end is given, then use current time
+        if not end:
+            end = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+
+        # if no start is given, then use end minus (granularity * max_data_pull)
+        if not start:
+            start = t.add_minutes_to_time_string(end, -1 * max_data_pull)
+
+        return (start, end)
 
 
 if __name__ == "__main__":

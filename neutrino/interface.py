@@ -151,7 +151,12 @@ def interact(neutrino):
                     )
 
                 # partially hard-code for now - in future, split into components, let user append items to lists, etc.
-                neutrino.configure_new_stream(arg[1], ["BTC-USD"], ["ticker", "user"])
+                neutrino.configure_new_stream(
+                    arg[1],
+                    neutrino.user_settings.get("stream").get("product_ids"),
+                    neutrino.user_settings.get("stream").get("channels"),
+                )
+
                 try:
                     neutrino.start_stream(arg[1])
                     neutrino.parse_stream_messages(arg[1])

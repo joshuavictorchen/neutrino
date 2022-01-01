@@ -251,6 +251,11 @@ class Neutrino:
         self, product_id, granularity=60, start=None, end=None, save=False
     ):
 
+        # update start/end bounds if no input was provided
+        (start, end) = self.link.augment_candle_bounds(
+            self.link.calculate_max_candle_pull_minutes(granularity), start, end
+        )
+
         # establish name of the associated database CSV file for the given parameters
         csv_name = f"candles-{granularity}-{product_id}"
         csv_path = csv_name + ".csv"
@@ -259,19 +264,21 @@ class Neutrino:
         if os.path.isfile(self.database_path / csv_path):
 
             # load data from database
-            candles_df = pd.read_csv(self.database_path / csv_path)
+            candles_df = t.load_dataframe_from_csv(self.database_path / csv_path)
 
             # generate dict of start: end time pairs to pull, if database_df does not cover the requested data
             pull_bounds = self.generate_candle_pull_bounds(
-                product_id, granularity, start, end
+                candles_df, granularity, start, end
             )
 
             # loop through the list of pull bounds and augment database_df
+            self.link.verbose = False
             for pull_start, pull_end in pull_bounds.items():
                 pulled_df = self.link.get_product_candles(
                     product_id, granularity, pull_start, pull_end
                 )
                 candles_df = candles_df.append(pulled_df, ignore_index=True)
+            self.link.verbose = True
 
             # sort candles_df
             candles_df = candles_df.sort_values(
@@ -284,11 +291,7 @@ class Neutrino:
                 product_id, granularity, start, end
             )
 
-        # save to CSV, if applicable
-        if save:
-            t.save_dataframe_as_csv(candles_df, csv_name, self.database_path)
-
-        # trim df to the requested bounds
+        # trim candles_df to the requested bounds
         returned_df = candles_df[
             (candles_df["time"] >= start) & (candles_df["time"] <= end)
         ].reset_index(drop=True)
@@ -297,11 +300,65 @@ class Neutrino:
             print()
             print(returned_df)
 
+        # save to CSV, if applicable
+        if save:
+            t.save_dataframe_as_csv(candles_df, csv_name, self.database_path)
+
         return returned_df
 
-    def generate_candle_pull_bounds(self, product_id, granularity, start, end):
+    def generate_candle_pull_bounds(self, candles_df, granularity, start, end):
 
         pull_bounds = {}
+
+        # get pull bounds for requested data BEFORE the FIRST value in candles_df
+        # this goes from 'start' to the minimum of the first candles_df value minus one time step, and the requested end time
+        if start < candles_df["time"].min():
+            this_end = min(
+                t.add_minutes_to_time_string(
+                    candles_df["time"].min(), -1 * granularity / 60
+                ),
+                end,
+            )
+            pull_bounds.update({start: this_end})
+
+        # get pull bounds for requested data AFTER the LAST value in candles_df
+        # this goes from the maximum of the last candles_df value plus one time step, and the requested start time
+        if end > candles_df["time"].max():
+            this_start = max(
+                t.add_minutes_to_time_string(
+                    candles_df["time"].max(), granularity / 60
+                ),
+                start,
+            )
+            pull_bounds.update({this_start: end})
+
+        # get pull bounds for any 'gaps' in the existing candles_df data
+
+        # create a dataframe with one column each for:
+        #   candles_df["time"] plus one minute
+        #   candles_df["time"] with each element shifted up one row
+        gap_df = pd.DataFrame()
+        gap_df["start"] = candles_df["time"].apply(
+            lambda x: t.add_minutes_to_time_string(x, 1)
+        )
+        gap_df["end"] = candles_df.time.shift(-1)
+
+        # any rows in this dataframe where those two columns don't match up signify gaps in candles_df
+        gap_df = gap_df[
+            (gap_df["start"] != gap_df["end"]) & gap_df["end"].notna()
+        ].reset_index(drop=True)
+
+        # subtract one minute from each element of the latter column to produce a dataframe of required start/end bounds
+        gap_df["end"] = gap_df["end"].apply(
+            lambda x: t.add_minutes_to_time_string(x, -1)
+        )
+
+        # update dict of pull bounds with this data
+        for i in gap_df.index:
+            pull_bounds.update({gap_df.at[i, "start"]: gap_df.at[i, "end"]})
+
+        print(" \n Database values will be augmented with the following API requests:")
+        t.print_recursive_dict(pull_bounds)
 
         return pull_bounds
 
