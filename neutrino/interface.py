@@ -7,7 +7,7 @@ DIVIDER = (
 
 def interact(neutrino):
     """Temporary rudimentary command line interface that executes Neutrino-related commands from user input. \
-    The jankiness of this implementation and availability of modules such as ``argparse` are well-understood. \
+    The jankiness of this implementation and availability of modules such as ``argparse`` are well-understood. \
     This is mostly used for highly flexible testing/debugging during development.
 
     This function is wrapped in a ``while True`` block to execute an arbitrary number of commands \
@@ -48,7 +48,7 @@ def interact(neutrino):
             # print list of available commands
             if arg[0] in ("help", "h"):
                 print("\n Help coming soon.")
-            
+
             # print neutrino attributes/internal data
             if arg[0] in ("state"):
                 print("\n State coming soon.")
@@ -107,11 +107,15 @@ def interact(neutrino):
                     neutrino.link.get_fees()
 
                 elif arg[1] == "candles":
-                    neutrino.link.get_product_candles(
+                    neutrino.retrieve_product_candles(
                         neutrino.user_settings.get("candles").get("product_id"),
-                        granularity=neutrino.user_settings.get("candles").get("granularity"),
+                        granularity=neutrino.user_settings.get("candles").get(
+                            "granularity"
+                        ),
                         start=neutrino.user_settings.get("candles").get("start"),
-                        end=neutrino.user_settings.get("candles").get("end"))
+                        end=neutrino.user_settings.get("candles").get("end"),
+                        save=save,
+                    )
 
                 elif arg[1] == "all":
                     neutrino.get_all_link_data(save=save)

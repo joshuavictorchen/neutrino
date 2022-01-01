@@ -1,6 +1,7 @@
-import os
 import neutrino.interface as interface
 import neutrino.tools as t
+import os
+import pandas as pd
 import subprocess
 import sys
 from neutrino.link import Link
@@ -45,7 +46,7 @@ class Neutrino:
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
-    def __init__(self, cbkey_set_name="default"):
+    def __init__(self, cbkey_set_name="default", verbose=True):
 
         # establish directory in which neutrino is installed
         self.neutrino_dir = Path(
@@ -79,6 +80,7 @@ class Neutrino:
             )
 
         # establish unique neutrino attributes
+        self.verbose = verbose
         self.cbkeys = t.parse_yaml(self.user_settings.get("keys_file"), echo_yaml=False)
         self.update_auth(cbkey_set_name)
         self.link = Link(
@@ -245,13 +247,63 @@ class Neutrino:
         # get fees
         self.link.get_fees()
 
-    def load_product_candles(self, product_id, granularity=60, start=None, end=None):
+    def retrieve_product_candles(
+        self, product_id, granularity=60, start=None, end=None, save=False
+    ):
 
-        # if dbfile exists, then generate pull bounds
+        # establish name of the associated database CSV file for the given parameters
+        csv_name = f"candles-{granularity}-{product_id}"
+        csv_path = csv_name + ".csv"
 
-        # 
+        # if dbfile exists, then load the existing database data and combine w/ newly pulled data as necessary
+        if os.path.isfile(self.database_path / csv_path):
 
-        pass
+            # load data from database
+            candles_df = pd.read_csv(self.database_path / csv_path)
+
+            # generate dict of start: end time pairs to pull, if database_df does not cover the requested data
+            pull_bounds = self.generate_candle_pull_bounds(
+                product_id, granularity, start, end
+            )
+
+            # loop through the list of pull bounds and augment database_df
+            for pull_start, pull_end in pull_bounds.items():
+                pulled_df = self.link.get_product_candles(
+                    product_id, granularity, pull_start, pull_end
+                )
+                candles_df = candles_df.append(pulled_df, ignore_index=True)
+
+            # sort candles_df
+            candles_df = candles_df.sort_values(
+                by=["time"], ascending=True
+            ).reset_index(drop=True)
+
+        # if dbfile doesn't exist, then just pull the candle data
+        else:
+            candles_df = self.link.get_product_candles(
+                product_id, granularity, start, end
+            )
+
+        # save to CSV, if applicable
+        if save:
+            t.save_dataframe_as_csv(candles_df, csv_name, self.database_path)
+
+        # trim df to the requested bounds
+        returned_df = candles_df[
+            (candles_df["time"] >= start) & (candles_df["time"] <= end)
+        ].reset_index(drop=True)
+
+        if self.verbose:
+            print()
+            print(returned_df)
+
+        return returned_df
+
+    def generate_candle_pull_bounds(self, product_id, granularity, start, end):
+
+        pull_bounds = {}
+
+        return pull_bounds
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"

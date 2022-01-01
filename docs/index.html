@@ -115,7 +115,7 @@
 <h1>Neutrino<a class="headerlink" href="#neutrino" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handles <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> (WebSocket feed messages) and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a> (API requests/responses).         Framework for performing Coinbase Pro actions.</p>
 <div class="admonition note">
@@ -175,6 +175,12 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.refresh_user_settings">
+<span class="sig-name descname"><span class="pre">refresh_user_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.refresh_user_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Reloads <code class="docutils literal notranslate"><span class="pre">self.user_settings</span></code> from <code class="docutils literal notranslate"><span class="pre">self.user_settings_file</span></code>. This allows the user to update the             user settings file with different inputs between Neutrino commands.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth">
 <span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the keys used for authenticating Coinbase WebSocket and API requests.</p>
@@ -202,6 +208,16 @@
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.retrieve_product_candles">
+<span class="sig-name descname"><span class="pre">retrieve_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.retrieve_product_candles" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.generate_candle_pull_bounds">
+<span class="sig-name descname"><span class="pre">generate_candle_pull_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.generate_candle_pull_bounds" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
@@ -273,9 +289,9 @@
 <span class="target" id="module-neutrino.interface"></span><dl class="py function">
 <dt class="sig sig-object py" id="neutrino.interface.interact">
 <span class="sig-prename descclassname"><span class="pre">neutrino.interface.</span></span><span class="sig-name descname"><span class="pre">interact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neutrino</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.interface.interact" title="Permalink to this definition"></a></dt>
-<dd><p>Temporary rudimentary command-line interface that executes Neutrino-related commands from user input.</p>
+<dd><p>Temporary rudimentary command line interface that executes Neutrino-related commands from user input.     The jankiness of this implementation and availability of modules such as <code class="docutils literal notranslate"><span class="pre">argparse</span></code> are well-understood.     This is mostly used for highly flexible testing/debugging during development.</p>
 <p>This function is wrapped in a <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">True</span></code> block to execute an arbitrary number of commands     until terminated by the user.</p>
-<p>Further documentation TBD. This is currently mostly used for testing/debugging during development. To be updated to use something like <code class="docutils literal notranslate"><span class="pre">argparse</span></code> for implementation.</p>
+<p>Further documentation TBD.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>neutrino</strong> (<a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><em>Neutrino</em></a>) – An initialized <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino</span></code></a> object.</p>
@@ -807,57 +823,31 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.parse_yaml">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">parse_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.parse_yaml" title="Permalink to this definition"></a></dt>
-<dd><p>Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.</p>
+<dt class="sig sig-object py" id="neutrino.tools.move_df_column_inplace">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">move_df_column_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.move_df_column_inplace" title="Permalink to this definition"></a></dt>
+<dd><p>Moves a DataFrame column to the specified index position inplace.</p>
+<p>Credit: <a class="reference external" href="https://stackoverflow.com/a/58686641/17591579">https://stackoverflow.com/a/58686641/17591579</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filepath</strong> (<em>str</em>) – Path to the supplied YAML file.</p></li>
-<li><p><strong>echo_yaml</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to print the formatted loaded dict to the console. Defaults to True.</p></li>
+<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame whose columns will be rearranged.</p></li>
+<li><p><strong>column</strong> (<em>str</em>) – Name of the column to be moved.</p></li>
+<li><p><strong>position</strong> (<em>int</em>) – Index to which the column will be moved.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary of contents loaded from the supplied YAML file.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.load_yaml_settings">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_yaml_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_template_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_yaml_settings" title="Permalink to this definition"></a></dt>
-<dd><p>Loads a dictionary of settings values from a YAML file.</p>
-<p>This YAML file is gitignored so that the repository’s configuration is not affected by user personalization.</p>
-<p>If the YAML file does not exist, then it is copied from the repository’s version controlled template.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>settings_file</strong> (<em>str</em>) – Absolute path to the gitignored YAML file.</p></li>
-<li><p><strong>settings_template_file</strong> (<em>str</em>) – Absolute path to the version controlled YAML template.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary representation of loaded settings from a YAML file.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.save_dataframe_as_csv">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">save_dataframe_as_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.save_dataframe_as_csv" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">save_dataframe_as_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.save_dataframe_as_csv" title="Permalink to this definition"></a></dt>
 <dd><p>Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be exported to a CSV file.</p></li>
-<li><p><strong>df_name</strong> (<em>str</em>) – Name of the DataFrame to be exported.</p></li>
-<li><p><strong>filepath</strong> (<em>str</em>) – Absolute filepath (including <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;.csv</span></code>) to the CSV to be saved.</p></li>
+<li><p><strong>csv_name</strong> (<em>str</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>).</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em>) – Absolute path to the directory in which the CSV file will be saved.</p></li>
 </ul>
 </dd>
 </dl>
@@ -921,6 +911,48 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.parse_yaml">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">parse_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.parse_yaml" title="Permalink to this definition"></a></dt>
+<dd><p>Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>str</em>) – Path to the supplied YAML file.</p></li>
+<li><p><strong>echo_yaml</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to print the formatted loaded dict to the console. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary of contents loaded from the supplied YAML file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.load_yaml_settings">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_yaml_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_template_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_yaml_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Loads a dictionary of settings values from a YAML file.</p>
+<p>This YAML file is gitignored so that the repository’s configuration is not affected by user personalization.</p>
+<p>If the YAML file does not exist, then it is copied from the repository’s version controlled template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings_file</strong> (<em>str</em>) – Absolute path to the gitignored YAML file.</p></li>
+<li><p><strong>settings_template_file</strong> (<em>str</em>) – Absolute path to the version controlled YAML template.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary representation of loaded settings from a YAML file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1017,7 +1049,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2021-12-31 17:43:02.
+      <span class="lastupdated">Last updated on 2022-01-01 13:17:30.
       </span></p>
   </div>
 

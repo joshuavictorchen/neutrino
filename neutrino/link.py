@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 MAX_CANDLE_REQUEST = 300
-pd.set_option('display.max_rows', None)
+pd.set_option("display.max_rows", None)
 
 
 class Link:
@@ -250,9 +250,7 @@ class Link:
 
         # export to CSV, if applicable
         if save:
-            t.save_dataframe_as_csv(
-                account_df, "account_df", self.database_path / "accounts.csv"
-            )
+            t.save_dataframe_as_csv(account_df, "accounts", self.database_path)
 
         # update object attribute
         account_dict = {}
@@ -350,11 +348,7 @@ class Link:
         # export to CSV, if applicable
         coin = self.get_account_by_id(account_id).get("currency")
         if save:
-            t.save_dataframe_as_csv(
-                ledger_df,
-                f"ledger-{coin}_df",
-                self.database_path / f"ledger-{coin}.csv",
-            )
+            t.save_dataframe_as_csv(ledger_df, f"ledger-{coin}", self.database_path)
 
         return ledger_df
 
@@ -418,9 +412,7 @@ class Link:
 
         # export to CSV, if applicable
         if save:
-            t.save_dataframe_as_csv(
-                transfers_df, "transfers_df", self.database_path / "transfers.csv"
-            )
+            t.save_dataframe_as_csv(transfers_df, "transfers", self.database_path)
 
         return transfers_df
 
@@ -507,9 +499,7 @@ class Link:
 
         # export to CSV, if applicable
         if save:
-            t.save_dataframe_as_csv(
-                orders_df, "orders_df", self.database_path / "orders.csv"
-            )
+            t.save_dataframe_as_csv(orders_df, "orders", self.database_path)
 
         return orders_df
 
@@ -649,6 +639,10 @@ class Link:
             return self.get_product_candles(
                 product_id, granularity, start, end, candles_df
             )
+
+        # add product_id as a column and move it to the 1st index
+        candles_df["product_id"] = product_id
+        t.move_df_column_inplace(candles_df, "product_id", 1)
 
         if self.verbose:
             print()

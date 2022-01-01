@@ -120,69 +120,32 @@ def retrieve_repo(verbose=False):
     return repo
 
 
-def parse_yaml(filepath, echo_yaml=True):
-    """Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.
+def move_df_column_inplace(df, column, position):
+    """Moves a DataFrame column to the specified index position inplace.
+
+    Credit: https://stackoverflow.com/a/58686641/17591579
 
     Args:
-        filepath (str): Path to the supplied YAML file.
-        echo_yaml (bool, optional): Whether or not to print the formatted loaded dict to the console. Defaults to True.
-
-    Returns:
-        dict: Dictionary of contents loaded from the supplied YAML file.
+        df (DataFrame): DataFrame whose columns will be rearranged.
+        column (str): Name of the column to be moved.
+        position (int): Index to which the column will be moved.
     """
 
-    # open the file and load its data into a dict
-    with open(filepath) as stream:
-        try:
-            yaml_data = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            sys.exit(exc)
-
-    # if echo_yaml is True, then print the formatted dict to the console
-    if echo_yaml:
-        print_recursive_dict(yaml_data)
-
-    return yaml_data
+    column = df.pop(column)
+    df.insert(position, column.name, column)
 
 
-def load_yaml_settings(settings_file, settings_template_file):
-    """Loads a dictionary of settings values from a YAML file.
-
-    This YAML file is gitignored so that the repository's configuration is not affected by user personalization.
-
-    If the YAML file does not exist, then it is copied from the repository's version controlled template.
-
-    Args:
-        settings_file (str): Absolute path to the gitignored YAML file.
-        settings_template_file (str): Absolute path to the version controlled YAML template.
-
-    Returns:
-        dict: Dictionary representation of loaded settings from a YAML file.
-    """
-
-    # if file does not exist, copy one from the default template
-    if not os.path.isfile(settings_file):
-        # TODO: prompt user to update keys_file defs, etc.
-        shutil.copy2(settings_template_file, settings_file)
-        print(f"\n Settings file generated: {settings_file}")
-
-    with open(settings_file) as stream:
-        try:
-            settings = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            sys.exit(f"\n Neutrino annihilated - settings file is corrupted:\n\n {exc}")
-
-    return settings
-
-
-def save_dataframe_as_csv(df, df_name, filepath):
+def save_dataframe_as_csv(df, csv_name, database_path):
     """Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.
 
     Args:
         df (DataFrame): DataFrame to be exported to a CSV file.
-        df_name (str): Name of the DataFrame to be exported.
-        filepath (str): Absolute filepath (including ``<filename>.csv``) to the CSV to be saved.
+        csv_name (str): Name of the CSV file to be saved, **without** the ``.csv`` extension \
+            (i.e., ``saved_file`` instead of ``saved_file.csv``).
+        database_path (Path): Absolute path to the directory in which the CSV file will be saved.
     """
+
+    filepath = database_path / (csv_name + ".csv")
 
     while True:
         try:
@@ -190,14 +153,14 @@ def save_dataframe_as_csv(df, df_name, filepath):
             break
         except PermissionError:
             response = input(
-                f"\n Error exporting {df_name} to CSV: {filepath} is currently open.\
+                f"\n Error exporting {csv_name} to CSV: {filepath} is currently open.\
                 \n Close the file and press [enter] to continue. Input any other key to abort: "
             )
             if response != "":
-                print(f"\n {df_name} CSV not saved.")
+                print(f"\n {csv_name} CSV not saved.")
                 return
 
-    print(f" \n {df_name} exported to: {filepath}")
+    print(f" \n {csv_name} exported to: {filepath}")
 
 
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
@@ -294,6 +257,61 @@ def list_to_string(value, leading_whitespaces=1):
         for i in range(1, len(value)):
             return_string += (" " * leading_whitespaces) + str(value[i]) + "\n"
         return return_string.strip()
+
+
+def parse_yaml(filepath, echo_yaml=True):
+    """Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.
+
+    Args:
+        filepath (str): Path to the supplied YAML file.
+        echo_yaml (bool, optional): Whether or not to print the formatted loaded dict to the console. Defaults to True.
+
+    Returns:
+        dict: Dictionary of contents loaded from the supplied YAML file.
+    """
+
+    # open the file and load its data into a dict
+    with open(filepath) as stream:
+        try:
+            yaml_data = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            sys.exit(exc)
+
+    # if echo_yaml is True, then print the formatted dict to the console
+    if echo_yaml:
+        print_recursive_dict(yaml_data)
+
+    return yaml_data
+
+
+def load_yaml_settings(settings_file, settings_template_file):
+    """Loads a dictionary of settings values from a YAML file.
+
+    This YAML file is gitignored so that the repository's configuration is not affected by user personalization.
+
+    If the YAML file does not exist, then it is copied from the repository's version controlled template.
+
+    Args:
+        settings_file (str): Absolute path to the gitignored YAML file.
+        settings_template_file (str): Absolute path to the version controlled YAML template.
+
+    Returns:
+        dict: Dictionary representation of loaded settings from a YAML file.
+    """
+
+    # if file does not exist, copy one from the default template
+    if not os.path.isfile(settings_file):
+        # TODO: prompt user to update keys_file defs, etc.
+        shutil.copy2(settings_template_file, settings_file)
+        print(f"\n Settings file generated: {settings_file}")
+
+    with open(settings_file) as stream:
+        try:
+            settings = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            sys.exit(f"\n Neutrino annihilated - settings file is corrupted:\n\n {exc}")
+
+    return settings
 
 
 def local_to_ISO_time_string(local_time_string, time_format=TIME_FORMAT):
