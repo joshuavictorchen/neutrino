@@ -59,25 +59,19 @@ class Neutrino(Link):
             os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))
         )
 
-        # establish locations of files and folders
+        # load neutrino settings
+        self.neutrino_settings = t.parse_yaml(
+            self.neutrino_dir / "strings/neutrino-settings.yaml", echo_yaml=False
+        )
+
+        # load user settings
         self.user_settings_file = self.neutrino_dir / "user-settings.yaml"
         self.template_user_settings_file = (
             self.neutrino_dir / "strings/template-user-settings.yaml"
         )
-        self.database_path = self.neutrino_dir / "database"
-
-        # load settings
         self.user_settings = t.load_yaml_settings(
             self.user_settings_file, self.template_user_settings_file
         )
-        self.neutrino_settings = t.parse_yaml(
-            self.neutrino_dir / "strings/neutrino-settings.yaml", echo_yaml=False
-        )
-        self.repo = t.retrieve_repo()
-
-        # check for updates
-        if self.user_settings.get("check_for_updates"):
-            self.check_for_updates()
 
         # temporary measure for testing:
         # if keys_file does not exist, update keys file to sanbox test keys
@@ -86,22 +80,28 @@ class Neutrino(Link):
                 self.neutrino_dir / "tests/sandbox-keys.yaml"
             )
 
-        # establish unique neutrino attributes
-        self.verbose = verbose
+        # load dictionary of cbkey dicts
         self.cbkeys = t.parse_yaml(self.user_settings.get("keys_file"), echo_yaml=False)
-        self.update_auth(cbkey_set_name)
 
-        # initialize inherited Link items
+        # initialize inherited Link parameters
         super().__init__(
-            self.neutrino_settings.get("api_url"), self.auth, self.database_path
+            self.neutrino_settings.get("api_url"),  # API endoint base url
+            self.cbkeys.get(cbkey_set_name),  # cbkey dictionary
+            self.neutrino_dir / "database",  # CSV database path
         )
 
+        # check for updates
+        self.repo = t.retrieve_repo()
+        if self.user_settings.get("check_for_updates"):
+            self.check_for_updates()
+
+        # establish unique neutrino attributes
+        self.verbose = verbose
         self.accounts = None
         self.ledgers = None
         self.transfers = None
         self.orders = None
         self.fees = {}
-
         self.streams = {}
         self.threads = {}
         self.coins = {}
@@ -224,15 +224,6 @@ class Neutrino(Link):
             self.user_settings_file, self.template_user_settings_file
         )
 
-    def update_auth(self, cbkey_set):
-        """Updates the keys used for authenticating Coinbase WebSocket and API requests.
-
-        Args:
-            cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
-        """
-
-        self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
-
     def set_verbosity(self, verbose):
         """Updates Neutrino's behavior to print (or not print) responses to the console.
 
@@ -270,10 +261,12 @@ class Neutrino(Link):
                 * at a later date
         """
 
-        if from_database:
-            account_df = t.process_df(pd.read_csv(self.database_path / "accounts.csv"))
-        else:
-            account_df = t.process_df(self.retrieve_accounts())
+        account_df = t.load_data(
+            from_database=from_database,
+            link_method=self.retrieve_accounts,
+            database_path=self.database_path,
+            csv_name="accounts",
+        )
 
         # filter to only accounts that have had some activity at any point in time, if applicable
         if relevant_only:
@@ -329,15 +322,13 @@ class Neutrino(Link):
                 * at a later date
         """
 
-        if from_database:
-            transfers_df = t.process_df(
-                pd.read_csv(self.database_path / "transfers.csv"),
-                clean_timestrings=True,
-            )
-        else:
-            transfers_df = t.process_df(
-                self.retrieve_transfers(), clean_timestrings=True
-            )
+        transfers_df = t.load_data(
+            from_database=from_database,
+            link_method=self.retrieve_transfers,
+            database_path=self.database_path,
+            csv_name="transfers",
+            clean_timestrings=True,
+        )
 
         if self.verbose:
             print()
@@ -384,14 +375,14 @@ class Neutrino(Link):
         """
 
         # TODO: implement kwargs for from_database
-        if from_database:
-            orders_df = t.process_df(
-                pd.read_csv(self.database_path / "orders.csv"), clean_timestrings=True
-            )
-        else:
-            orders_df = t.process_df(
-                self.retrieve_orders(**kwargs), clean_timestrings=True
-            )
+        orders_df = t.load_data(
+            from_database=from_database,
+            link_method=self.retrieve_orders,
+            database_path=self.database_path,
+            csv_name="orders",
+            clean_timestrings=True,
+            **kwargs,
+        )
 
         if self.verbose:
             print()

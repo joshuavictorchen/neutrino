@@ -13,11 +13,10 @@ class Link:
     """Creates an API session and sends/receives API requests/responses.
 
     **Instance attributes:** \n
-        * **verbose** (*bool*): If ``True``, then API responses are printed to the console.
+        * **api_url** (*str*): Base URL for Coinbase Pro API endpoints.
+        * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **database_path** (*Path*): :py:obj:`Path` object containing the absolute filepath to the folder \
             to which the Link exports CSV files.
-        * **url** (*str*): Base URL for Coinbase Pro API endpoints.
-        * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
 
     Args:
@@ -25,35 +24,21 @@ class Link:
         auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
     """
 
-    def __init__(self, url, auth, database_path, verbose=False):
+    def __init__(self, url, cbkey_set, database_path):
 
         self.api_url = url
-        self.auth = auth
-        self.verbose = verbose
+        self.update_auth(cbkey_set)
         self.database_path = Path(database_path)
         self.session = requests.Session()
 
-    def set_verbosity(self, verbose):
-        """Updates Link's behavior to print (or not print) formatted API responses to the console.
+    def update_auth(self, cbkey_set):
+        """Updates the keys used for authenticating Coinbase WebSocket and API requests.
 
         Args:
-            verbose (bool): ``True`` if print statements are desired.
+            cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
         """
 
-        self.verbose = verbose
-
-        # print settings change to console
-        verb = "will" if verbose else "won't"
-        print(f"\n API responses {verb} be printed to the console.")
-
-    def update_auth(self, auth):
-        """Update authentication for the link.
-
-        Args:
-            auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
-        """
-
-        self.auth = auth
+        self.auth = t.Authenticator(cbkey_set)
 
     def update_database_path(self, database_path):
         """Update the filepath to the folder to which the Link exports CSV files.
@@ -168,7 +153,7 @@ class Link:
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts>`__).
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the headers listed below:
+            DataFrame: DataFrame with columns corresponding to the API response headers listed below:
             
             .. code-block::
 
@@ -235,7 +220,7 @@ class Link:
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the headers listed below. \
+            DataFrame: DataFrame with columns corresponding to the API response headers listed below. \
             Note that the ``details`` values are treated as columns in the returned DataFrame:
             
             .. code-block::
@@ -293,7 +278,7 @@ class Link:
             save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the headers listed below. \
+            DataFrame: DataFrame with columns corresponding to the API response headers listed below. \
             Note that the ``details`` values are treated as columns in the returned DataFrame:
 
             .. code-block::
@@ -352,7 +337,7 @@ class Link:
                     ``open``, ``pending``, ``rejected``, ``done``, ``active``, ``received``, ``all``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the headers listed below:
+            DataFrame: DataFrame with columns corresponding to the API response headers listed below:
             
             .. code-block::
 
@@ -451,11 +436,10 @@ class Link:
         # update start/end bounds if no input was provided
         (start, end) = self.augment_candle_bounds(max_data_pull, start, end)
 
-        if self.verbose:
-            printed_end = min(end, t.add_minutes_to_time_string(start, max_data_pull))
-            print(
-                f"\n Requesting {product_id} candles from {start} to {printed_end}..."
-            )
+        # printed_end = min(end, t.add_minutes_to_time_string(start, max_data_pull))
+        # print(
+        #     f"\n Requesting {product_id} candles from {start} to {printed_end}..."
+        # )
 
         # determine if the number of requested data points exceeds MAX_CANDLE_REQUEST
         recurse = end > t.add_minutes_to_time_string(start, max_data_pull)

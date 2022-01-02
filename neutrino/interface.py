@@ -71,6 +71,7 @@ def interact(neutrino):
 
                 # establish whether or not to export retrieved data to CSV
                 save = True if arg[-1] == "-s" else False
+                from_database = True if arg[-1] == "-d" else False
 
                 # TODO: prompt user w/ list of acceptable values
                 if len(arg) == 1:
@@ -79,7 +80,7 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "accounts":
-                    neutrino.get_accounts(save=save)
+                    neutrino.get_accounts(save=save, from_database=from_database)
 
                 elif arg[1] == "ledger":
 
@@ -94,17 +95,19 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "transfers":
-                    neutrino.get_transfers(save=save)
+                    neutrino.get_transfers(save=save, from_database=from_database)
 
                 elif arg[1] == "orders":
 
                     if len(arg) > 2:
-                        if not save:
+                        if not save and not from_database:
                             neutrino.get_orders(save=save, status=arg[2:])
                         else:
-                            neutrino.get_orders(save=save, status=arg[2:-1])
+                            neutrino.get_orders(
+                                save=save, from_database=from_database, status=arg[2:-1]
+                            )
                     else:
-                        neutrino.get_orders(save=save)
+                        neutrino.get_orders()
 
                 elif arg[1] == "fees":
                     neutrino.get_fees()

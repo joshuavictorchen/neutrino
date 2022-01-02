@@ -148,7 +148,8 @@ def process_df(
 
     Args:
         df (DataFrame): DataFrame to be processed.
-        save (bool, optional): [description]. Defaults to False.
+        clean_timestrings (bool, optional): Runs :py:obj:`clean_df_timestrings` on the provided DataFrame if ``True``. Defaults to ``False``.
+        save (bool, optional): Exports the processed DataFrame to a CSV file in the directory specified by ``database_path`` if ``True``. Defaults to ``False``.
         csv_name (str, optional): Name of the CSV file to be saved, **without** the ``.csv`` extension \
             (i.e., ``saved_file`` instead of ``saved_file.csv``), if applicable.
         database_path (Path, optional): Absolute path to the directory in which the CSV file will be saved, if applicable.
@@ -215,6 +216,53 @@ def save_dataframe_as_csv(df, csv_name, database_path):
                 return
 
     print(f" \n {csv_name} exported to: {filepath}")
+
+
+def load_data(
+    from_database,
+    link_method,
+    database_path=None,
+    csv_name=None,
+    clean_timestrings=False,
+    **kwargs,
+):
+    """Loads data from the database or an API request per the user's specification.
+
+    Defaults to performing an API request if database data is requested, but no database file exists.
+
+    .. admonition:: TODO
+
+        Handle ``**kwargs`` arguments for database pulls.
+
+        One potential solution is to return the pull type (database vs. API) and let the calling method handle it.
+
+    Args:
+        from_database (bool): ``True`` if data is to be loaded from the CSV database.
+        database_path (Path, optional): Absolute path to the Neutrino's database directory.
+        csv_name (str, optional): Name of the CSV file to be loaded from, if applicable, **without** the ``.csv`` extension \
+            (i.e., ``loaded_file`` instead of ``loaded_file.csv``).
+        link_method (Object, optional): Link's API request method to be called, if not loading from a database file.
+        clean_timestrings (bool, optional): Runs :py:obj:`clean_df_timestrings` on the provided DataFrame if ``True``. Defaults to ``False``.
+
+    Returns:
+        DataFrame: DataFrame object containing data loaded in from the specified database file or API request.
+    """
+
+    # TODO: implement kwargs for from_database
+
+    filepath = database_path / (csv_name + ".csv")
+
+    if from_database:
+        if os.path.isfile(filepath):
+            return process_df(
+                pd.read_csv(filepath), clean_timestrings=clean_timestrings
+            )
+        else:
+            print(
+                f"\n WARNING: {filepath} does not exist.\n\n Data will be pulled via API request."
+            )
+
+    return process_df(link_method(**kwargs), clean_timestrings=clean_timestrings)
 
 
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):

@@ -186,17 +186,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.update_auth">
-<span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_auth" title="Permalink to this definition"></a></dt>
-<dd><p>Updates the keys used for authenticating Coinbase WebSocket and API requests.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.set_verbosity">
 <span class="sig-name descname"><span class="pre">set_verbosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.set_verbosity" title="Permalink to this definition"></a></dt>
 <dd><p>Updates Neutrino’s behavior to print (or not print) responses to the console.</p>
@@ -579,16 +568,15 @@
 <span id="link"></span><h1>Link<a class="headerlink" href="#module-neutrino.link" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.link.Link">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Creates an API session and sends/receives API requests/responses.</p>
 <p><strong>Instance attributes:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p><strong>verbose</strong> (<em>bool</em>): If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then API responses are printed to the console.</p></li>
-<li><p><strong>database_path</strong> (<em>Path</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code> object containing the absolute filepath to the folder             to which the Link exports CSV files.</p></li>
-<li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
+<li><p><strong>api_url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
 <li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code> object containing the absolute filepath to the folder             to which the Link exports CSV files.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
 </ul>
 </div></blockquote>
@@ -601,23 +589,12 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.set_verbosity">
-<span class="sig-name descname"><span class="pre">set_verbosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.set_verbosity" title="Permalink to this definition"></a></dt>
-<dd><p>Updates Link’s behavior to print (or not print) formatted API responses to the console.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if print statements are desired.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.update_auth">
-<span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.update_auth" title="Permalink to this definition"></a></dt>
-<dd><p>Update authentication for the link.</p>
+<span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.update_auth" title="Permalink to this definition"></a></dt>
+<dd><p>Updates the keys used for authenticating Coinbase WebSocket and API requests.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>auth</strong> (<a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><em>Authenticator</em></a>) – <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p>
+<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -683,7 +660,7 @@
 <dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
+<dd class="field-odd"><p><p>DataFrame with columns corresponding to the API response headers listed below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
@@ -757,7 +734,7 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
+<dd class="field-even"><p><p>DataFrame with columns corresponding to the API response headers listed below.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
@@ -796,7 +773,7 @@
 <dd class="field-odd"><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Export the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
+<dd class="field-even"><p><p>DataFrame with columns corresponding to the API response headers listed below.             Note that the <code class="docutils literal notranslate"><span class="pre">details</span></code> values are treated as columns in the returned DataFrame:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
@@ -851,7 +828,7 @@
 </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
+<dd class="field-even"><p><p>DataFrame with columns corresponding to the API response headers listed below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
@@ -1083,7 +1060,8 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be processed.</p></li>
-<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
+<li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the processed DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>), if applicable.</p></li>
 <li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the directory in which the CSV file will be saved, if applicable.</p></li>
 </ul>
@@ -1126,6 +1104,35 @@
 <li><p><strong>csv_name</strong> (<em>str</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>).</p></li>
 <li><p><strong>database_path</strong> (<em>Path</em>) – Absolute path to the directory in which the CSV file will be saved.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.load_data">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_data" title="Permalink to this definition"></a></dt>
+<dd><p>Loads data from the database or an API request per the user’s specification.</p>
+<p>Defaults to performing an API request if database data is requested, but no database file exists.</p>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<p>Handle <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> arguments for database pulls.</p>
+<p>One potential solution is to return the pull type (database vs. API) and let the calling method handle it.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_database</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if data is to be loaded from the CSV database.</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the Neutrino’s database directory.</p></li>
+<li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be loaded from, if applicable, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">loaded_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">loaded_file.csv</span></code>).</p></li>
+<li><p><strong>link_method</strong> (<em>Object</em><em>, </em><em>optional</em>) – Link’s API request method to be called, if not loading from a database file.</p></li>
+<li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame object containing data loaded in from the specified database file or API request.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1326,7 +1333,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-02 15:40:30.
+      <span class="lastupdated">Last updated on 2022-01-02 17:17:03.
       </span></p>
   </div>
 
