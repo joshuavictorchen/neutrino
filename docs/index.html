@@ -192,9 +192,36 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.set_verbosity">
+<span class="sig-name descname"><span class="pre">set_verbosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.set_verbosity" title="Permalink to this definition"></a></dt>
+<dd><p>Updates Neutrino’s behavior to print (or not print) responses to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if print statements are desired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.get_accounts">
+<span class="sig-name descname"><span class="pre">get_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_accounts" title="Permalink to this definition"></a></dt>
+<dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relevant_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to only include accounts that have seen activity in the past in the returned result.</p></li>
+<li><p><strong>exclude_empty_accounts</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to exclude zero-balance accounts from the returned result.</p></li>
+<li><p><strong>from_database</strong> (<em>bool</em><em>, </em><em>optional</em>) – Loads from the local CSV database if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Otherwise, performs an API request for fresh data. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.get_all_link_data">
 <span class="sig-name descname"><span class="pre">get_all_link_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_all_link_data" title="Permalink to this definition"></a></dt>
-<dd><p>Executes all <code class="docutils literal notranslate"><span class="pre">get</span></code> methods of the <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino</span></code></a>’s <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>:</p>
+<dd><p>Executes all <code class="docutils literal notranslate"><span class="pre">retrieve</span></code> methods of the <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino</span></code></a>’s inherited <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#neutrino.link.Link.retrieve_accounts" title="neutrino.link.Link.retrieve_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_accounts</span></code></a></p></li>
 <li><p><a class="reference internal" href="#neutrino.link.Link.retrieve_account_ledger" title="neutrino.link.Link.retrieve_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_account_ledger</span></code></a> for all accounts</p></li>
@@ -204,7 +231,7 @@
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports data returned from the above <code class="docutils literal notranslate"><span class="pre">get</span></code> methods to the <code class="docutils literal notranslate"><span class="pre">database</span></code> directory                 in CSV format if set to <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to False.</p>
+<dd class="field-odd"><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports DataFrames returned from the above <code class="docutils literal notranslate"><span class="pre">retrieve</span></code> methods to the <code class="docutils literal notranslate"><span class="pre">self.database</span></code> directory                 in CSV format if set to <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to False.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -468,7 +495,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.set_verbosity">
 <span class="sig-name descname"><span class="pre">set_verbosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.set_verbosity" title="Permalink to this definition"></a></dt>
-<dd><p>Updates Link’s behavior to print (or not pring) formatted API responses to the console.</p>
+<dd><p>Updates Link’s behavior to print (or not print) formatted API responses to the console.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if print statements are desired.</p>
@@ -544,18 +571,11 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.retrieve_accounts">
-<span class="sig-name descname"><span class="pre">retrieve_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_accounts" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">retrieve_accounts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_accounts" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts">API Reference</a>).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>relevant_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to only include accounts that have seen activity in the past in the returned result.</p></li>
-<li><p><strong>exclude_empty_accounts</strong> (<em>bool</em><em>, </em><em>optional</em>) – The API retuns all accounts for all available coins by default.                 Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to exclude zero-balance accounts from the returned result.</p></li>
-<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Export the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
@@ -572,8 +592,8 @@
 </div>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -944,6 +964,53 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.process_df">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">process_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.process_df" title="Permalink to this definition"></a></dt>
+<dd><p>Performs generic actions on DataFrames and returns the resulting DataFrame object.</p>
+<p>Optional processes:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.tools.save_dataframe_as_csv" title="neutrino.tools.save_dataframe_as_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_dataframe_as_csv</span></code></a></p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be processed.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
+<li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>), if applicable.</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the directory in which the CSV file will be saved, if applicable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The initially provided DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.clean_df_timestrings">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">clean_df_timestrings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.clean_df_timestrings" title="Permalink to this definition"></a></dt>
+<dd><p>Ensure the provided DataFrame’s time string columns are properly formatted (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p>
+<p>Note: this does not affect time strings stored in ISO 8601 format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be processed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame object with cleaned time string columns.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.save_dataframe_as_csv">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">save_dataframe_as_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.save_dataframe_as_csv" title="Permalink to this definition"></a></dt>
 <dd><p>Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.</p>
@@ -954,26 +1021,6 @@
 <li><p><strong>csv_name</strong> (<em>str</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>).</p></li>
 <li><p><strong>database_path</strong> (<em>Path</em>) – Absolute path to the directory in which the CSV file will be saved.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.load_dataframe_from_csv">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_dataframe_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_dataframe_from_csv" title="Permalink to this definition"></a></dt>
-<dd><p>Loads a DataFrame from a CSV file. Importantly, this method ensures that timestamp data is parsed         in a consistent and expected format.</p>
-<blockquote>
-<div><p>Further documentation TBD.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>csv_path</strong> (<em>str</em>) – Absolute path to the CSV file to be loaded into a DataFrame.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>DataFrame object containing the specified CSV data.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1174,7 +1221,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-02 12:58:45.
+      <span class="lastupdated">Last updated on 2022-01-02 14:32:07.
       </span></p>
   </div>
 

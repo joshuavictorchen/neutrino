@@ -45,7 +45,7 @@ class Link:
         self.fees = {}
 
     def set_verbosity(self, verbose):
-        """Updates Link's behavior to print (or not pring) formatted API responses to the console.
+        """Updates Link's behavior to print (or not print) formatted API responses to the console.
 
         Args:
             verbose (bool): ``True`` if print statements are desired.
@@ -174,18 +174,9 @@ class Link:
 
         return loaded_df
 
-    def retrieve_accounts(
-        self, relevant_only=True, exclude_empty_accounts=False, save=False
-    ):
+    def retrieve_accounts(self):
         """Loads a DataFrame with all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts>`__).
-
-        Args:
-            relevant_only (bool, optional): The API retuns all accounts for all available coins by default. \
-                Set this to ``True`` to only include accounts that have seen activity in the past in the returned result.
-            exclude_empty_accounts (bool, optional): The API retuns all accounts for all available coins by default. \
-                Set this to ``True`` to exclude zero-balance accounts from the returned result.
-            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
 
         Returns:
             DataFrame: DataFrame with columns corresponding to the headers listed below:
@@ -211,42 +202,6 @@ class Link:
 
         # load data into df
         account_df = self.load_df_from_API_response_list(account_list, "currency")
-
-        # filter to only accounts that have had some activity at any point in time, if applicable
-        if relevant_only:
-
-            # set verbosity to false to prevent orders_df from displaying, then change it back to its original state
-            verbosity = self.verbose
-            self.verbose = False
-
-            # use order history to get list of currencies where activity has been seen
-            orders_df = self.retrieve_orders(status=["all"])
-            currencies = (
-                orders_df["product_id"]
-                .apply(lambda x: x.split("-")[0])
-                .unique()
-                .tolist()
-            )
-            account_df = account_df[
-                account_df["currency"].isin(currencies)
-            ].reset_index(drop=True)
-
-            self.verbose = verbosity
-
-        # exclude accounts with <= 0 balance, if applicable
-        if exclude_empty_accounts:
-            account_df = account_df[
-                account_df["balance"].astype(float) > 0
-            ].reset_index(drop=True)
-
-        # print dataframe to console, if applicable
-        if self.verbose:
-            print()
-            print(account_df)
-
-        # export to CSV, if applicable
-        if save:
-            t.save_dataframe_as_csv(account_df, "accounts", self.database_path)
 
         # update object attribute
         account_dict = {}
@@ -514,9 +469,6 @@ class Link:
         # update object attribute
         self.fees = fees_dict
 
-        if self.verbose:
-            t.print_recursive_dict(fees_dict)
-
         return fees_dict
 
     def retrieve_product_candles(
@@ -625,10 +577,6 @@ class Link:
         # add product_id as a column and move it to the 1st index
         candles_df["product_id"] = product_id
         t.move_df_column_inplace(candles_df, "product_id", 1)
-
-        if self.verbose:
-            print()
-            print(candles_df)
 
         return candles_df
 

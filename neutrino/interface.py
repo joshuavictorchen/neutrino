@@ -79,7 +79,7 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "accounts":
-                    neutrino.retrieve_accounts(save=save)
+                    neutrino.get_accounts(save=save)
 
                 elif arg[1] == "ledger":
 

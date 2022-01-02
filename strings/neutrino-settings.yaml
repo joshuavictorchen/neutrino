@@ -9,5 +9,6 @@ api_url: https://api.pro.coinbase.com
 # update info
 pip_install: True
 changelog:
-  - placeholder 1
-  - placeholder 2
+  - Placeholder text for a summary of changes incorporated in this update.
+  - This changelog is in the form a list.
+  - The list contains an arbitrary number of elements.

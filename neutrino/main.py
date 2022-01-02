@@ -221,8 +221,80 @@ class Neutrino(Link):
 
         self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
 
+    def set_verbosity(self, verbose):
+        """Updates Neutrino's behavior to print (or not print) responses to the console.
+
+        Args:
+            verbose (bool): ``True`` if print statements are desired.
+        """
+
+        self.verbose = verbose
+
+        # print settings change to console
+        verb = "will" if verbose else "won't"
+        print(f"\n Responses {verb} be printed to the console.")
+
+    def get_accounts(
+        self,
+        relevant_only=True,
+        exclude_empty_accounts=False,
+        from_database=False,
+        save=False,
+    ):
+        """Loads a DataFrame with all trading accounts and their holdings for the authenticated profile.
+
+        Args:
+            relevant_only (bool, optional): The API retuns all accounts for all available coins by default. \
+                Set this to ``True`` to only include accounts that have seen activity in the past in the returned result.
+            exclude_empty_accounts (bool, optional): The API retuns all accounts for all available coins by default. \
+                Set this to ``True`` to exclude zero-balance accounts from the returned result.
+            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
+            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
+        """
+
+        if from_database:
+            account_df = t.process_df(pd.read_csv(self.database_path / "accounts.csv"))
+        else:
+            account_df = t.process_df(self.retrieve_accounts())
+
+        # filter to only accounts that have had some activity at any point in time, if applicable
+        if relevant_only:
+
+            # use order history to get list of currencies where activity has been seen
+            # TODO: change this to self.get_orders(from_database)
+            # temporarily set verbosity to false for the orders retrieval, then switch it back
+            initial__verbosity = self.verbose
+            self.verbose = False
+            orders_df = self.retrieve_orders(status=["all"])
+            self.verbose = initial__verbosity
+            currencies = (
+                orders_df["product_id"]
+                .apply(lambda x: x.split("-")[0])
+                .unique()
+                .tolist()
+            )
+            account_df = account_df[
+                account_df["currency"].isin(currencies)
+            ].reset_index(drop=True)
+
+        # exclude accounts with <= 0 balance, if applicable
+        if exclude_empty_accounts:
+            account_df = account_df[
+                account_df["balance"].astype(float) > 0
+            ].reset_index(drop=True)
+
+        if self.verbose:
+            print(account_df)
+
+        # save to CSV, if applicable
+        account_df = t.process_df(
+            account_df, save=save, csv_name="accounts", database_path=self.database_path
+        )
+
+        return account_df
+
     def get_all_link_data(self, save=False):
-        """Executes all ``get`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s :py:obj:`Link<neutrino.link.Link>`:
+        """Executes all ``retrieve`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s inherited :py:obj:`Link<neutrino.link.Link>`:
 
         * :py:obj:`Link.retrieve_accounts<neutrino.link.Link.retrieve_accounts>`
         * :py:obj:`Link.retrieve_account_ledger<neutrino.link.Link.retrieve_account_ledger>` for all accounts
@@ -231,17 +303,19 @@ class Neutrino(Link):
         * :py:obj:`Link.retrieve_fees<neutrino.link.Link.retrieve_fees>`
 
         Args:
-            save (bool, optional): Exports data returned from the above ``get`` methods to the ``database`` directory \
+            save (bool, optional): Exports DataFrames returned from the above ``retrieve`` methods to the ``self.database`` directory \
                 in CSV format if set to ``True``. Defaults to False.
         """
 
         # get all active accounts
-        account_df = self.retrieve_accounts(save=save)
+        account_df = t.process_df(
+            self.retrieve_accounts(), save, "accounts", self.database_path
+        )
 
         # export ledgers for all those accounts
         ledgers = {}
         for i in account_df.index:
-            ledgers[i] = self.retrieve_account_ledger(account_df.at[i, "id"], save=save)
+            ledgers[i] = self.retrieve_account_ledger(account_df.at[i, "id"])
 
         # get all transfers
         self.retrieve_transfers(save=save)
@@ -291,7 +365,7 @@ class Neutrino(Link):
         if os.path.isfile(self.database_path / csv_path):
 
             # load data from database
-            candles_df = t.load_dataframe_from_csv(self.database_path / csv_path)
+            candles_df = t.process_df(pd.read_csv(self.database_path / csv_path))
 
             # generate dict of start: end time pairs to pull, if database_df does not cover the requested data
             pull_bounds = self.generate_candle_pull_bounds(
@@ -299,13 +373,11 @@ class Neutrino(Link):
             )
 
             # loop through the list of pull bounds and augment database_df
-            self.verbose = False
             for pull_start, pull_end in pull_bounds.items():
                 pulled_df = self.get_product_candles(
                     product_id, granularity, pull_start, pull_end
                 )
                 candles_df = candles_df.append(pulled_df, ignore_index=True)
-            self.verbose = True
 
             # sort candles_df
             candles_df = candles_df.sort_values(

@@ -136,6 +136,59 @@ def move_df_column_inplace(df, column, position):
     df.insert(position, column.name, column)
 
 
+def process_df(
+    df, clean_timestrings=False, save=False, csv_name=None, database_path=None
+):
+    """Performs generic actions on DataFrames and returns the resulting DataFrame object.
+
+    Optional processes:
+
+        1. :py:obj:`clean_df_timestrings`
+        2. :py:obj:`save_dataframe_as_csv`
+
+    Args:
+        df (DataFrame): DataFrame to be processed.
+        save (bool, optional): [description]. Defaults to False.
+        csv_name (str, optional): Name of the CSV file to be saved, **without** the ``.csv`` extension \
+            (i.e., ``saved_file`` instead of ``saved_file.csv``), if applicable.
+        database_path (Path, optional): Absolute path to the directory in which the CSV file will be saved, if applicable.
+
+    Returns:
+        DataFrame: The initially provided DataFrame.
+    """
+
+    if clean_timestrings:
+        df = clean_timestrings(df)
+
+    if save:
+        save_dataframe_as_csv(df, csv_name, database_path)
+
+    return df
+
+
+def clean_df_timestrings(df):
+    """Ensure the provided DataFrame's time string columns are properly formatted (``%Y-%m-%d %H:%M``).
+
+    Note: this does not affect time strings stored in ISO 8601 format.
+
+    Args:
+        df (DataFrame): DataFrame to be processed.
+
+    Returns:
+        DataFrame: DataFrame object with cleaned time string columns.
+    """
+
+    # use the add_minutes_to_time_string method (adding 0 minutes) on each column
+    # this ensures proper time string formatting for all columns containing generic time string strings
+    for column in df:
+        try:
+            df[column] = df[column].apply(lambda x: add_minutes_to_time_string(x, 0))
+        except:
+            pass
+
+    return df
+
+
 def save_dataframe_as_csv(df, csv_name, database_path):
     """Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.
 
@@ -162,33 +215,6 @@ def save_dataframe_as_csv(df, csv_name, database_path):
                 return
 
     print(f" \n {csv_name} exported to: {filepath}")
-
-
-def load_dataframe_from_csv(csv_path):
-    """Loads a DataFrame from a CSV file. Importantly, this method ensures that timestamp data is parsed \
-        in a consistent and expected format.
-
-        Further documentation TBD.
-
-    Args:
-        csv_path (str): Absolute path to the CSV file to be loaded into a DataFrame.
-
-    Returns:
-        DataFrame: DataFrame object containing the specified CSV data.
-    """
-
-    # read the CSV into a df
-    df = pd.read_csv(csv_path)
-
-    # use the add_minutes_to_time_string method (adding 0 minutes) on each column
-    # this ensures proper timestamp formatting for all columns containing generic timestamp strings
-    for column in df:
-        try:
-            df[column] = df[column].apply(lambda x: add_minutes_to_time_string(x, 0))
-        except:
-            pass
-
-    return df
 
 
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
