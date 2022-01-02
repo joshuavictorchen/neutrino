@@ -106,6 +106,13 @@ class Neutrino(Link):
         print("\n Checking for updates...", end="")
         self.repo.remotes.origin.fetch()
         updates_available = False
+
+        # if head is in detached state, then return with no updates
+        if self.repo.head.is_detached:
+            print(" repo's HEAD is detached.")
+            return updates_available
+
+        # check for newer commits
         if (
             sum(
                 1
