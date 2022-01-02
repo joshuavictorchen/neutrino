@@ -19,12 +19,6 @@ class Link:
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
-        * **accounts** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_accounts`.
-        * **ledgers** (*dict(dict)*): Nested dictionary representations of DataFrames returned from :py:obj:`Link.retrieve_account_ledger`, \
-            with one entry per retrieved ``account_id`` in the form of ``{account_id: {ledger_dict}}``.
-        * **transfers** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_usd_transfers`.
-        * **orders** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_orders`.
-        * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.retrieve_fees`.
 
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
@@ -38,11 +32,6 @@ class Link:
         self.verbose = verbose
         self.database_path = Path(database_path)
         self.session = requests.Session()
-        self.accounts = {}
-        self.ledgers = {}
-        self.transfers = {}
-        self.orders = {}
-        self.fees = {}
 
     def set_verbosity(self, verbose):
         """Updates Link's behavior to print (or not print) formatted API responses to the console.
@@ -203,11 +192,6 @@ class Link:
         # load data into df
         account_df = self.load_df_from_API_response_list(account_list, "currency")
 
-        # update object attribute
-        account_dict = {}
-        [account_dict.update({i.get("currency"): i}) for i in account_list]
-        self.accounts = account_dict
-
         return account_df
 
     def retrieve_account_by_id(self, account_id):
@@ -296,7 +280,7 @@ class Link:
 
         return ledger_df
 
-    def retrieve_transfers(self, save=False):
+    def retrieve_transfers(self):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers>`__).
 
@@ -343,24 +327,9 @@ class Link:
         # load data into df
         transfers_df = self.load_df_from_API_response_list(transfers_list, "id")
 
-        # update object attribute
-        transfers_dict = {}
-        for i in transfers_list:
-            transfers_dict.update({i.get("id"): i})
-        self.transfers = transfers_dict
-
-        # print dataframe to console, if applicable
-        if self.verbose:
-            print()
-            print(transfers_df)
-
-        # export to CSV, if applicable
-        if save:
-            t.save_dataframe_as_csv(transfers_df, "transfers", self.database_path)
-
         return transfers_df
 
-    def retrieve_orders(self, save=False, **kwargs):
+    def retrieve_orders(self, **kwargs):
         """Loads a DataFrame with orders associated with the authenticated :py:obj:`Link` \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders>`__).
 
@@ -368,7 +337,6 @@ class Link:
         behavior, which only returns open orders by default.
 
         Args:
-            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
             **kwargs (various, optional):
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
                 * **product_id** (*str*): Filter results by a specific ``product_id``.
@@ -427,24 +395,6 @@ class Link:
         # load data into df
         orders_df = self.load_df_from_API_response_list(orders_list, "id")
 
-        # update object attribute
-        orders_dict = {}
-        for i in orders_list:
-            if orders_dict.get(i.get("product_id")):
-                orders_dict.get(i.get("product_id")).update({i.get("id"): i})
-            else:
-                orders_dict.update({i.get("product_id"): {i.get("id"): i}})
-        self.orders = orders_dict
-
-        # print dataframe to console, if applicable
-        if self.verbose:
-            print()
-            print(orders_df)
-
-        # export to CSV, if applicable
-        if save:
-            t.save_dataframe_as_csv(orders_df, "orders", self.database_path)
-
         return orders_df
 
     def retrieve_fees(self):
@@ -465,9 +415,6 @@ class Link:
         """
 
         fees_dict = self.send_api_request("GET", "/fees")[0]
-
-        # update object attribute
-        self.fees = fees_dict
 
         return fees_dict
 

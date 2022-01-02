@@ -158,7 +158,7 @@ def process_df(
     """
 
     if clean_timestrings:
-        df = clean_timestrings(df)
+        df = clean_df_timestrings(df)
 
     if save:
         save_dataframe_as_csv(df, csv_name, database_path)

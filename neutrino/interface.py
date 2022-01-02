@@ -94,17 +94,20 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "transfers":
-                    neutrino.get_account_transfers(save=save)
+                    neutrino.get_transfers(save=save)
 
                 elif arg[1] == "orders":
 
                     if len(arg) > 2:
-                        neutrino.retrieve_orders(save=save, status=arg[2:])
+                        if not save:
+                            neutrino.get_orders(save=save, status=arg[2:])
+                        else:
+                            neutrino.get_orders(save=save, status=arg[2:-1])
                     else:
-                        neutrino.retrieve_orders(save=save)
+                        neutrino.get_orders(save=save)
 
                 elif arg[1] == "fees":
-                    neutrino.retrieve_fees()
+                    neutrino.get_fees()
 
                 elif arg[1] == "candles":
                     neutrino.get_product_candles(

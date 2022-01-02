@@ -130,7 +130,12 @@
 <p><strong>Instance attributes:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p><strong>placeholder</strong> (<em>placeholder</em>): Placeholder text.</p></li>
+<li><p><strong>placeholder</strong> (<em>placeholder</em>): Placeholder text. The following bullets will likely be out of date during ongoing development.</p></li>
+<li><p><strong>accounts</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_accounts</span></code>.</p></li>
+<li><p><strong>ledgers</strong> (<em>dict(dict)</em>): Nested dictionary representations of DataFrames returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_account_ledger</span></code>,             with one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">{ledger_dict}}</span></code>.</p></li>
+<li><p><strong>transfers</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code>.</p></li>
+<li><p><strong>orders</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_orders</span></code>.</p></li>
+<li><p><strong>fees</strong> (<em>dict</em>): Dictionary of Coinbase fee data returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_fees</span></code>.</p></li>
 <li><p><strong>coins</strong> (<em>dict</em>): To be implemented - dict for each coin containing account info, orders, transfers.</p></li>
 </ul>
 </div></blockquote>
@@ -205,7 +210,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.get_accounts">
 <span class="sig-name descname"><span class="pre">get_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_accounts" title="Permalink to this definition"></a></dt>
-<dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated profile.</p>
+<dd><p>Loads a DataFrame with all relevant trading accounts and their holdings for the authenticated profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -214,6 +219,114 @@
 <li><p><strong>from_database</strong> (<em>bool</em><em>, </em><em>optional</em>) – Loads from the local CSV database if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Otherwise, performs an API request for fresh data. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>DataFrame with the following columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>to be completed</p></li>
+<li><p>at a later date</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.get_transfers">
+<span class="sig-name descname"><span class="pre">get_transfers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_transfers" title="Permalink to this definition"></a></dt>
+<dd><p>Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated profiles’ accounts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_database</strong> (<em>bool</em><em>, </em><em>optional</em>) – Loads from the local CSV database if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Otherwise, performs an API request for fresh data. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>DataFrame with the following columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>to be completed</p></li>
+<li><p>at a later date</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.get_orders">
+<span class="sig-name descname"><span class="pre">get_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_orders" title="Permalink to this definition"></a></dt>
+<dd><p>Loads a DataFrame with orders associated with the authenticated profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_database</strong> (<em>bool</em><em>, </em><em>optional</em>) – Loads from the local CSV database if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Otherwise, performs an API request for fresh data. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>various</em><em>, </em><em>optional</em>) – <ul>
+<li><p><strong>profile_id</strong> (<em>str</em>): Filter results by a specific <code class="docutils literal notranslate"><span class="pre">profile_id</span></code>.</p></li>
+<li><p><strong>product_id</strong> (<em>str</em>): Filter results by a specific <code class="docutils literal notranslate"><span class="pre">product_id</span></code>.</p></li>
+<li><p><strong>sortedBy</strong> (<em>str</em>): Sort criteria for results:                     <code class="docutils literal notranslate"><span class="pre">created_at</span></code>, <code class="docutils literal notranslate"><span class="pre">price</span></code>, <code class="docutils literal notranslate"><span class="pre">size</span></code>, <code class="docutils literal notranslate"><span class="pre">order_id</span></code>, <code class="docutils literal notranslate"><span class="pre">side</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code>.</p></li>
+<li><p><strong>sorting</strong> (<em>str</em>): Sort results by <code class="docutils literal notranslate"><span class="pre">asc</span></code> or <code class="docutils literal notranslate"><span class="pre">desc</span></code>.</p></li>
+<li><p><strong>start_date</strong> (<em>str</em>): Filter by minimum posted date (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>end_date</strong> (<em>str</em>): Filter by maximum posted date (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>before</strong> (<em>str</em>): Used for pagination. Sets start cursor to <code class="docutils literal notranslate"><span class="pre">before</span></code> date.</p></li>
+<li><p><strong>after</strong> (<em>str</em>): Used for pagination. Sets end cursor to <code class="docutils literal notranslate"><span class="pre">after</span></code> date.</p></li>
+<li><p><strong>limit</strong> (<em>int</em>): Limit on number of results to return.</p></li>
+<li><p><strong>status</strong> (<em>list(str)</em>): List of order statuses to filter by:                     <code class="docutils literal notranslate"><span class="pre">open</span></code>, <code class="docutils literal notranslate"><span class="pre">pending</span></code>, <code class="docutils literal notranslate"><span class="pre">rejected</span></code>, <code class="docutils literal notranslate"><span class="pre">done</span></code>, <code class="docutils literal notranslate"><span class="pre">active</span></code>, <code class="docutils literal notranslate"><span class="pre">received</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code>.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>DataFrame with the following columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>to be completed</p></li>
+<li><p>at a later date</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.get_fees">
+<span class="sig-name descname"><span class="pre">get_fees</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_fees" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the fee rates and 30-day trailing volume for the authenticated profile.</p>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<p>This is currently just a call to Link’s <code class="docutils literal notranslate"><span class="pre">retrieve_fees</span></code> function.             It should be updated to store fees (and associated poll times) to a CSV file,             and optionally load from this CSV file like the other Neutrino <code class="docutils literal notranslate"><span class="pre">get</span></code> methnods,             i.e. <code class="docutils literal notranslate"><span class="pre">get_fees(from_database=True)</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
+<span class="c1"># types, response requirements, and notes are described below</span>
+
+<span class="p">{</span>
+    <span class="n">taker_fee_rate</span><span class="p">:</span> <span class="n">required</span>
+    <span class="n">maker_fee_rate</span><span class="p">:</span> <span class="n">required</span>
+        <span class="n">usd_volume</span><span class="p">:</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict (str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -477,11 +590,6 @@
 <li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
 <li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
-<li><p><strong>accounts</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_accounts" title="neutrino.link.Link.retrieve_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_accounts</span></code></a>.</p></li>
-<li><p><strong>ledgers</strong> (<em>dict(dict)</em>): Nested dictionary representations of DataFrames returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_account_ledger" title="neutrino.link.Link.retrieve_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_account_ledger</span></code></a>,             with one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">{ledger_dict}}</span></code>.</p></li>
-<li><p><strong>transfers</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code>.</p></li>
-<li><p><strong>orders</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_orders" title="neutrino.link.Link.retrieve_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_orders</span></code></a>.</p></li>
-<li><p><strong>fees</strong> (<em>dict</em>): Dictionary of Coinbase fee data returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_fees" title="neutrino.link.Link.retrieve_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_fees</span></code></a>.</p></li>
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
@@ -677,7 +785,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.retrieve_transfers">
-<span class="sig-name descname"><span class="pre">retrieve_transfers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_transfers" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">retrieve_transfers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_transfers" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s accounts             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers">API Reference</a>).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -723,14 +831,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.retrieve_orders">
-<span class="sig-name descname"><span class="pre">retrieve_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_orders" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">retrieve_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_orders" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with orders associated with the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders">API Reference</a>).</p>
 <p>All current and historical orders are returned by default. This is distinct from the Coinbase API’s default         behavior, which only returns open orders by default.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Export the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code>.</p></li>
-<li><p><strong>**kwargs</strong> (<em>various</em><em>, </em><em>optional</em>) – <ul>
+<dd class="field-odd"><p><strong>**kwargs</strong> (<em>various</em><em>, </em><em>optional</em>) – <ul class="simple">
 <li><p><strong>profile_id</strong> (<em>str</em>): Filter results by a specific <code class="docutils literal notranslate"><span class="pre">profile_id</span></code>.</p></li>
 <li><p><strong>product_id</strong> (<em>str</em>): Filter results by a specific <code class="docutils literal notranslate"><span class="pre">product_id</span></code>.</p></li>
 <li><p><strong>sortedBy</strong> (<em>str</em>): Sort criteria for results:                     <code class="docutils literal notranslate"><span class="pre">created_at</span></code>, <code class="docutils literal notranslate"><span class="pre">price</span></code>, <code class="docutils literal notranslate"><span class="pre">size</span></code>, <code class="docutils literal notranslate"><span class="pre">order_id</span></code>, <code class="docutils literal notranslate"><span class="pre">side</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code>.</p></li>
@@ -742,8 +848,7 @@
 <li><p><strong>limit</strong> (<em>int</em>): Limit on number of results to return.</p></li>
 <li><p><strong>status</strong> (<em>list(str)</em>): List of order statuses to filter by:                     <code class="docutils literal notranslate"><span class="pre">open</span></code>, <code class="docutils literal notranslate"><span class="pre">pending</span></code>, <code class="docutils literal notranslate"><span class="pre">rejected</span></code>, <code class="docutils literal notranslate"><span class="pre">done</span></code>, <code class="docutils literal notranslate"><span class="pre">active</span></code>, <code class="docutils literal notranslate"><span class="pre">received</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code>.</p></li>
 </ul>
-</p></li>
-</ul>
+</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><p>DataFrame with columns corresponding to the headers listed below:</p>
@@ -1221,7 +1326,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-02 14:32:07.
+      <span class="lastupdated">Last updated on 2022-01-02 15:40:30.
       </span></p>
   </div>
 

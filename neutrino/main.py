@@ -42,7 +42,13 @@ class Neutrino(Link):
             with which the Neutrino's ``auth`` value will be initialized. Defaults to "default".
 
     **Instance attributes:** \n
-        * **placeholder** (*placeholder*): Placeholder text.
+        * **placeholder** (*placeholder*): Placeholder text. The following bullets will likely be out of date during ongoing development.
+        * **accounts** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_accounts`.
+        * **ledgers** (*dict(dict)*): Nested dictionary representations of DataFrames returned from :py:obj:`Link.retrieve_account_ledger`, \
+            with one entry per retrieved ``account_id`` in the form of ``{account_id: {ledger_dict}}``.
+        * **transfers** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_usd_transfers`.
+        * **orders** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_orders`.
+        * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.retrieve_fees`.
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
@@ -89,6 +95,12 @@ class Neutrino(Link):
         super().__init__(
             self.neutrino_settings.get("api_url"), self.auth, self.database_path
         )
+
+        self.accounts = None
+        self.ledgers = None
+        self.transfers = None
+        self.orders = None
+        self.fees = {}
 
         self.streams = {}
         self.threads = {}
@@ -241,7 +253,7 @@ class Neutrino(Link):
         from_database=False,
         save=False,
     ):
-        """Loads a DataFrame with all trading accounts and their holdings for the authenticated profile.
+        """Loads a DataFrame with all relevant trading accounts and their holdings for the authenticated profile.
 
         Args:
             relevant_only (bool, optional): The API retuns all accounts for all available coins by default. \
@@ -250,6 +262,12 @@ class Neutrino(Link):
                 Set this to ``True`` to exclude zero-balance accounts from the returned result.
             from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
             save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
+        
+        Returns:
+            DataFrame: DataFrame with the following columns:
+            
+                * to be completed
+                * at a later date
         """
 
         if from_database:
@@ -284,6 +302,7 @@ class Neutrino(Link):
             ].reset_index(drop=True)
 
         if self.verbose:
+            print()
             print(account_df)
 
         # save to CSV, if applicable
@@ -291,7 +310,132 @@ class Neutrino(Link):
             account_df, save=save, csv_name="accounts", database_path=self.database_path
         )
 
+        # update object attribute
+        self.accounts = account_df
+
         return account_df
+
+    def get_transfers(self, from_database=False, save=False):
+        """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated profiles' accounts.
+
+        Args:
+            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
+            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
+
+        Returns:
+            DataFrame: DataFrame with the following columns:
+
+                * to be completed
+                * at a later date
+        """
+
+        if from_database:
+            transfers_df = t.process_df(
+                pd.read_csv(self.database_path / "transfers.csv"),
+                clean_timestrings=True,
+            )
+        else:
+            transfers_df = t.process_df(
+                self.retrieve_transfers(), clean_timestrings=True
+            )
+
+        if self.verbose:
+            print()
+            print(transfers_df)
+
+        # save to CSV, if applicable
+        transfers_df = t.process_df(
+            transfers_df,
+            save=save,
+            csv_name="transfers",
+            database_path=self.database_path,
+        )
+
+        # update object attribute
+        self.transfers = transfers_df
+
+        return transfers_df
+
+    def get_orders(self, from_database=False, save=False, **kwargs):
+        """Loads a DataFrame with orders associated with the authenticated profile.
+
+        Args:
+            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
+            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
+            **kwargs (various, optional):
+                * **profile_id** (*str*): Filter results by a specific ``profile_id``.
+                * **product_id** (*str*): Filter results by a specific ``product_id``.
+                * **sortedBy** (*str*): Sort criteria for results: \
+                    ``created_at``, ``price``, ``size``, ``order_id``, ``side``, ``type``.
+                * **sorting** (*str*): Sort results by ``asc`` or ``desc``.
+                * **start_date** (*str*): Filter by minimum posted date (``%Y-%m-%d %H:%M``).
+                * **end_date** (*str*): Filter by maximum posted date (``%Y-%m-%d %H:%M``).
+                * **before** (*str*): Used for pagination. Sets start cursor to ``before`` date.
+                * **after** (*str*): Used for pagination. Sets end cursor to ``after`` date.
+                * **limit** (*int*): Limit on number of results to return.
+                * **status** (*list(str)*): List of order statuses to filter by: \
+                    ``open``, ``pending``, ``rejected``, ``done``, ``active``, ``received``, ``all``.
+        
+        Returns:
+            DataFrame: DataFrame with the following columns:
+            
+                * to be completed
+                * at a later date
+        """
+
+        # TODO: implement kwargs for from_database
+        if from_database:
+            orders_df = t.process_df(
+                pd.read_csv(self.database_path / "orders.csv"), clean_timestrings=True
+            )
+        else:
+            orders_df = t.process_df(
+                self.retrieve_orders(**kwargs), clean_timestrings=True
+            )
+
+        if self.verbose:
+            print()
+            print(orders_df)
+
+        # save to CSV, if applicable
+        orders_df = t.process_df(
+            orders_df, save=save, csv_name="orders", database_path=self.database_path
+        )
+
+        # update object attribute
+        self.orders = orders_df
+
+        return orders_df
+
+    def get_fees(self):
+        """Gets the fee rates and 30-day trailing volume for the authenticated profile.
+
+        .. admonition:: TODO
+
+            This is currently just a call to Link's ``retrieve_fees`` function. \
+            It should be updated to store fees (and associated poll times) to a CSV file, \
+            and optionally load from this CSV file like the other Neutrino ``get`` methnods, \
+            i.e. ``get_fees(from_database=True)``.
+
+        Returns:
+            dict (str): .. code-block::
+
+                # key definitions can be found in API Reference link above
+                # types, response requirements, and notes are described below
+
+                {
+                    taker_fee_rate: required
+                    maker_fee_rate: required
+                        usd_volume: 
+                }
+        """
+
+        self.fees = self.retrieve_fees()
+
+        if self.verbose:
+            t.print_recursive_dict(self.fees)
+
+        return self.fees
 
     def get_all_link_data(self, save=False):
         """Executes all ``retrieve`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s inherited :py:obj:`Link<neutrino.link.Link>`:
@@ -307,10 +451,9 @@ class Neutrino(Link):
                 in CSV format if set to ``True``. Defaults to False.
         """
 
-        # get all active accounts
-        account_df = t.process_df(
-            self.retrieve_accounts(), save, "accounts", self.database_path
-        )
+        # get all active accounts - use default options for now
+        # TODO: generalize for all options
+        account_df = t.process_df(self.get_accounts(save=save))
 
         # export ledgers for all those accounts
         ledgers = {}
@@ -365,7 +508,9 @@ class Neutrino(Link):
         if os.path.isfile(self.database_path / csv_path):
 
             # load data from database
-            candles_df = t.process_df(pd.read_csv(self.database_path / csv_path))
+            candles_df = t.process_df(
+                pd.read_csv(self.database_path / csv_path), clean_timestrings=True
+            )
 
             # generate dict of start: end time pairs to pull, if database_df does not cover the requested data
             pull_bounds = self.generate_candle_pull_bounds(
@@ -374,7 +519,7 @@ class Neutrino(Link):
 
             # loop through the list of pull bounds and augment database_df
             for pull_start, pull_end in pull_bounds.items():
-                pulled_df = self.get_product_candles(
+                pulled_df = self.retrieve_product_candles(
                     product_id, granularity, pull_start, pull_end
                 )
                 candles_df = candles_df.append(pulled_df, ignore_index=True)
@@ -386,7 +531,9 @@ class Neutrino(Link):
 
         # if dbfile doesn't exist, then just pull the candle data
         else:
-            candles_df = self.get_product_candles(product_id, granularity, start, end)
+            candles_df = self.retrieve_product_candles(
+                product_id, granularity, start, end
+            )
 
         # trim candles_df to the requested bounds
         returned_df = candles_df[
@@ -398,8 +545,9 @@ class Neutrino(Link):
             print(returned_df)
 
         # save to CSV, if applicable
-        if save:
-            t.save_dataframe_as_csv(candles_df, csv_name, self.database_path)
+        returned_df = t.process_df(
+            candles_df, save=save, csv_name=csv_name, database_path=self.database_path
+        )
 
         return returned_df
 
