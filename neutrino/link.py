@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 MAX_CANDLE_REQUEST = 300
-pd.set_option("display.max_rows", None)
+# pd.set_option("display.max_rows", None)
 
 
 class Link:
@@ -285,13 +285,12 @@ class Link:
 
         return self.send_api_request("GET", f"/accounts/{account_id}")[0]
 
-    def get_account_ledger(self, account_id, save=False, **kwargs):
+    def get_account_ledger(self, account_id, **kwargs):
         """Loads a DataFrame with all ledger activity (anything that would affect the account's balance) for a given coin account \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__).
 
         Args:
             account_id (str): Trading account ID for a given coin.
-            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
             **kwargs (various, optional):
                 * **start_date** (*str*): Filter by minimum posted date (``%Y-%m-%d %H:%M``).
                 * **end_date** (*str*): Filter by maximum posted date (``%Y-%m-%d %H:%M``).
@@ -301,8 +300,7 @@ class Link:
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the headers listed below, \
-            in addition to an ``account_id`` column. \
+            DataFrame: DataFrame with columns corresponding to the headers listed below. \
             Note that the ``details`` values are treated as columns in the returned DataFrame:
             
             .. code-block::
@@ -344,11 +342,6 @@ class Link:
         if self.verbose:
             print()
             print(ledger_df)
-
-        # export to CSV, if applicable
-        coin = self.get_account_by_id(account_id).get("currency")
-        if save:
-            t.save_dataframe_as_csv(ledger_df, f"ledger-{coin}", self.database_path)
 
         return ledger_df
 

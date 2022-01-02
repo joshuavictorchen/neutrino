@@ -407,10 +407,17 @@ class Neutrino:
         for i in gap_df.index:
             pull_bounds.update({gap_df.at[i, "start"]: gap_df.at[i, "end"]})
 
-        print(" \n Database values will be augmented with the following API requests:")
-        t.print_recursive_dict(pull_bounds)
+        if len(pull_bounds) > 0:
+            print(
+                " \n Database values will be augmented with the following Link requests:"
+            )
+            t.print_recursive_dict(pull_bounds)
 
         return pull_bounds
+
+    def retrieve_ledgers(self, currencies, save=False):
+
+        pass
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"
