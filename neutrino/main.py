@@ -28,9 +28,9 @@ def main():
     print(interface.DIVIDER)
 
 
-class Neutrino:
-    """Handles :py:obj:`Streams<neutrino.stream.Stream>` (WebSocket feed messages) and :py:obj:`Links<neutrino.link.Link>` (API requests/responses). \
-        Framework for performing Coinbase Pro actions.
+class Neutrino(Link):
+    """Framework for performing Coinbase Pro actions. Handles :py:obj:`Streams<neutrino.stream.Stream>` (WebSocket feed messages) \
+        and inherits from :py:obj:`Link<neutrino.link.Link>` (API requests/responses).
 
     .. note::
 
@@ -73,7 +73,8 @@ class Neutrino:
         if self.user_settings.get("check_for_updates"):
             self.check_for_updates()
 
-        # temporary measure for testing: update keys file to sanbox test keys, if keys_file does not exist
+        # temporary measure for testing:
+        # if keys_file does not exist, update keys file to sanbox test keys
         if not os.path.isfile(self.user_settings.get("keys_file")):
             self.user_settings["keys_file"] = (
                 self.neutrino_dir / "tests/sandbox-keys.yaml"
@@ -83,12 +84,12 @@ class Neutrino:
         self.verbose = verbose
         self.cbkeys = t.parse_yaml(self.user_settings.get("keys_file"), echo_yaml=False)
         self.update_auth(cbkey_set_name)
-        self.link = Link(
-            "default_link",
-            self.neutrino_settings.get("api_url"),
-            self.auth,
-            self.database_path,
+
+        # initialize inherited Link items
+        super().__init__(
+            self.neutrino_settings.get("api_url"), self.auth, self.database_path
         )
+
         self.streams = {}
         self.threads = {}
         self.coins = {}
@@ -105,6 +106,13 @@ class Neutrino:
         print("\n Checking for updates...", end="")
         self.repo.remotes.origin.fetch()
         updates_available = False
+
+        # if head is in detached state, then return with no updates
+        if self.repo.head.is_detached:
+            print(" repo's HEAD is detached.")
+            return updates_available
+
+        # check for newer commits
         if (
             sum(
                 1
@@ -213,17 +221,14 @@ class Neutrino:
 
         self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
 
-        if hasattr(self, "link"):
-            self.link.update_auth(self.auth)
-
     def get_all_link_data(self, save=False):
         """Executes all ``get`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s :py:obj:`Link<neutrino.link.Link>`:
 
-        * :py:obj:`Link.get_accounts<neutrino.link.Link.get_accounts>`
-        * :py:obj:`Link.get_account_ledger<neutrino.link.Link.get_account_ledger>` for all accounts
-        * :py:obj:`Link.get_transfers<neutrino.link.Link.get_transfers>`
-        * :py:obj:`Link.get_orders<neutrino.link.Link.get_orders>`
-        * :py:obj:`Link.get_fees<neutrino.link.Link.get_fees>`
+        * :py:obj:`Link.retrieve_accounts<neutrino.link.Link.retrieve_accounts>`
+        * :py:obj:`Link.retrieve_account_ledger<neutrino.link.Link.retrieve_account_ledger>` for all accounts
+        * :py:obj:`Link.retrieve_transfers<neutrino.link.Link.retrieve_transfers>`
+        * :py:obj:`Link.retrieve_orders<neutrino.link.Link.retrieve_orders>`
+        * :py:obj:`Link.retrieve_fees<neutrino.link.Link.retrieve_fees>`
 
         Args:
             save (bool, optional): Exports data returned from the above ``get`` methods to the ``database`` directory \
@@ -231,23 +236,23 @@ class Neutrino:
         """
 
         # get all active accounts
-        account_df = self.link.get_accounts(save=save)
+        account_df = self.retrieve_accounts(save=save)
 
         # export ledgers for all those accounts
         ledgers = {}
         for i in account_df.index:
-            ledgers[i] = self.link.get_account_ledger(account_df.at[i, "id"], save=save)
+            ledgers[i] = self.retrieve_account_ledger(account_df.at[i, "id"], save=save)
 
         # get all transfers
-        self.link.get_transfers(save=save)
+        self.retrieve_transfers(save=save)
 
         # get all orders
-        self.link.get_orders(save=save, status=["all"])
+        self.retrieve_orders(save=save, status=["all"])
 
         # get fees
-        self.link.get_fees()
+        self.retrieve_fees()
 
-    def retrieve_product_candles(
+    def get_product_candles(
         self, product_id, granularity=60, start=None, end=None, save=False
     ):
         """Performs the following actions to efficiently retrieve the requested product candle dataset:
@@ -274,8 +279,8 @@ class Neutrino:
         """
 
         # update start/end bounds if no input was provided
-        (start, end) = self.link.augment_candle_bounds(
-            self.link.calculate_max_candle_pull_minutes(granularity), start, end
+        (start, end) = self.augment_candle_bounds(
+            self.calculate_max_candle_pull_minutes(granularity), start, end
         )
 
         # establish name of the associated database CSV file for the given parameters
@@ -294,13 +299,13 @@ class Neutrino:
             )
 
             # loop through the list of pull bounds and augment database_df
-            self.link.verbose = False
+            self.verbose = False
             for pull_start, pull_end in pull_bounds.items():
-                pulled_df = self.link.get_product_candles(
+                pulled_df = self.get_product_candles(
                     product_id, granularity, pull_start, pull_end
                 )
                 candles_df = candles_df.append(pulled_df, ignore_index=True)
-            self.link.verbose = True
+            self.verbose = True
 
             # sort candles_df
             candles_df = candles_df.sort_values(
@@ -309,9 +314,7 @@ class Neutrino:
 
         # if dbfile doesn't exist, then just pull the candle data
         else:
-            candles_df = self.link.get_product_candles(
-                product_id, granularity, start, end
-            )
+            candles_df = self.get_product_candles(product_id, granularity, start, end)
 
         # trim candles_df to the requested bounds
         returned_df = candles_df[
