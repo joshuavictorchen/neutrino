@@ -237,6 +237,10 @@ class Neutrino(Link):
         verb = "will" if verbose else "won't"
         print(f"\n Responses {verb} be printed to the console.")
 
+    ###########################################################################
+    # get methods
+    ###########################################################################
+
     def get_accounts(
         self,
         relevant_only=True,
@@ -261,7 +265,7 @@ class Neutrino(Link):
                 * at a later date
         """
 
-        account_df = t.load_data(
+        (load_type, account_df) = t.load_data(
             from_database=from_database,
             link_method=self.retrieve_accounts,
             database_path=self.database_path,
@@ -308,6 +312,37 @@ class Neutrino(Link):
 
         return account_df
 
+    def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
+
+        (load_type, account_ledger_df) = t.load_data(
+            from_database=from_database,
+            link_method=self.retrieve_account_ledger,
+            database_path=self.database_path,
+            csv_name="ledgers",
+            clean_timestrings=True,
+            account_id=account_id,
+            **kwargs,
+        )
+
+        if load_type == "db":
+            # TODO: data was loaded in from db; filter based on kwargs
+            pass
+
+        if self.verbose:
+            print()
+            print(account_ledger_df)
+
+        # update object attribute
+        if self.ledgers is None:
+            self.ledgers = account_ledger_df
+        else:
+            pass
+
+        # save to CSV, if applicable
+        # ledger data across accounts is stored in a single table
+
+        return account_ledger_df
+
     def get_transfers(self, from_database=False, save=False):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated profiles' accounts.
 
@@ -322,7 +357,7 @@ class Neutrino(Link):
                 * at a later date
         """
 
-        transfers_df = t.load_data(
+        (load_type, transfers_df) = t.load_data(
             from_database=from_database,
             link_method=self.retrieve_transfers,
             database_path=self.database_path,
@@ -375,7 +410,7 @@ class Neutrino(Link):
         """
 
         # TODO: implement kwargs for from_database
-        orders_df = t.load_data(
+        (load_type, orders_df) = t.load_data(
             from_database=from_database,
             link_method=self.retrieve_orders,
             database_path=self.database_path,
@@ -383,6 +418,10 @@ class Neutrino(Link):
             clean_timestrings=True,
             **kwargs,
         )
+
+        if load_type == "db":
+            # TODO: data was loaded in from db; filter based on kwargs
+            pass
 
         if self.verbose:
             print()
@@ -428,7 +467,7 @@ class Neutrino(Link):
 
         return self.fees
 
-    def get_all_link_data(self, save=False):
+    def get_all_link_data(self, from_database=False, save=False):
         """Executes all ``retrieve`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s inherited :py:obj:`Link<neutrino.link.Link>`:
 
         * :py:obj:`Link.retrieve_accounts<neutrino.link.Link.retrieve_accounts>`
@@ -444,21 +483,27 @@ class Neutrino(Link):
 
         # get all active accounts - use default options for now
         # TODO: generalize for all options
-        account_df = t.process_df(self.get_accounts(save=save))
+        account_df = t.process_df(
+            self.get_accounts(from_database=from_database, save=save)
+        )
 
         # export ledgers for all those accounts
         ledgers = {}
         for i in account_df.index:
-            ledgers[i] = self.retrieve_account_ledger(account_df.at[i, "id"])
+            ledgers[i] = self.get_account_ledger(account_df.at[i, "id"])
 
         # get all transfers
-        self.retrieve_transfers(save=save)
+        self.get_transfers(from_database=from_database, save=save)
 
         # get all orders
-        self.retrieve_orders(save=save, status=["all"])
+        self.get_orders(from_database=from_database, save=save, status=["all"])
 
         # get fees
-        self.retrieve_fees()
+        self.get_fees()
+
+    ###########################################################################
+    # candle methods
+    ###########################################################################
 
     def get_product_candles(
         self, product_id, granularity=60, start=None, end=None, save=False
@@ -632,6 +677,10 @@ class Neutrino(Link):
     def retrieve_ledgers(self, currencies, save=False):
 
         pass
+
+    ###########################################################################
+    # stream methods
+    ###########################################################################
 
     def configure_new_stream(
         self, name, product_ids, channels, type="subscribe", cbkey_set_name="default"

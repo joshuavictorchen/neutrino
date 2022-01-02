@@ -220,7 +220,8 @@ class Link:
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the API response headers listed below. \
+            DataFrame: DataFrame with columns corresponding to the API response headers listed below, \
+            **in addition to** the ``account_id``. \
             Note that the ``details`` values are treated as columns in the returned DataFrame:
             
             .. code-block::
@@ -252,16 +253,6 @@ class Link:
 
         # add account_id as a column
         ledger_df["account_id"] = account_id
-
-        # update object attribute
-        ledger_dict = {}
-        [ledger_dict.update({i.get("id"): i}) for i in ledger_list]
-        self.ledgers.update({account_id: ledger_dict})
-
-        # print dataframe to console, if applicable
-        if self.verbose:
-            print()
-            print(ledger_df)
 
         return ledger_df
 

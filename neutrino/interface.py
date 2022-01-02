@@ -1,3 +1,4 @@
+import neutrino.tools as t
 import traceback
 
 DIVIDER = (
@@ -90,8 +91,12 @@ def interact(neutrino):
                         print("\n No currency provided - using BTC as default:")
                         currency = "BTC"
 
-                    neutrino.retrieve_account_ledger(
-                        neutrino.accounts.get(currency).get("id"), save=save
+                    neutrino.get_account_ledger(
+                        t.get_df_value_from_key(
+                            neutrino.accounts, "id", "currency", currency
+                        ),
+                        save=save,
+                        from_database=from_database,
                     )
 
                 elif arg[1] == "transfers":
