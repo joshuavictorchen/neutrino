@@ -12,7 +12,7 @@ Overview
 
 * **Neutrino** // :py:obj:`neutrino.main.Neutrino`
 
-   * Manages :py:obj:`Streams<neutrino.stream.Stream>` and :py:obj:`Links<neutrino.link.Link>`.
+   * Manages :py:obj:`Streams<neutrino.stream.Stream>` and inherits from :py:obj:`Link<neutrino.link.Link>`.
    * Performs operations as directed by the user.
    * TBD re: data structure.
 
