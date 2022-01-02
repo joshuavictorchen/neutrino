@@ -14,7 +14,6 @@ class Link:
     """Creates an API session and sends/receives API requests/responses.
 
     **Instance attributes:** \n
-        * **name** (*str*): :py:obj:`Link`'s name.
         * **verbose** (*bool*): If ``True``, then API responses are printed to the console.
         * **database_path** (*Path*): :py:obj:`Path` object containing the absolute filepath to the folder \
             to which the Link exports CSV files.
@@ -33,19 +32,18 @@ class Link:
         auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
     """
 
-    def __init__(self, name, url, auth, database_path, verbose=False):
+    def __init__(self, url, auth, database_path, verbose=False):
 
-        self.name = name
-        self.url = url
-        self.update_auth(auth)
+        self.api_url = url
+        self.auth = auth
         self.verbose = verbose
         self.database_path = Path(database_path)
 
         self.session = requests.Session()
-        self.accounts = None
+        self.accounts = {}
         self.ledgers = {}
-        self.transfers = None
-        self.orders = None
+        self.transfers = {}
+        self.orders = {}
         self.fees = {}
 
     def set_verbosity(self, verbose):
@@ -58,8 +56,8 @@ class Link:
         self.verbose = verbose
 
         # print settings change to console
-        verb = "begin" if verbose else "stop"
-        print(f"\n {self.name} will {verb} printing API responses to the console.")
+        verb = "will" if verbose else "won't"
+        print(f"\n API responses {verb} be printed to the console.")
 
     def update_auth(self, auth):
         """Update authentication for the link.
@@ -105,7 +103,7 @@ class Link:
         # get the api response
         api_response = self.session.request(
             method,
-            self.url + endpoint,
+            self.api_url + endpoint,
             params=params,
             auth=self.auth,
             timeout=30,

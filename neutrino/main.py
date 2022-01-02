@@ -28,7 +28,7 @@ def main():
     print(interface.DIVIDER)
 
 
-class Neutrino:
+class Neutrino(Link):
     """Handles :py:obj:`Streams<neutrino.stream.Stream>` (WebSocket feed messages) and :py:obj:`Links<neutrino.link.Link>` (API requests/responses). \
         Framework for performing Coinbase Pro actions.
 
@@ -73,7 +73,8 @@ class Neutrino:
         if self.user_settings.get("check_for_updates"):
             self.check_for_updates()
 
-        # temporary measure for testing: update keys file to sanbox test keys, if keys_file does not exist
+        # temporary measure for testing:
+        # if keys_file does not exist, update keys file to sanbox test keys
         if not os.path.isfile(self.user_settings.get("keys_file")):
             self.user_settings["keys_file"] = (
                 self.neutrino_dir / "tests/sandbox-keys.yaml"
@@ -83,12 +84,12 @@ class Neutrino:
         self.verbose = verbose
         self.cbkeys = t.parse_yaml(self.user_settings.get("keys_file"), echo_yaml=False)
         self.update_auth(cbkey_set_name)
-        self.link = Link(
-            "default_link",
-            self.neutrino_settings.get("api_url"),
-            self.auth,
-            self.database_path,
+
+        # initialize inherited Link items
+        super().__init__(
+            self.neutrino_settings.get("api_url"), self.auth, self.database_path
         )
+
         self.streams = {}
         self.threads = {}
         self.coins = {}
@@ -213,9 +214,6 @@ class Neutrino:
 
         self.auth = t.Authenticator(self.cbkeys.get(cbkey_set))
 
-        if hasattr(self, "link"):
-            self.link.update_auth(self.auth)
-
     def get_all_link_data(self, save=False):
         """Executes all ``get`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s :py:obj:`Link<neutrino.link.Link>`:
 
@@ -231,21 +229,21 @@ class Neutrino:
         """
 
         # get all active accounts
-        account_df = self.link.get_accounts(save=save)
+        account_df = self.get_accounts(save=save)
 
         # export ledgers for all those accounts
         ledgers = {}
         for i in account_df.index:
-            ledgers[i] = self.link.get_account_ledger(account_df.at[i, "id"], save=save)
+            ledgers[i] = self.get_account_ledger(account_df.at[i, "id"], save=save)
 
         # get all transfers
-        self.link.get_transfers(save=save)
+        self.get_transfers(save=save)
 
         # get all orders
-        self.link.get_orders(save=save, status=["all"])
+        self.get_orders(save=save, status=["all"])
 
         # get fees
-        self.link.get_fees()
+        self.get_fees()
 
     def retrieve_product_candles(
         self, product_id, granularity=60, start=None, end=None, save=False
@@ -274,8 +272,8 @@ class Neutrino:
         """
 
         # update start/end bounds if no input was provided
-        (start, end) = self.link.augment_candle_bounds(
-            self.link.calculate_max_candle_pull_minutes(granularity), start, end
+        (start, end) = self.augment_candle_bounds(
+            self.calculate_max_candle_pull_minutes(granularity), start, end
         )
 
         # establish name of the associated database CSV file for the given parameters
@@ -294,13 +292,13 @@ class Neutrino:
             )
 
             # loop through the list of pull bounds and augment database_df
-            self.link.verbose = False
+            self.verbose = False
             for pull_start, pull_end in pull_bounds.items():
-                pulled_df = self.link.get_product_candles(
+                pulled_df = self.get_product_candles(
                     product_id, granularity, pull_start, pull_end
                 )
                 candles_df = candles_df.append(pulled_df, ignore_index=True)
-            self.link.verbose = True
+            self.verbose = True
 
             # sort candles_df
             candles_df = candles_df.sort_values(
@@ -309,9 +307,7 @@ class Neutrino:
 
         # if dbfile doesn't exist, then just pull the candle data
         else:
-            candles_df = self.link.get_product_candles(
-                product_id, granularity, start, end
-            )
+            candles_df = self.get_product_candles(product_id, granularity, start, end)
 
         # trim candles_df to the requested bounds
         returned_df = candles_df[

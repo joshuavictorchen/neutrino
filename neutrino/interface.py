@@ -20,7 +20,7 @@ def interact(neutrino):
     """
 
     # set verbosity to True to print outputs to console
-    neutrino.link.set_verbosity(True)
+    neutrino.set_verbosity(True)
 
     # continuously accept user input
     while True:
@@ -79,7 +79,7 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "accounts":
-                    neutrino.link.get_accounts(save=save)
+                    neutrino.get_accounts(save=save)
 
                 elif arg[1] == "ledger":
 
@@ -89,22 +89,22 @@ def interact(neutrino):
                         print("\n No currency provided - using BTC as default:")
                         currency = "BTC"
 
-                    neutrino.link.get_account_ledger(
-                        neutrino.link.accounts.get(currency).get("id"), save=save
+                    neutrino.get_account_ledger(
+                        neutrino.accounts.get(currency).get("id"), save=save
                     )
 
                 elif arg[1] == "transfers":
-                    neutrino.link.get_account_transfers(save=save)
+                    neutrino.get_account_transfers(save=save)
 
                 elif arg[1] == "orders":
 
                     if len(arg) > 2:
-                        neutrino.link.get_orders(save=save, status=arg[2:])
+                        neutrino.get_orders(save=save, status=arg[2:])
                     else:
-                        neutrino.link.get_orders(save=save)
+                        neutrino.get_orders(save=save)
 
                 elif arg[1] == "fees":
-                    neutrino.link.get_fees()
+                    neutrino.get_fees()
 
                 elif arg[1] == "candles":
                     neutrino.retrieve_product_candles(
@@ -133,10 +133,10 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "on":
-                    neutrino.link.set_verbosity(True)
+                    neutrino.set_verbosity(True)
 
                 elif arg[1] == "off":
-                    neutrino.link.set_verbosity(False)
+                    neutrino.set_verbosity(False)
 
                 else:
                     print(f"\n Unrecognized verbosity specification: {arg[1]}")
