@@ -29,8 +29,8 @@ def main():
 
 
 class Neutrino(Link):
-    """Handles :py:obj:`Streams<neutrino.stream.Stream>` (WebSocket feed messages) and :py:obj:`Links<neutrino.link.Link>` (API requests/responses). \
-        Framework for performing Coinbase Pro actions.
+    """Framework for performing Coinbase Pro actions. Handles :py:obj:`Streams<neutrino.stream.Stream>` (WebSocket feed messages) \
+        and inherits from :py:obj:`Link<neutrino.link.Link>` (API requests/responses).
 
     .. note::
 
@@ -217,11 +217,11 @@ class Neutrino(Link):
     def get_all_link_data(self, save=False):
         """Executes all ``get`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s :py:obj:`Link<neutrino.link.Link>`:
 
-        * :py:obj:`Link.get_accounts<neutrino.link.Link.get_accounts>`
-        * :py:obj:`Link.get_account_ledger<neutrino.link.Link.get_account_ledger>` for all accounts
-        * :py:obj:`Link.get_transfers<neutrino.link.Link.get_transfers>`
-        * :py:obj:`Link.get_orders<neutrino.link.Link.get_orders>`
-        * :py:obj:`Link.get_fees<neutrino.link.Link.get_fees>`
+        * :py:obj:`Link.retrieve_accounts<neutrino.link.Link.retrieve_accounts>`
+        * :py:obj:`Link.retrieve_account_ledger<neutrino.link.Link.retrieve_account_ledger>` for all accounts
+        * :py:obj:`Link.retrieve_transfers<neutrino.link.Link.retrieve_transfers>`
+        * :py:obj:`Link.retrieve_orders<neutrino.link.Link.retrieve_orders>`
+        * :py:obj:`Link.retrieve_fees<neutrino.link.Link.retrieve_fees>`
 
         Args:
             save (bool, optional): Exports data returned from the above ``get`` methods to the ``database`` directory \
@@ -229,23 +229,23 @@ class Neutrino(Link):
         """
 
         # get all active accounts
-        account_df = self.get_accounts(save=save)
+        account_df = self.retrieve_accounts(save=save)
 
         # export ledgers for all those accounts
         ledgers = {}
         for i in account_df.index:
-            ledgers[i] = self.get_account_ledger(account_df.at[i, "id"], save=save)
+            ledgers[i] = self.retrieve_account_ledger(account_df.at[i, "id"], save=save)
 
         # get all transfers
-        self.get_transfers(save=save)
+        self.retrieve_transfers(save=save)
 
         # get all orders
-        self.get_orders(save=save, status=["all"])
+        self.retrieve_orders(save=save, status=["all"])
 
         # get fees
-        self.get_fees()
+        self.retrieve_fees()
 
-    def retrieve_product_candles(
+    def get_product_candles(
         self, product_id, granularity=60, start=None, end=None, save=False
     ):
         """Performs the following actions to efficiently retrieve the requested product candle dataset:

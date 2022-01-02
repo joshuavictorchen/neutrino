@@ -117,7 +117,7 @@
 <dt class="sig sig-object py" id="neutrino.main.Neutrino">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.main.</span></span><span class="sig-name descname"><span class="pre">Neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-class docutils literal notranslate"><span class="pre">neutrino.link.Link</span></code></a></p>
-<p>Handles <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> (WebSocket feed messages) and <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Links</span></code></a> (API requests/responses).         Framework for performing Coinbase Pro actions.</p>
+<p>Framework for performing Coinbase Pro actions. Handles <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Streams</span></code></a> (WebSocket feed messages)         and inherits from <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a> (API requests/responses).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Authentication is currently handled using a plaintext YAML file defined in <code class="docutils literal notranslate"><span class="pre">user-settings.yaml</span></code>.         It will be updated to use a more secure method in the future.</p>
@@ -196,11 +196,11 @@
 <span class="sig-name descname"><span class="pre">get_all_link_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_all_link_data" title="Permalink to this definition"></a></dt>
 <dd><p>Executes all <code class="docutils literal notranslate"><span class="pre">get</span></code> methods of the <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino</span></code></a>’s <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#neutrino.link.Link.get_accounts" title="neutrino.link.Link.get_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_accounts</span></code></a></p></li>
-<li><p><a class="reference internal" href="#neutrino.link.Link.get_account_ledger" title="neutrino.link.Link.get_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_account_ledger</span></code></a> for all accounts</p></li>
-<li><p><a class="reference internal" href="#neutrino.link.Link.get_transfers" title="neutrino.link.Link.get_transfers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_transfers</span></code></a></p></li>
-<li><p><a class="reference internal" href="#neutrino.link.Link.get_orders" title="neutrino.link.Link.get_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_orders</span></code></a></p></li>
-<li><p><a class="reference internal" href="#neutrino.link.Link.get_fees" title="neutrino.link.Link.get_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_fees</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.retrieve_accounts" title="neutrino.link.Link.retrieve_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_accounts</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.retrieve_account_ledger" title="neutrino.link.Link.retrieve_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_account_ledger</span></code></a> for all accounts</p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.retrieve_transfers" title="neutrino.link.Link.retrieve_transfers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_transfers</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.retrieve_orders" title="neutrino.link.Link.retrieve_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_orders</span></code></a></p></li>
+<li><p><a class="reference internal" href="#neutrino.link.Link.retrieve_fees" title="neutrino.link.Link.retrieve_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_fees</span></code></a></p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -210,8 +210,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.retrieve_product_candles">
-<span class="sig-name descname"><span class="pre">retrieve_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.retrieve_product_candles" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.get_product_candles">
+<span class="sig-name descname"><span class="pre">get_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_product_candles" title="Permalink to this definition"></a></dt>
 <dd><p>Performs the following actions to efficiently retrieve the requested product candle dataset:</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -450,11 +450,11 @@
 <li><p><strong>url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
 <li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
-<li><p><strong>accounts</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.get_accounts" title="neutrino.link.Link.get_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_accounts</span></code></a>.</p></li>
-<li><p><strong>ledgers</strong> (<em>dict(dict)</em>): Nested dictionary representations of DataFrames returned from <a class="reference internal" href="#neutrino.link.Link.get_account_ledger" title="neutrino.link.Link.get_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_account_ledger</span></code></a>,             with one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">{ledger_dict}}</span></code>.</p></li>
+<li><p><strong>accounts</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_accounts" title="neutrino.link.Link.retrieve_accounts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_accounts</span></code></a>.</p></li>
+<li><p><strong>ledgers</strong> (<em>dict(dict)</em>): Nested dictionary representations of DataFrames returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_account_ledger" title="neutrino.link.Link.retrieve_account_ledger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_account_ledger</span></code></a>,             with one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">{ledger_dict}}</span></code>.</p></li>
 <li><p><strong>transfers</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code>.</p></li>
-<li><p><strong>orders</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.get_orders" title="neutrino.link.Link.get_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_orders</span></code></a>.</p></li>
-<li><p><strong>fees</strong> (<em>dict</em>): Dictionary of Coinbase fee data returned from <a class="reference internal" href="#neutrino.link.Link.get_fees" title="neutrino.link.Link.get_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_fees</span></code></a>.</p></li>
+<li><p><strong>orders</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_orders" title="neutrino.link.Link.retrieve_orders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_orders</span></code></a>.</p></li>
+<li><p><strong>fees</strong> (<em>dict</em>): Dictionary of Coinbase fee data returned from <a class="reference internal" href="#neutrino.link.Link.retrieve_fees" title="neutrino.link.Link.retrieve_fees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_fees</span></code></a>.</p></li>
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
@@ -543,8 +543,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_accounts">
-<span class="sig-name descname"><span class="pre">get_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_accounts" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_accounts">
+<span class="sig-name descname"><span class="pre">retrieve_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_accounts" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -579,8 +579,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_account_by_id">
-<span class="sig-name descname"><span class="pre">get_account_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_account_by_id" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_account_by_id">
+<span class="sig-name descname"><span class="pre">retrieve_account_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_account_by_id" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary with information pertaining to a specific <code class="docutils literal notranslate"><span class="pre">account_id</span></code>             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccount">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -610,8 +610,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_account_ledger">
-<span class="sig-name descname"><span class="pre">get_account_ledger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_account_ledger" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_account_ledger">
+<span class="sig-name descname"><span class="pre">retrieve_account_ledger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_account_ledger" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with all ledger activity (anything that would affect the account’s balance) for a given coin account             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -656,8 +656,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_transfers">
-<span class="sig-name descname"><span class="pre">get_transfers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_transfers" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_transfers">
+<span class="sig-name descname"><span class="pre">retrieve_transfers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_transfers" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s accounts             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers">API Reference</a>).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -702,8 +702,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_orders">
-<span class="sig-name descname"><span class="pre">get_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_orders" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_orders">
+<span class="sig-name descname"><span class="pre">retrieve_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_orders" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with orders associated with the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders">API Reference</a>).</p>
 <p>All current and historical orders are returned by default. This is distinct from the Coinbase API’s default         behavior, which only returns open orders by default.</p>
 <dl class="field-list simple">
@@ -765,8 +765,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_fees">
-<span class="sig-name descname"><span class="pre">get_fees</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_fees" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_fees">
+<span class="sig-name descname"><span class="pre">retrieve_fees</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_fees" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the fee rates and 30-day trailing volume for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getfees">API Reference</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -789,8 +789,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.get_product_candles">
-<span class="sig-name descname"><span class="pre">get_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.get_product_candles" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_product_candles">
+<span class="sig-name descname"><span class="pre">retrieve_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_product_candles" title="Permalink to this definition"></a></dt>
 <dd><p>Gets a DataFrame of a product’s historic candle data.             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles">API Reference</a>).</p>
 <p>The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively,         as needed, to return all candles within the given <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> bounds.</p>
 <p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> bound is given, then the current time is used.</p>
@@ -1174,7 +1174,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-02 12:28:09.
+      <span class="lastupdated">Last updated on 2022-01-02 12:39:15.
       </span></p>
   </div>
 

@@ -79,7 +79,7 @@ def interact(neutrino):
                     )
 
                 elif arg[1] == "accounts":
-                    neutrino.get_accounts(save=save)
+                    neutrino.retrieve_accounts(save=save)
 
                 elif arg[1] == "ledger":
 
@@ -89,7 +89,7 @@ def interact(neutrino):
                         print("\n No currency provided - using BTC as default:")
                         currency = "BTC"
 
-                    neutrino.get_account_ledger(
+                    neutrino.retrieve_account_ledger(
                         neutrino.accounts.get(currency).get("id"), save=save
                     )
 
@@ -99,15 +99,15 @@ def interact(neutrino):
                 elif arg[1] == "orders":
 
                     if len(arg) > 2:
-                        neutrino.get_orders(save=save, status=arg[2:])
+                        neutrino.retrieve_orders(save=save, status=arg[2:])
                     else:
-                        neutrino.get_orders(save=save)
+                        neutrino.retrieve_orders(save=save)
 
                 elif arg[1] == "fees":
-                    neutrino.get_fees()
+                    neutrino.retrieve_fees()
 
                 elif arg[1] == "candles":
-                    neutrino.retrieve_product_candles(
+                    neutrino.get_product_candles(
                         neutrino.user_settings.get("candles").get("product_id"),
                         granularity=neutrino.user_settings.get("candles").get(
                             "granularity"

@@ -7,7 +7,6 @@ from datetime import datetime
 from pathlib import Path
 
 MAX_CANDLE_REQUEST = 300
-# pd.set_option("display.max_rows", None)
 
 
 class Link:
@@ -20,12 +19,12 @@ class Link:
         * **url** (*str*): Base URL for Coinbase Pro API endpoints.
         * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
-        * **accounts** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_accounts`.
-        * **ledgers** (*dict(dict)*): Nested dictionary representations of DataFrames returned from :py:obj:`Link.get_account_ledger`, \
+        * **accounts** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_accounts`.
+        * **ledgers** (*dict(dict)*): Nested dictionary representations of DataFrames returned from :py:obj:`Link.retrieve_account_ledger`, \
             with one entry per retrieved ``account_id`` in the form of ``{account_id: {ledger_dict}}``.
         * **transfers** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_usd_transfers`.
-        * **orders** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_orders`.
-        * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.get_fees`.
+        * **orders** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_orders`.
+        * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.retrieve_fees`.
 
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
@@ -38,7 +37,6 @@ class Link:
         self.auth = auth
         self.verbose = verbose
         self.database_path = Path(database_path)
-
         self.session = requests.Session()
         self.accounts = {}
         self.ledgers = {}
@@ -176,7 +174,7 @@ class Link:
 
         return loaded_df
 
-    def get_accounts(
+    def retrieve_accounts(
         self, relevant_only=True, exclude_empty_accounts=False, save=False
     ):
         """Loads a DataFrame with all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
@@ -222,7 +220,7 @@ class Link:
             self.verbose = False
 
             # use order history to get list of currencies where activity has been seen
-            orders_df = self.get_orders(status=["all"])
+            orders_df = self.retrieve_orders(status=["all"])
             currencies = (
                 orders_df["product_id"]
                 .apply(lambda x: x.split("-")[0])
@@ -257,7 +255,7 @@ class Link:
 
         return account_df
 
-    def get_account_by_id(self, account_id):
+    def retrieve_account_by_id(self, account_id):
         """Returns a dictionary with information pertaining to a specific ``account_id`` \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccount>`__).
 
@@ -283,7 +281,7 @@ class Link:
 
         return self.send_api_request("GET", f"/accounts/{account_id}")[0]
 
-    def get_account_ledger(self, account_id, **kwargs):
+    def retrieve_account_ledger(self, account_id, **kwargs):
         """Loads a DataFrame with all ledger activity (anything that would affect the account's balance) for a given coin account \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__).
 
@@ -343,7 +341,7 @@ class Link:
 
         return ledger_df
 
-    def get_transfers(self, save=False):
+    def retrieve_transfers(self, save=False):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers>`__).
 
@@ -407,7 +405,7 @@ class Link:
 
         return transfers_df
 
-    def get_orders(self, save=False, **kwargs):
+    def retrieve_orders(self, save=False, **kwargs):
         """Loads a DataFrame with orders associated with the authenticated :py:obj:`Link` \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders>`__).
 
@@ -494,7 +492,7 @@ class Link:
 
         return orders_df
 
-    def get_fees(self):
+    def retrieve_fees(self):
         """Gets the fee rates and 30-day trailing volume for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getfees>`__).
 
@@ -521,7 +519,7 @@ class Link:
 
         return fees_dict
 
-    def get_product_candles(
+    def retrieve_product_candles(
         self, product_id, granularity=60, start=None, end=None, page=None
     ):
         """Gets a DataFrame of a product's historic candle data. \
@@ -620,7 +618,7 @@ class Link:
         # recursively call this function, if needed, to satisfy the initially-supplied pull bounds
         # pass candles_df into the recursed call so that it is carried forward
         if recurse:
-            return self.get_product_candles(
+            return self.retrieve_product_candles(
                 product_id, granularity, start, end, candles_df
             )
 
