@@ -182,23 +182,39 @@ class Neutrino(Link):
                 self.neutrino_dir / "strings/neutrino-settings.yaml", echo_yaml=False
             )
 
+            print(f"\n Updates pulled - change summary:")
+            for i in self.neutrino_settings.get("changelog"):
+                print(f"   + {i}")
+
+            t.retrieve_repo(verbose=True)
+
             # if a pip install is required for this update, then do a pip install
             # remember to switch to the neutrino directory first, then switch back after
+            # NOTE: permissions issues arise during setup if the user is in a venv
+            #       if the user is in a venv, then prompt them to execute the pip install command manually
             if self.neutrino_settings.get("pip_install"):
-                pip_install = input(
-                    f"\n A pip install is required for this update. \
-                    \n\n Press [enter] to perform this installation. Input any other key to decline: "
-                )
-                if pip_install == "":
-                    print()
-                    this_dir = os.getcwd()
-                    os.chdir(self.neutrino_dir)
-                    subprocess.call("pip install -U -e . --user", shell=True)
-                    os.chdir(this_dir)
-                else:
-                    print(
-                        f"\n WARNING: pip install not performed - some dependencies may be missing."
+                print(interface.DIVIDER)
+                print("\n A pip install is required to complete this update.")
+                if os.environ.get("VIRTUAL_ENV") is not None:
+                    input(
+                        f" Since you are in a venv, the following command must be executed manually: \
+                        \n\n   pip install -U -e . \
+                        \n\n Press [enter] or input any key to acknowledge: "
                     )
+                else:
+                    pip_install = input(
+                        f"\n Press [enter] to perform this installation. Input any other key to decline: "
+                    )
+                    if pip_install == "":
+                        print()
+                        this_dir = os.getcwd()
+                        os.chdir(self.neutrino_dir)
+                        subprocess.call("pip install -U -e . --user", shell=True)
+                        os.chdir(this_dir)
+                    else:
+                        print(
+                            f"\n WARNING: pip install not performed - some dependencies may be missing."
+                        )
 
         except Exception as exc:
             print(f"\n Error during self-update process:\n")
@@ -206,12 +222,6 @@ class Neutrino(Link):
             sys.exit(
                 "\n Self-update cancelled. Please check your repository configuration and/or try a manual update."
             )
-
-        print(f"\n Update complete - change summary:")
-        for i in self.neutrino_settings.get("changelog"):
-            print(f"   + {i}")
-
-        t.retrieve_repo(verbose=True)
 
         sys.exit("\n Neutrino annihilated.")
 
@@ -265,9 +275,10 @@ class Neutrino(Link):
                 * at a later date
         """
 
-        (load_type, account_df) = t.load_data(
+        accounts = t.load_datum(
             from_database=from_database,
             link_method=self.retrieve_accounts,
+            main_key=self.neutrino_settings.get("response_keys").get("accounts"),
             database_path=self.database_path,
             csv_name="accounts",
         )
@@ -288,33 +299,36 @@ class Neutrino(Link):
                 .unique()
                 .tolist()
             )
-            account_df = account_df[
-                account_df["currency"].isin(currencies)
+            accounts.df = accounts.df[
+                accounts.df["currency"].isin(currencies)
             ].reset_index(drop=True)
 
         # exclude accounts with <= 0 balance, if applicable
         if exclude_empty_accounts:
-            account_df = account_df[
-                account_df["balance"].astype(float) > 0
+            accounts.df = accounts.df[
+                accounts.df["balance"].astype(float) > 0
             ].reset_index(drop=True)
 
         if self.verbose:
             print()
-            print(account_df)
+            print(accounts.df)
 
         # save to CSV, if applicable
-        account_df = t.process_df(
-            account_df, save=save, csv_name="accounts", database_path=self.database_path
+        accounts.df = t.process_df(
+            accounts.df,
+            save=save,
+            csv_name="accounts",
+            database_path=self.database_path,
         )
 
         # update object attribute
-        self.accounts = account_df
+        self.accounts = accounts
 
-        return account_df
+        return accounts
 
     def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
 
-        (load_type, account_ledger_df) = t.load_data(
+        (load_type, account_ledger_df) = t.load_datum(
             from_database=from_database,
             link_method=self.retrieve_account_ledger,
             database_path=self.database_path,
@@ -357,7 +371,7 @@ class Neutrino(Link):
                 * at a later date
         """
 
-        (load_type, transfers_df) = t.load_data(
+        (load_type, transfers_df) = t.load_datum(
             from_database=from_database,
             link_method=self.retrieve_transfers,
             database_path=self.database_path,
@@ -410,7 +424,7 @@ class Neutrino(Link):
         """
 
         # TODO: implement kwargs for from_database
-        (load_type, orders_df) = t.load_data(
+        (load_type, orders_df) = t.load_datum(
             from_database=from_database,
             link_method=self.retrieve_orders,
             database_path=self.database_path,

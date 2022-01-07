@@ -8,6 +8,7 @@ import shutil
 import sys
 import time
 import yaml
+from copy import deepcopy
 from datetime import datetime, timezone, timedelta
 from dateutil.parser import isoparse
 from requests.auth import AuthBase
@@ -121,6 +122,62 @@ def retrieve_repo(verbose=False):
     return repo
 
 
+class Datum:
+    def __init__(self, df, main_key, origin):
+
+        self.df = df
+        self.key = main_key
+        self.origin = origin
+
+    def get(self, value, key):
+
+        return self.df[value].iloc[self.df[self.df[self.key] == key].index[0]]
+
+
+def convert_API_response_list_to_df(response_list, main_key):
+    """Converts a list of dicts from a Coinbase API response to a DataFrame.
+
+    Args:
+        response_list (list(dict)): Response from a Coinbase API request.
+        main_key (str): Key containing a unique identifier for a response element.
+
+    Returns:
+        DataFrame: DataFrame of values loaded from a Coinbase API response.
+    """
+
+    # create a deepcopy in order to prevent carry-over to/from unrelated method calls, since lists are mutable
+    response_list = deepcopy(response_list)
+
+    # convert list of dicts into dict of dicts
+    data_dict = {}
+    [data_dict.update({i.get(main_key): i}) for i in response_list]
+
+    # create a df object to load data into
+    converted_df = pd.DataFrame()
+
+    # prep data and load into converted_df for each coin
+    for data_value_dict in data_dict.values():
+
+        for key, value in data_value_dict.copy().items():
+
+            # the Coinbase API nests multiple items under a 'details' key for certain responses
+            # un-nest these items and delete the 'details' key for these cases
+            # finally, put all values into list format so that they can be loaded via pd.DataFrame.from_dict()
+            if key == "details":
+                for inner_key, inner_value in value.items():
+                    data_value_dict[inner_key] = [inner_value]
+                data_value_dict.pop(key, None)
+            else:
+                data_value_dict[key] = [value]
+
+        # add this data to the df object
+        converted_df = converted_df.append(
+            pd.DataFrame.from_dict(data_value_dict), ignore_index=True
+        )
+
+    return converted_df
+
+
 def move_df_column_inplace(df, column, position):
     """Moves a DataFrame column to the specified index position inplace.
 
@@ -136,14 +193,10 @@ def move_df_column_inplace(df, column, position):
     df.insert(position, column.name, column)
 
 
-def get_df_value_from_key(df, value_column, key_column, key_value):
-
-    return df[value_column].iloc[df[df[key_column] == key_value].index[0]]
-
-
-def load_data(
+def load_datum(
     from_database,
     link_method,
+    main_key,
     database_path=None,
     csv_name=None,
     clean_timestrings=False,
@@ -160,6 +213,8 @@ def load_data(
 
     Args:
         from_database (bool): ``True`` if data is to be loaded from the CSV database.
+        link_method (obj): placeholder
+        main_key (str): placeholder
         database_path (Path, optional): Absolute path to the Neutrino's database directory.
         csv_name (str, optional): Name of the CSV file to be loaded from, if applicable, **without** the ``.csv`` extension \
             (i.e., ``loaded_file`` instead of ``loaded_file.csv``).
@@ -167,7 +222,7 @@ def load_data(
         clean_timestrings (bool, optional): Runs :py:obj:`clean_df_timestrings` on the provided DataFrame if ``True``. Defaults to ``False``.
 
     Returns:
-        tuple (str, DataFrame): Tuple in the form of ``(load_method, df)`` where ``load_method`` is "db" or "api" \
+        Datum: TO BE CHANGED Tuple in the form of ``(load_method, df)`` where ``load_method`` is "db" or "api" \
             depending on the actual method used to pull the data, and ``df`` is the DataFrame object \
             containing data loaded in from the specified database file or API request.
     """
@@ -178,18 +233,23 @@ def load_data(
 
     if from_database:
         if os.path.isfile(filepath):
-            return (
-                "db",
+            return Datum(
                 process_df(pd.read_csv(filepath), clean_timestrings=clean_timestrings),
+                main_key,
+                "db",
             )
         else:
             print(
                 f"\n WARNING: {filepath} does not exist.\n\n Data will be pulled via API request."
             )
 
-    return (
+    return Datum(
+        process_df(
+            convert_API_response_list_to_df(link_method(**kwargs), main_key),
+            clean_timestrings=clean_timestrings,
+        ),
+        main_key,
         "api",
-        process_df(link_method(**kwargs), clean_timestrings=clean_timestrings),
     )
 
 

@@ -6,6 +6,13 @@ stream_url: wss://ws-feed.pro.coinbase.com
 # cbpro API URL
 api_url: https://api.pro.coinbase.com
 
+# cbpro API response keys
+response_keys:
+  accounts: currency
+  ledger: id
+  transfers: id
+  orders: id
+
 # update info
 pip_install: True
 changelog:

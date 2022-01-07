@@ -640,26 +640,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.load_df_from_API_response_list">
-<span class="sig-name descname"><span class="pre">load_df_from_API_response_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.load_df_from_API_response_list" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a list of dicts from a Coinbase API response to a DataFrame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>response_list</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – Response from a Coinbase API request.</p></li>
-<li><p><strong>main_key</strong> (<em>str</em>) – Key containing a unique identifier for a response element.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>DataFrame of values loaded from a Coinbase API response.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.retrieve_accounts">
 <span class="sig-name descname"><span class="pre">retrieve_accounts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_accounts" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a DataFrame with all trading accounts and their holdings for the authenticated <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s profile             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts">API Reference</a>).</p>
@@ -1034,6 +1014,37 @@
 </dl>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="neutrino.tools.Datum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">Datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Datum" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.tools.Datum.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Datum.get" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.convert_API_response_list_to_df">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">convert_API_response_list_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.convert_API_response_list_to_df" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a list of dicts from a Coinbase API response to a DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>response_list</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – Response from a Coinbase API request.</p></li>
+<li><p><strong>main_key</strong> (<em>str</em>) – Key containing a unique identifier for a response element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame of values loaded from a Coinbase API response.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.move_df_column_inplace">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">move_df_column_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.move_df_column_inplace" title="Permalink to this definition"></a></dt>
@@ -1051,13 +1062,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.get_df_value_from_key">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">get_df_value_from_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.get_df_value_from_key" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.load_data">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_data" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.tools.load_datum">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_datum" title="Permalink to this definition"></a></dt>
 <dd><p>Loads data from the database or an API request per the user’s specification.</p>
 <p>Defaults to performing an API request if database data is requested, but no database file exists.</p>
 <div class="admonition note">
@@ -1068,17 +1074,19 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>from_database</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if data is to be loaded from the CSV database.</p></li>
+<li><p><strong>link_method</strong> (<em>Object</em><em>, </em><em>optional</em>) – placeholder</p></li>
+<li><p><strong>main_key</strong> (<em>str</em>) – placeholder</p></li>
 <li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the Neutrino’s database directory.</p></li>
 <li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be loaded from, if applicable, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">loaded_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">loaded_file.csv</span></code>).</p></li>
-<li><p><strong>link_method</strong> (<em>Object</em><em>, </em><em>optional</em>) – Link’s API request method to be called, if not loading from a database file.</p></li>
+<li><p><strong>link_method</strong> – Link’s API request method to be called, if not loading from a database file.</p></li>
 <li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Tuple in the form of <code class="docutils literal notranslate"><span class="pre">(load_method,</span> <span class="pre">df)</span></code> where <code class="docutils literal notranslate"><span class="pre">load_method</span></code> is “db” or “api”             depending on the actual method used to pull the data, and <code class="docutils literal notranslate"><span class="pre">df</span></code> is the DataFrame object             containing data loaded in from the specified database file or API request.</p>
+<dd class="field-even"><p>TO BE CHANGED Tuple in the form of <code class="docutils literal notranslate"><span class="pre">(load_method,</span> <span class="pre">df)</span></code> where <code class="docutils literal notranslate"><span class="pre">load_method</span></code> is “db” or “api”             depending on the actual method used to pull the data, and <code class="docutils literal notranslate"><span class="pre">df</span></code> is the DataFrame object             containing data loaded in from the specified database file or API request.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple (str, DataFrame)</p>
+<dd class="field-odd"><p><a class="reference internal" href="#neutrino.tools.Datum" title="neutrino.tools.Datum">Datum</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1342,7 +1350,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-02 18:28:10.
+      <span class="lastupdated">Last updated on 2022-01-07 12:50:20.
       </span></p>
   </div>
 

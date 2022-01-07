@@ -2,7 +2,6 @@ import neutrino.tools as t
 import pandas as pd
 import requests
 import time
-from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 
@@ -105,49 +104,6 @@ class Link:
                 method, endpoint, params=params, pages=list_response
             )
 
-    def load_df_from_API_response_list(self, response_list, main_key):
-        """Converts a list of dicts from a Coinbase API response to a DataFrame.
-
-        Args:
-            response_list (list(dict)): Response from a Coinbase API request.
-            main_key (str): Key containing a unique identifier for a response element.
-
-        Returns:
-            DataFrame: DataFrame of values loaded from a Coinbase API response.
-        """
-
-        # create a deepcopy in order to prevent carry-over to/from unrelated method calls, since lists are mutable
-        response_list = deepcopy(response_list)
-
-        # convert list of dicts into dict of dicts
-        data_dict = {}
-        [data_dict.update({i.get(main_key): i}) for i in response_list]
-
-        # create a df object to load data into
-        loaded_df = pd.DataFrame()
-
-        # prep data and load into loaded_df for each coin
-        for data_value_dict in data_dict.values():
-
-            for key, value in data_value_dict.copy().items():
-
-                # the Coinbase API nests multiple items under a 'details' key for certain responses
-                # un-nest these items and delete the 'details' key for these cases
-                # finally, put all values into list format so that they can be loaded via pd.DataFrame.from_dict()
-                if key == "details":
-                    for inner_key, inner_value in value.items():
-                        data_value_dict[inner_key] = [inner_value]
-                    data_value_dict.pop(key, None)
-                else:
-                    data_value_dict[key] = [value]
-
-            # add this data to the df object
-            loaded_df = loaded_df.append(
-                pd.DataFrame.from_dict(data_value_dict), ignore_index=True
-            )
-
-        return loaded_df
-
     def retrieve_accounts(self):
         """Loads a DataFrame with all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts>`__).
@@ -171,13 +127,7 @@ class Link:
                 }
         """
 
-        # obtain the API response as a list of dicts
-        account_list = self.send_api_request("GET", "/accounts")
-
-        # load data into df
-        account_df = self.load_df_from_API_response_list(account_list, "currency")
-
-        return account_df
+        return self.send_api_request("GET", "/accounts")
 
     def retrieve_account_by_id(self, account_id):
         """Returns a dictionary with information pertaining to a specific ``account_id`` \
@@ -249,7 +199,9 @@ class Link:
         )
 
         # load data into df
-        ledger_df = self.load_df_from_API_response_list(ledger_list, "id")
+        ledger_df = self.load_df_from_API_response_list(
+            ledger_list, self.response_keys.get("ledger")
+        )
 
         # add account_id as a column
         ledger_df["account_id"] = account_id
@@ -301,7 +253,9 @@ class Link:
         transfers_list = self.send_api_request("GET", "/transfers")
 
         # load data into df
-        transfers_df = self.load_df_from_API_response_list(transfers_list, "id")
+        transfers_df = self.load_df_from_API_response_list(
+            transfers_list, self.response_keys.get("transfers")
+        )
 
         return transfers_df
 
@@ -369,7 +323,9 @@ class Link:
         orders_list = self.send_api_request("GET", "/orders", params=kwargs)
 
         # load data into df
-        orders_df = self.load_df_from_API_response_list(orders_list, "id")
+        orders_df = self.load_df_from_API_response_list(
+            orders_list, self.response_keys.get("orders")
+        )
 
         return orders_df
 
