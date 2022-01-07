@@ -9,7 +9,15 @@ MAX_CANDLE_REQUEST = 300
 
 
 class Link:
-    """Creates an API session and sends/receives API requests/responses.
+    """Creates an API request session and sends/receives API requests/responses.
+
+    The `Coinbase API Reference <https://docs.cloud.coinbase.com/exchange/reference/>`__ provides a comprehensive \
+    list of available REST API endpoints.
+
+    The :py:obj:`send_api_request` method may be used to send a generic request to any available endpoint. \
+    Pagination is handled automatically.
+
+    Custom methods for requests to specific endpoints are also provided in this class for convenience.
 
     **Instance attributes:** \n
         * **api_url** (*str*): Base URL for Coinbase Pro API endpoints.
@@ -20,18 +28,21 @@ class Link:
 
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
-        auth (Authenticator): :py:obj:`neutrino.tools.Authenticator` callable.
+        cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
+        database_path (Path): :py:obj:`Path` object containing the absolute filepath to the folder \
+            to which the Link exports CSV files.
     """
 
     def __init__(self, url, cbkey_set, database_path):
 
         self.api_url = url
         self.update_auth(cbkey_set)
-        self.database_path = Path(database_path)
+        self.update_database_path(database_path)
         self.session = requests.Session()
 
     def update_auth(self, cbkey_set):
-        """Updates the keys used for authenticating Coinbase WebSocket and API requests.
+        """Updates the :py:obj:`Link`'s :py:obj:`Authenticator<neutrino.tools.Authenticator>` \
+            callable with new keys for authenticating Coinbase WebSocket and API requests.
 
         Args:
             cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
@@ -40,10 +51,11 @@ class Link:
         self.auth = t.Authenticator(cbkey_set)
 
     def update_database_path(self, database_path):
-        """Update the filepath to the folder to which the Link exports CSV files.
+        """Update the filepath to the folder to which the :py:obj:`Link` exports CSV files.
 
         Args:
-            database_path (str): Absolute filepath to the folder to which the Link exports CSV files.
+            database_path (str): Absolute filepath to the folder to which the :py:obj:`Link` \
+                exports CSV files.
         """
 
         self.database_path = Path(database_path)
@@ -54,7 +66,7 @@ class Link:
         `Paginated requests <https://docs.cloud.coinbase.com/exchange/docs/pagination>`__ are handled recursively; \
         this method iterates through all available ``after`` cursors for a request.
 
-        This method returns a list of API response elements, which are usually dictionaries but can be other types \
+        This method returns a list of API response elements, which are usually dictionaries but can be of other types \
         depending on the specific request.
 
         Args:
@@ -104,12 +116,12 @@ class Link:
                 method, endpoint, params=params, pages=list_response
             )
 
-    def retrieve_accounts(self):
-        """Loads a DataFrame with all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
+    def request_accounts(self):
+        """Sends a request to retrieve all trading accounts and their holdings for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccounts>`__).
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the API response headers listed below:
+            list (dict): List of dictionaries corresponding to the API response headers below:
             
             .. code-block::
 
@@ -129,8 +141,8 @@ class Link:
 
         return self.send_api_request("GET", "/accounts")
 
-    def retrieve_account_by_id(self, account_id):
-        """Returns a dictionary with information pertaining to a specific ``account_id`` \
+    def request_account_by_id(self, account_id):
+        """Sends a request to retrieve a dictionary with information pertaining to a specific ``account_id`` \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccount>`__).
 
         Args:
@@ -155,8 +167,8 @@ class Link:
 
         return self.send_api_request("GET", f"/accounts/{account_id}")[0]
 
-    def retrieve_account_ledger(self, account_id, **kwargs):
-        """Loads a DataFrame with all ledger activity (anything that would affect the account's balance) for a given coin account \
+    def request_account_ledger(self, account_id, **kwargs):
+        """Sends a request to retrieve all ledger activity (anything that would affect the account's balance) for a given coin account \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__).
 
         Args:
@@ -170,9 +182,7 @@ class Link:
                 * **profile_id** (*str*): Filter results by a specific ``profile_id``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the API response headers listed below, \
-            **in addition to** the ``account_id``. \
-            Note that the ``details`` values are treated as columns in the returned DataFrame:
+            list (dict): List of dictionaries corresponding to the API response headers below:
             
             .. code-block::
 
@@ -196,13 +206,12 @@ class Link:
                 }
         """
 
-        # obtain the API response as a list of dicts
         return self.send_api_request(
             "GET", f"/accounts/{account_id}/ledger", params=kwargs
         )
 
-    def retrieve_transfers(self):
-        """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
+    def request_transfers(self):
+        """Sends a request to retrieve in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_gettransfers>`__).
 
         .. note::
@@ -214,8 +223,7 @@ class Link:
             save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the API response headers listed below. \
-            Note that the ``details`` values are treated as columns in the returned DataFrame:
+            list (dict): List of dictionaries corresponding to the API response headers below:
 
             .. code-block::
 
@@ -242,11 +250,11 @@ class Link:
                       user_nonce: required
                 }
         """
-        # obtain the API response as a list of dicts
+
         return self.send_api_request("GET", "/transfers")
 
-    def retrieve_orders(self, **kwargs):
-        """Loads a DataFrame with orders associated with the authenticated :py:obj:`Link` \
+    def request_orders(self, **kwargs):
+        """Sends a request to retrieve orders associated with the authenticated :py:obj:`Link` \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getorders>`__).
 
         All current and historical orders are returned by default. This is distinct from the Coinbase API's default \
@@ -268,7 +276,7 @@ class Link:
                     ``open``, ``pending``, ``rejected``, ``done``, ``active``, ``received``, ``all``.
 
         Returns:
-            DataFrame: DataFrame with columns corresponding to the API response headers listed below:
+            list (dict): List of dictionaries corresponding to the API response headers below:
             
             .. code-block::
 
@@ -305,10 +313,9 @@ class Link:
         if not kwargs.get("status"):
             kwargs["status"] = ["all"]
 
-        # obtain the API response as a list of dicts
         return self.send_api_request("GET", "/orders", params=kwargs)
 
-    def retrieve_fees(self):
+    def request_fees(self):
         """Gets the fee rates and 30-day trailing volume for the authenticated :py:obj:`Link`'s profile \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getfees>`__).
 
@@ -325,9 +332,7 @@ class Link:
                 }
         """
 
-        fees_dict = self.send_api_request("GET", "/fees")[0]
-
-        return fees_dict
+        return self.send_api_request("GET", "/fees")[0]
 
     def retrieve_product_candles(
         self, product_id, granularity=60, start=None, end=None, page=None

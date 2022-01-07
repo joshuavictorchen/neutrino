@@ -277,7 +277,7 @@ class Neutrino(Link):
 
         accounts = t.load_datum(
             from_database=from_database,
-            link_method=self.retrieve_accounts,
+            link_method=self.request_accounts,
             main_key=self.neutrino_settings.get("response_keys").get("accounts"),
             database_path=self.database_path,
             csv_name="accounts",
@@ -330,7 +330,7 @@ class Neutrino(Link):
 
         account_ledger = t.load_datum(
             from_database=from_database,
-            link_method=self.retrieve_account_ledger,
+            link_method=self.request_account_ledger,
             main_key=self.neutrino_settings.get("response_keys").get("ledger"),
             database_path=self.database_path,
             csv_name="ledgers",  # TODO this will be used, but need to do some filtering here
@@ -338,6 +338,8 @@ class Neutrino(Link):
             account_id=account_id,
             **kwargs,
         )
+
+        # APPEND ACCOUNT_ID TO DF COLUMN
 
         if account_ledger.origin == "db":
             # TODO: data was loaded in from db; filter based on kwargs
@@ -376,7 +378,7 @@ class Neutrino(Link):
 
         transfers = t.load_datum(
             from_database=from_database,
-            link_method=self.retrieve_transfers,
+            link_method=self.request_transfers,
             main_key=self.neutrino_settings.get("response_keys").get("transfers"),
             database_path=self.database_path,
             csv_name="transfers",
@@ -430,7 +432,7 @@ class Neutrino(Link):
         # TODO: implement kwargs for from_database
         orders = t.load_datum(
             from_database=from_database,
-            link_method=self.retrieve_orders,
+            link_method=self.request_orders,
             main_key=self.neutrino_settings.get("response_keys").get("orders"),
             database_path=self.database_path,
             csv_name="orders",
@@ -478,7 +480,7 @@ class Neutrino(Link):
                 }
         """
 
-        self.fees = self.retrieve_fees()
+        self.fees = self.request_fees()
 
         if self.verbose:
             t.print_recursive_dict(self.fees)
