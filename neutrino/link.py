@@ -186,27 +186,20 @@ class Link:
                        balance: required
                           type: required
                        details: {
-                                       order_id: required
-                                     product_id: required
-                                       trade_id: required
+                                            order_id: required
+                                          product_id: required
+                                            trade_id: required
+                                         transfer_id:
+                                       transfer_type:
+                                          account_id:
                         }
                 }
         """
 
         # obtain the API response as a list of dicts
-        ledger_list = self.send_api_request(
+        return self.send_api_request(
             "GET", f"/accounts/{account_id}/ledger", params=kwargs
         )
-
-        # load data into df
-        ledger_df = self.load_df_from_API_response_list(
-            ledger_list, self.response_keys.get("ledger")
-        )
-
-        # add account_id as a column
-        ledger_df["account_id"] = account_id
-
-        return ledger_df
 
     def retrieve_transfers(self):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated :py:obj:`Link`'s accounts \
@@ -250,14 +243,7 @@ class Link:
                 }
         """
         # obtain the API response as a list of dicts
-        transfers_list = self.send_api_request("GET", "/transfers")
-
-        # load data into df
-        transfers_df = self.load_df_from_API_response_list(
-            transfers_list, self.response_keys.get("transfers")
-        )
-
-        return transfers_df
+        return self.send_api_request("GET", "/transfers")
 
     def retrieve_orders(self, **kwargs):
         """Loads a DataFrame with orders associated with the authenticated :py:obj:`Link` \
@@ -320,14 +306,7 @@ class Link:
             kwargs["status"] = ["all"]
 
         # obtain the API response as a list of dicts
-        orders_list = self.send_api_request("GET", "/orders", params=kwargs)
-
-        # load data into df
-        orders_df = self.load_df_from_API_response_list(
-            orders_list, self.response_keys.get("orders")
-        )
-
-        return orders_df
+        return self.send_api_request("GET", "/orders", params=kwargs)
 
     def retrieve_fees(self):
         """Gets the fee rates and 30-day trailing volume for the authenticated :py:obj:`Link`'s profile \

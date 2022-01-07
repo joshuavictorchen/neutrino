@@ -92,9 +92,7 @@ def interact(neutrino):
                         currency = "BTC"
 
                     neutrino.get_account_ledger(
-                        t.get_df_value_from_key(
-                            neutrino.accounts, "id", "currency", currency
-                        ),
+                        neutrino.accounts.get("id", currency),
                         save=save,
                         from_database=from_database,
                     )

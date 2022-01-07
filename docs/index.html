@@ -303,7 +303,7 @@
 <dd><p>Gets the fee rates and 30-day trailing volume for the authenticated profile.</p>
 <div class="admonition-todo admonition">
 <p class="admonition-title">TODO</p>
-<p>This is currently just a call to Link’s <code class="docutils literal notranslate"><span class="pre">retrieve_fees</span></code> function.             It should be updated to store fees (and associated poll times) to a CSV file,             and optionally load from this CSV file like the other Neutrino <code class="docutils literal notranslate"><span class="pre">get</span></code> methnods,             i.e. <code class="docutils literal notranslate"><span class="pre">get_fees(from_database=True)</span></code>.</p>
+<p>This is currently just a call to Link’s <code class="docutils literal notranslate"><span class="pre">retrieve_fees</span></code> function.             It should be updated to pull fees from the database using historical data             and optionally append fee rates to that data.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -730,9 +730,12 @@
        <span class="n">balance</span><span class="p">:</span> <span class="n">required</span>
           <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
        <span class="n">details</span><span class="p">:</span> <span class="p">{</span>
-                       <span class="n">order_id</span><span class="p">:</span> <span class="n">required</span>
-                     <span class="n">product_id</span><span class="p">:</span> <span class="n">required</span>
-                       <span class="n">trade_id</span><span class="p">:</span> <span class="n">required</span>
+                            <span class="n">order_id</span><span class="p">:</span> <span class="n">required</span>
+                          <span class="n">product_id</span><span class="p">:</span> <span class="n">required</span>
+                            <span class="n">trade_id</span><span class="p">:</span> <span class="n">required</span>
+                         <span class="n">transfer_id</span><span class="p">:</span>
+                       <span class="n">transfer_type</span><span class="p">:</span>
+                          <span class="n">account_id</span><span class="p">:</span>
         <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -1020,9 +1023,39 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.tools.Datum.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Datum.get" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Datum.get" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.load_datum">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_datum" title="Permalink to this definition"></a></dt>
+<dd><p>Loads data from the database or an API request per the user’s specification.</p>
+<p>Defaults to performing an API request if database data is requested, but no database file exists.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> arguments are not handled for database pulls. The calling method must handle any actions             associated with those parameters if <code class="docutils literal notranslate"><span class="pre">db</span></code> is returned.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_database</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if data is to be loaded from the CSV database.</p></li>
+<li><p><strong>link_method</strong> (<em>Object</em><em>, </em><em>optional</em>) – placeholder</p></li>
+<li><p><strong>main_key</strong> (<em>str</em>) – placeholder</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the Neutrino’s database directory.</p></li>
+<li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be loaded from, if applicable, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">loaded_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">loaded_file.csv</span></code>).</p></li>
+<li><p><strong>link_method</strong> – Link’s API request method to be called, if not loading from a database file.</p></li>
+<li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>TO BE CHANGED Tuple in the form of <code class="docutils literal notranslate"><span class="pre">(load_method,</span> <span class="pre">df)</span></code> where <code class="docutils literal notranslate"><span class="pre">load_method</span></code> is “db” or “api”             depending on the actual method used to pull the data, and <code class="docutils literal notranslate"><span class="pre">df</span></code> is the DataFrame object             containing data loaded in from the specified database file or API request.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#neutrino.tools.Datum" title="neutrino.tools.Datum">Datum</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1057,36 +1090,6 @@
 <li><p><strong>column</strong> (<em>str</em>) – Name of the column to be moved.</p></li>
 <li><p><strong>position</strong> (<em>int</em>) – Index to which the column will be moved.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.load_datum">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_datum" title="Permalink to this definition"></a></dt>
-<dd><p>Loads data from the database or an API request per the user’s specification.</p>
-<p>Defaults to performing an API request if database data is requested, but no database file exists.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> arguments are not handled for database pulls. The calling method must handle any actions             associated with those parameters if <code class="docutils literal notranslate"><span class="pre">db</span></code> is returned.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>from_database</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if data is to be loaded from the CSV database.</p></li>
-<li><p><strong>link_method</strong> (<em>Object</em><em>, </em><em>optional</em>) – placeholder</p></li>
-<li><p><strong>main_key</strong> (<em>str</em>) – placeholder</p></li>
-<li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the Neutrino’s database directory.</p></li>
-<li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be loaded from, if applicable, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">loaded_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">loaded_file.csv</span></code>).</p></li>
-<li><p><strong>link_method</strong> – Link’s API request method to be called, if not loading from a database file.</p></li>
-<li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>TO BE CHANGED Tuple in the form of <code class="docutils literal notranslate"><span class="pre">(load_method,</span> <span class="pre">df)</span></code> where <code class="docutils literal notranslate"><span class="pre">load_method</span></code> is “db” or “api”             depending on the actual method used to pull the data, and <code class="docutils literal notranslate"><span class="pre">df</span></code> is the DataFrame object             containing data loaded in from the specified database file or API request.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#neutrino.tools.Datum" title="neutrino.tools.Datum">Datum</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1350,7 +1353,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-07 12:50:20.
+      <span class="lastupdated">Last updated on 2022-01-07 16:15:40.
       </span></p>
   </div>
 

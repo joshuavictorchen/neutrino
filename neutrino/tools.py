@@ -129,68 +129,11 @@ class Datum:
         self.key = main_key
         self.origin = origin
 
-    def get(self, value, key):
+    def get(self, return_column, lookup_value):
 
-        return self.df[value].iloc[self.df[self.df[self.key] == key].index[0]]
-
-
-def convert_API_response_list_to_df(response_list, main_key):
-    """Converts a list of dicts from a Coinbase API response to a DataFrame.
-
-    Args:
-        response_list (list(dict)): Response from a Coinbase API request.
-        main_key (str): Key containing a unique identifier for a response element.
-
-    Returns:
-        DataFrame: DataFrame of values loaded from a Coinbase API response.
-    """
-
-    # create a deepcopy in order to prevent carry-over to/from unrelated method calls, since lists are mutable
-    response_list = deepcopy(response_list)
-
-    # convert list of dicts into dict of dicts
-    data_dict = {}
-    [data_dict.update({i.get(main_key): i}) for i in response_list]
-
-    # create a df object to load data into
-    converted_df = pd.DataFrame()
-
-    # prep data and load into converted_df for each coin
-    for data_value_dict in data_dict.values():
-
-        for key, value in data_value_dict.copy().items():
-
-            # the Coinbase API nests multiple items under a 'details' key for certain responses
-            # un-nest these items and delete the 'details' key for these cases
-            # finally, put all values into list format so that they can be loaded via pd.DataFrame.from_dict()
-            if key == "details":
-                for inner_key, inner_value in value.items():
-                    data_value_dict[inner_key] = [inner_value]
-                data_value_dict.pop(key, None)
-            else:
-                data_value_dict[key] = [value]
-
-        # add this data to the df object
-        converted_df = converted_df.append(
-            pd.DataFrame.from_dict(data_value_dict), ignore_index=True
-        )
-
-    return converted_df
-
-
-def move_df_column_inplace(df, column, position):
-    """Moves a DataFrame column to the specified index position inplace.
-
-    Credit: https://stackoverflow.com/a/58686641/17591579
-
-    Args:
-        df (DataFrame): DataFrame whose columns will be rearranged.
-        column (str): Name of the column to be moved.
-        position (int): Index to which the column will be moved.
-    """
-
-    column = df.pop(column)
-    df.insert(position, column.name, column)
+        return self.df[return_column].iloc[
+            self.df[self.df[self.key] == lookup_value].index[0]
+        ]
 
 
 def load_datum(
@@ -251,6 +194,65 @@ def load_datum(
         main_key,
         "api",
     )
+
+
+def convert_API_response_list_to_df(response_list, main_key):
+    """Converts a list of dicts from a Coinbase API response to a DataFrame.
+
+    Args:
+        response_list (list(dict)): Response from a Coinbase API request.
+        main_key (str): Key containing a unique identifier for a response element.
+
+    Returns:
+        DataFrame: DataFrame of values loaded from a Coinbase API response.
+    """
+
+    # create a deepcopy in order to prevent carry-over to/from unrelated method calls, since lists are mutable
+    response_list = deepcopy(response_list)
+
+    # convert list of dicts into dict of dicts
+    data_dict = {}
+    [data_dict.update({i.get(main_key): i}) for i in response_list]
+
+    # create a df object to load data into
+    converted_df = pd.DataFrame()
+
+    # prep data and load into converted_df for each coin
+    for data_value_dict in data_dict.values():
+
+        for key, value in data_value_dict.copy().items():
+
+            # the Coinbase API nests multiple items under a 'details' key for certain responses
+            # un-nest these items and delete the 'details' key for these cases
+            # finally, put all values into list format so that they can be loaded via pd.DataFrame.from_dict()
+            if key == "details":
+                for inner_key, inner_value in value.items():
+                    data_value_dict[inner_key] = [inner_value]
+                data_value_dict.pop(key, None)
+            else:
+                data_value_dict[key] = [value]
+
+        # add this data to the df object
+        converted_df = converted_df.append(
+            pd.DataFrame.from_dict(data_value_dict), ignore_index=True
+        )
+
+    return converted_df
+
+
+def move_df_column_inplace(df, column, position):
+    """Moves a DataFrame column to the specified index position inplace.
+
+    Credit: https://stackoverflow.com/a/58686641/17591579
+
+    Args:
+        df (DataFrame): DataFrame whose columns will be rearranged.
+        column (str): Name of the column to be moved.
+        position (int): Index to which the column will be moved.
+    """
+
+    column = df.pop(column)
+    df.insert(position, column.name, column)
 
 
 def process_df(

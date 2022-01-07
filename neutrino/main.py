@@ -209,7 +209,7 @@ class Neutrino(Link):
                         print()
                         this_dir = os.getcwd()
                         os.chdir(self.neutrino_dir)
-                        subprocess.call("pip install -U -e . --user", shell=True)
+                        subprocess.call("pip install -U -e . --user")
                         os.chdir(this_dir)
                     else:
                         print(
@@ -291,10 +291,10 @@ class Neutrino(Link):
             # temporarily set verbosity to false for the orders retrieval, then switch it back
             initial__verbosity = self.verbose
             self.verbose = False
-            orders_df = self.retrieve_orders(status=["all"])
+            orders = self.get_orders(from_database=from_database, status=["all"])
             self.verbose = initial__verbosity
             currencies = (
-                orders_df["product_id"]
+                orders.df["product_id"]
                 .apply(lambda x: x.split("-")[0])
                 .unique()
                 .tolist()
@@ -328,34 +328,37 @@ class Neutrino(Link):
 
     def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
 
-        (load_type, account_ledger_df) = t.load_datum(
+        account_ledger = t.load_datum(
             from_database=from_database,
             link_method=self.retrieve_account_ledger,
+            main_key=self.neutrino_settings.get("response_keys").get("ledger"),
             database_path=self.database_path,
-            csv_name="ledgers",
+            csv_name="ledgers",  # TODO this will be used, but need to do some filtering here
             clean_timestrings=True,
             account_id=account_id,
             **kwargs,
         )
 
-        if load_type == "db":
+        if account_ledger.origin == "db":
             # TODO: data was loaded in from db; filter based on kwargs
             pass
 
         if self.verbose:
             print()
-            print(account_ledger_df)
+            print(account_ledger.df)
 
         # update object attribute
         if self.ledgers is None:
-            self.ledgers = account_ledger_df
+            self.ledgers = account_ledger
+            # TODO: consider changing main key
         else:
+            # TODO: combine ledgers
             pass
 
         # save to CSV, if applicable
         # ledger data across accounts is stored in a single table
 
-        return account_ledger_df
+        return account_ledger
 
     def get_transfers(self, from_database=False, save=False):
         """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated profiles' accounts.
@@ -371,9 +374,10 @@ class Neutrino(Link):
                 * at a later date
         """
 
-        (load_type, transfers_df) = t.load_datum(
+        transfers = t.load_datum(
             from_database=from_database,
             link_method=self.retrieve_transfers,
+            main_key=self.neutrino_settings.get("response_keys").get("transfers"),
             database_path=self.database_path,
             csv_name="transfers",
             clean_timestrings=True,
@@ -381,20 +385,20 @@ class Neutrino(Link):
 
         if self.verbose:
             print()
-            print(transfers_df)
+            print(transfers.df)
 
         # save to CSV, if applicable
-        transfers_df = t.process_df(
-            transfers_df,
+        transfers.df = t.process_df(
+            transfers.df,
             save=save,
             csv_name="transfers",
             database_path=self.database_path,
         )
 
         # update object attribute
-        self.transfers = transfers_df
+        self.transfers = transfers
 
-        return transfers_df
+        return transfers
 
     def get_orders(self, from_database=False, save=False, **kwargs):
         """Loads a DataFrame with orders associated with the authenticated profile.
@@ -424,32 +428,33 @@ class Neutrino(Link):
         """
 
         # TODO: implement kwargs for from_database
-        (load_type, orders_df) = t.load_datum(
+        orders = t.load_datum(
             from_database=from_database,
             link_method=self.retrieve_orders,
+            main_key=self.neutrino_settings.get("response_keys").get("orders"),
             database_path=self.database_path,
             csv_name="orders",
             clean_timestrings=True,
             **kwargs,
         )
 
-        if load_type == "db":
+        if orders.origin == "db":
             # TODO: data was loaded in from db; filter based on kwargs
             pass
 
         if self.verbose:
             print()
-            print(orders_df)
+            print(orders.df)
 
         # save to CSV, if applicable
-        orders_df = t.process_df(
-            orders_df, save=save, csv_name="orders", database_path=self.database_path
+        orders.df = t.process_df(
+            orders.df, save=save, csv_name="orders", database_path=self.database_path
         )
 
         # update object attribute
-        self.orders = orders_df
+        self.orders = orders
 
-        return orders_df
+        return orders
 
     def get_fees(self):
         """Gets the fee rates and 30-day trailing volume for the authenticated profile.
@@ -457,9 +462,8 @@ class Neutrino(Link):
         .. admonition:: TODO
 
             This is currently just a call to Link's ``retrieve_fees`` function. \
-            It should be updated to store fees (and associated poll times) to a CSV file, \
-            and optionally load from this CSV file like the other Neutrino ``get`` methnods, \
-            i.e. ``get_fees(from_database=True)``.
+            It should be updated to pull fees from the database using historical data \
+            and optionally append fee rates to that data.
 
         Returns:
             dict (str): .. code-block::
