@@ -44,8 +44,10 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">Overview</a></li>
 <li><a class="reference internal" href="#neutrino">Neutrino</a></li>
+<li><a class="reference internal" href="#module-neutrino.datum">Datum</a></li>
 <li><a class="reference internal" href="#module-neutrino.stream">Stream</a></li>
 <li><a class="reference internal" href="#module-neutrino.link">Link</a></li>
+<li><a class="reference internal" href="#module-neutrino.authenticator">Authenticator</a></li>
 <li><a class="reference internal" href="#module-neutrino.tools">Tools</a></li>
 </ul>
 </div>
@@ -131,6 +133,7 @@
 <blockquote>
 <div><ul class="simple">
 <li><p><strong>placeholder</strong> (<em>placeholder</em>): Placeholder text. The following bullets will likely be out of date during ongoing development.</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code> object containing the absolute filepath to the folder             to which the Link exports CSV files.</p></li>
 <li><p><strong>accounts</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_accounts</span></code>.</p></li>
 <li><p><strong>ledgers</strong> (<em>dict(dict)</em>): Nested dictionary representations of DataFrames returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.retrieve_account_ledger</span></code>,             with one entry per retrieved <code class="docutils literal notranslate"><span class="pre">account_id</span></code> in the form of <code class="docutils literal notranslate"><span class="pre">{account_id:</span> <span class="pre">{ledger_dict}}</span></code>.</p></li>
 <li><p><strong>transfers</strong> (<em>dict</em>): Dictionary representation of DataFrame returned from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Link.get_usd_transfers</span></code>.</p></li>
@@ -485,19 +488,83 @@
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.interact">
+<span class="sig-name descname"><span class="pre">interact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.interact" title="Permalink to this definition"></a></dt>
+<dd><p>Temporary rudimentary command line interface that executes neutrino-related commands from user input.         The jankiness of this implementation and availability of modules such as <code class="docutils literal notranslate"><span class="pre">argparse</span></code> are well-understood.         This is mostly used for highly flexible testing/debugging during development.</p>
+<p>This function is wrapped in a <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">True</span></code> block to execute an arbitrary number of commands         until terminated by the user.</p>
+<p>Further documentation TBD.</p>
 </dd></dl>
 
-<span class="target" id="module-neutrino.interface"></span><dl class="py function">
-<dt class="sig sig-object py" id="neutrino.interface.interact">
-<span class="sig-prename descclassname"><span class="pre">neutrino.interface.</span></span><span class="sig-name descname"><span class="pre">interact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neutrino</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.interface.interact" title="Permalink to this definition"></a></dt>
-<dd><p>Temporary rudimentary command line interface that executes Neutrino-related commands from user input.     The jankiness of this implementation and availability of modules such as <code class="docutils literal notranslate"><span class="pre">argparse</span></code> are well-understood.     This is mostly used for highly flexible testing/debugging during development.</p>
-<p>This function is wrapped in a <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">True</span></code> block to execute an arbitrary number of commands     until terminated by the user.</p>
-<p>Further documentation TBD.</p>
+</dd></dl>
+
+</section>
+<section id="module-neutrino.datum">
+<span id="datum"></span><h1>Datum<a class="headerlink" href="#module-neutrino.datum" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="neutrino.datum.Datum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.datum.</span></span><span class="sig-name descname"><span class="pre">Datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.datum.Datum" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Loads data from the database or an API request per the user’s specification.</p>
+<p>Defaults to performing an API request if database data is requested, but no database file exists.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> arguments are not handled for database pulls. The calling method must handle any actions             associated with those parameters if <code class="docutils literal notranslate"><span class="pre">db</span></code> is returned.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>neutrino</strong> (<a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><em>Neutrino</em></a>) – An initialized <a class="reference internal" href="#neutrino.main.Neutrino" title="neutrino.main.Neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino</span></code></a> object.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_database</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if data is to be loaded from the CSV database.</p></li>
+<li><p><strong>link_method</strong> (<em>Object</em><em>, </em><em>optional</em>) – placeholder</p></li>
+<li><p><strong>main_key</strong> (<em>str</em>) – placeholder</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the Neutrino’s database directory.</p></li>
+<li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be loaded from, if applicable, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">loaded_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">loaded_file.csv</span></code>).</p></li>
+<li><p><strong>link_method</strong> – Link’s API request method to be called, if not loading from a database file.</p></li>
+<li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>TO BE CHANGED Tuple in the form of <code class="docutils literal notranslate"><span class="pre">(load_method,</span> <span class="pre">df)</span></code> where <code class="docutils literal notranslate"><span class="pre">load_method</span></code> is “db” or “api”             depending on the actual method used to pull the data, and <code class="docutils literal notranslate"><span class="pre">df</span></code> is the DataFrame object             containing data loaded in from the specified database file or API request.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#neutrino.datum.Datum" title="neutrino.datum.Datum">Datum</a></p>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.datum.Datum.convert_API_response_list_to_df">
+<span class="sig-name descname"><span class="pre">convert_API_response_list_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.datum.Datum.convert_API_response_list_to_df" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a list of dicts from a Coinbase API response to a DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>response_list</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – Response from a Coinbase API request.</p></li>
+<li><p><strong>main_key</strong> (<em>str</em>) – Key containing a unique identifier for a response element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame of values loaded from a Coinbase API response.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.datum.Datum.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.datum.Datum.get" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.datum.Datum.print_df">
+<span class="sig-name descname"><span class="pre">print_df</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.datum.Datum.print_df" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.datum.Datum.save_csv">
+<span class="sig-name descname"><span class="pre">save_csv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.datum.Datum.save_csv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -573,7 +640,7 @@
 <span id="link"></span><h1>Link<a class="headerlink" href="#module-neutrino.link" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.link.Link">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Creates an API request session and sends/receives API requests/responses.</p>
 <p>The <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/">Coinbase API Reference</a> provides a comprehensive     list of available REST API endpoints.</p>
@@ -583,8 +650,7 @@
 <blockquote>
 <div><ul class="simple">
 <li><p><strong>api_url</strong> (<em>str</em>): Base URL for Coinbase Pro API endpoints.</p></li>
-<li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a> callable.</p></li>
-<li><p><strong>database_path</strong> (<em>Path</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code> object containing the absolute filepath to the folder             to which the Link exports CSV files.</p></li>
+<li><p><strong>auth</strong> (<em>Authenticator</em>): <a class="reference internal" href="#neutrino.authenticator.Authenticator" title="neutrino.authenticator.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.authenticator.Authenticator</span></code></a> callable.</p></li>
 <li><p><strong>session</strong> (<em>str</em>): <code class="xref py py-obj docutils literal notranslate"><span class="pre">requests.Session</span></code> object.</p></li>
 </ul>
 </div></blockquote>
@@ -592,29 +658,17 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>) – Base URL for Coinbase Pro API endpoints.</p></li>
-<li><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a>.</p></li>
-<li><p><strong>database_path</strong> (<em>Path</em>) – <code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code> object containing the absolute filepath to the folder             to which the Link exports CSV files.</p></li>
+<li><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.authenticator.Authenticator" title="neutrino.authenticator.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.authenticator.Authenticator</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.update_auth">
 <span class="sig-name descname"><span class="pre">update_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.update_auth" title="Permalink to this definition"></a></dt>
-<dd><p>Updates the <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Authenticator</span></code></a>             callable with new keys for authenticating Coinbase WebSocket and API requests.</p>
+<dd><p>Updates the <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>’s <a class="reference internal" href="#neutrino.authenticator.Authenticator" title="neutrino.authenticator.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Authenticator</span></code></a>             callable with new keys for authenticating Coinbase WebSocket and API requests.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.tools.Authenticator</span></code></a>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.update_database_path">
-<span class="sig-name descname"><span class="pre">update_database_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.update_database_path" title="Permalink to this definition"></a></dt>
-<dd><p>Update the filepath to the folder to which the <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a> exports CSV files.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>database_path</strong> (<em>str</em>) – Absolute filepath to the folder to which the <a class="reference internal" href="#neutrino.link.Link" title="neutrino.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>                 exports CSV files.</p>
+<dd class="field-odd"><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.authenticator.Authenticator" title="neutrino.authenticator.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neutrino.authenticator.Authenticator</span></code></a>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -761,11 +815,8 @@
 <p>The returned <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;activity</span> <span class="pre">id&gt;</span></code> <code class="docutils literal notranslate"><span class="pre">details</span></code> requirements are not explicitly documented                 in the API Reference. They have been determined via user observation.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Export the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code>.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>List of dictionaries corresponding to the API response headers below:</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>List of dictionaries corresponding to the API response headers below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
 <span class="c1"># types, response requirements, and notes are described below</span>
 
@@ -792,8 +843,8 @@
 </div>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list (dict)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -950,11 +1001,11 @@
 </dd></dl>
 
 </section>
-<section id="module-neutrino.tools">
-<span id="tools"></span><h1>Tools<a class="headerlink" href="#module-neutrino.tools" title="Permalink to this headline"></a></h1>
+<section id="module-neutrino.authenticator">
+<span id="authenticator"></span><h1>Authenticator<a class="headerlink" href="#module-neutrino.authenticator" title="Permalink to this headline"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="neutrino.tools.Authenticator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">Authenticator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Authenticator" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.authenticator.Authenticator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.authenticator.</span></span><span class="sig-name descname"><span class="pre">Authenticator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.authenticator.Authenticator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">requests.auth.AuthBase</span></code></p>
 <p>Custom callable authentication class for Coinbase WebSocket and API authentication:</p>
 <p><a class="reference external" href="https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication">https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication</a></p>
@@ -972,11 +1023,9 @@
 </div></blockquote>
 </li>
 </ul>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.generate_auth_headers">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">generate_auth_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.generate_auth_headers" title="Permalink to this definition"></a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.authenticator.Authenticator.generate_auth_headers">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_auth_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.authenticator.Authenticator.generate_auth_headers" title="Permalink to this definition"></a></dt>
 <dd><p>Generates headers for authenticated Coinbase WebSocket and API messages:</p>
 <p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication">https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication</a></p>
 <dl class="field-list simple">
@@ -984,7 +1033,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>timestamp</strong> (<em>str</em>) – String representing the current time in seconds since the Epoch.</p></li>
 <li><p><strong>message</strong> (<em>str</em>) – Formatted message to be authenticated.</p></li>
-<li><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.tools.Authenticator" title="neutrino.tools.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Authenticator</span></code></a>.</p></li>
+<li><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.authenticator.Authenticator" title="neutrino.authenticator.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Authenticator</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1006,6 +1055,11 @@
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="module-neutrino.tools">
+<span id="tools"></span><h1>Tools<a class="headerlink" href="#module-neutrino.tools" title="Permalink to this headline"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.retrieve_repo">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">retrieve_repo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.retrieve_repo" title="Permalink to this definition"></a></dt>
@@ -1017,146 +1071,6 @@
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Repo</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="neutrino.tools.Datum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">Datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Datum" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.tools.Datum.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.Datum.get" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.load_datum">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_datum" title="Permalink to this definition"></a></dt>
-<dd><p>Loads data from the database or an API request per the user’s specification.</p>
-<p>Defaults to performing an API request if database data is requested, but no database file exists.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> arguments are not handled for database pulls. The calling method must handle any actions             associated with those parameters if <code class="docutils literal notranslate"><span class="pre">db</span></code> is returned.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>from_database</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if data is to be loaded from the CSV database.</p></li>
-<li><p><strong>link_method</strong> (<em>Object</em><em>, </em><em>optional</em>) – placeholder</p></li>
-<li><p><strong>main_key</strong> (<em>str</em>) – placeholder</p></li>
-<li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the Neutrino’s database directory.</p></li>
-<li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be loaded from, if applicable, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">loaded_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">loaded_file.csv</span></code>).</p></li>
-<li><p><strong>link_method</strong> – Link’s API request method to be called, if not loading from a database file.</p></li>
-<li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>TO BE CHANGED Tuple in the form of <code class="docutils literal notranslate"><span class="pre">(load_method,</span> <span class="pre">df)</span></code> where <code class="docutils literal notranslate"><span class="pre">load_method</span></code> is “db” or “api”             depending on the actual method used to pull the data, and <code class="docutils literal notranslate"><span class="pre">df</span></code> is the DataFrame object             containing data loaded in from the specified database file or API request.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#neutrino.tools.Datum" title="neutrino.tools.Datum">Datum</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.convert_API_response_list_to_df">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">convert_API_response_list_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.convert_API_response_list_to_df" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a list of dicts from a Coinbase API response to a DataFrame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>response_list</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – Response from a Coinbase API request.</p></li>
-<li><p><strong>main_key</strong> (<em>str</em>) – Key containing a unique identifier for a response element.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>DataFrame of values loaded from a Coinbase API response.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.move_df_column_inplace">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">move_df_column_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.move_df_column_inplace" title="Permalink to this definition"></a></dt>
-<dd><p>Moves a DataFrame column to the specified index position inplace.</p>
-<p>Credit: <a class="reference external" href="https://stackoverflow.com/a/58686641/17591579">https://stackoverflow.com/a/58686641/17591579</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame whose columns will be rearranged.</p></li>
-<li><p><strong>column</strong> (<em>str</em>) – Name of the column to be moved.</p></li>
-<li><p><strong>position</strong> (<em>int</em>) – Index to which the column will be moved.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.process_df">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">process_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_timestrings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.process_df" title="Permalink to this definition"></a></dt>
-<dd><p>Performs generic actions on DataFrames and returns the resulting DataFrame object.</p>
-<p>Optional processes:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p><a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a></p></li>
-<li><p><a class="reference internal" href="#neutrino.tools.save_dataframe_as_csv" title="neutrino.tools.save_dataframe_as_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_dataframe_as_csv</span></code></a></p></li>
-</ol>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be processed.</p></li>
-<li><p><strong>clean_timestrings</strong> (<em>bool</em><em>, </em><em>optional</em>) – Runs <a class="reference internal" href="#neutrino.tools.clean_df_timestrings" title="neutrino.tools.clean_df_timestrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_df_timestrings</span></code></a> on the provided DataFrame if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the processed DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>csv_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>), if applicable.</p></li>
-<li><p><strong>database_path</strong> (<em>Path</em><em>, </em><em>optional</em>) – Absolute path to the directory in which the CSV file will be saved, if applicable.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The initially provided DataFrame.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.clean_df_timestrings">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">clean_df_timestrings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.clean_df_timestrings" title="Permalink to this definition"></a></dt>
-<dd><p>Ensure the provided DataFrame’s time string columns are properly formatted (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p>
-<p>Note: this does not affect time strings stored in ISO 8601 format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be processed.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>DataFrame object with cleaned time string columns.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.save_dataframe_as_csv">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">save_dataframe_as_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.save_dataframe_as_csv" title="Permalink to this definition"></a></dt>
-<dd><p>Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be exported to a CSV file.</p></li>
-<li><p><strong>csv_name</strong> (<em>str</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>).</p></li>
-<li><p><strong>database_path</strong> (<em>Path</em>) – Absolute path to the directory in which the CSV file will be saved.</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1224,6 +1138,28 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.load_yaml_settings">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_yaml_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_template_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_yaml_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Loads a dictionary of settings values from a YAML file.</p>
+<p>This YAML file is gitignored so that the repository’s configuration is not affected by user personalization.</p>
+<p>If the YAML file does not exist, then it is copied from the repository’s version controlled template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings_file</strong> (<em>str</em>) – Absolute path to the gitignored YAML file.</p></li>
+<li><p><strong>settings_template_file</strong> (<em>str</em>) – Absolute path to the version controlled YAML template.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary representation of loaded settings from a YAML file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.parse_yaml">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">parse_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_yaml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.parse_yaml" title="Permalink to this definition"></a></dt>
 <dd><p>Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.</p>
@@ -1244,23 +1180,53 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.load_yaml_settings">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">load_yaml_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_template_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.load_yaml_settings" title="Permalink to this definition"></a></dt>
-<dd><p>Loads a dictionary of settings values from a YAML file.</p>
-<p>This YAML file is gitignored so that the repository’s configuration is not affected by user personalization.</p>
-<p>If the YAML file does not exist, then it is copied from the repository’s version controlled template.</p>
+<dt class="sig sig-object py" id="neutrino.tools.save_df_to_csv">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">save_df_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.save_df_to_csv" title="Permalink to this definition"></a></dt>
+<dd><p>Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>settings_file</strong> (<em>str</em>) – Absolute path to the gitignored YAML file.</p></li>
-<li><p><strong>settings_template_file</strong> (<em>str</em>) – Absolute path to the version controlled YAML template.</p></li>
+<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be exported to a CSV file.</p></li>
+<li><p><strong>csv_name</strong> (<em>str</em>) – Name of the CSV file to be saved, <strong>without</strong> the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension             (i.e., <code class="docutils literal notranslate"><span class="pre">saved_file</span></code> instead of <code class="docutils literal notranslate"><span class="pre">saved_file.csv</span></code>).</p></li>
+<li><p><strong>database_path</strong> (<em>Path</em>) – Absolute path to the directory in which the CSV file will be saved.</p></li>
 </ul>
 </dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.clean_df_timestrings">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">clean_df_timestrings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.clean_df_timestrings" title="Permalink to this definition"></a></dt>
+<dd><p>Ensure the provided DataFrame’s time string columns are properly formatted (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).     This is needed because timestrings loaded into a DataFrame from a CSV file may be automatically reformatted     into another configuration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This does not affect time strings stored in ISO 8601 format.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame to be processed.</p>
+</dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary representation of loaded settings from a YAML file.</p>
+<dd class="field-even"><p>DataFrame object with cleaned time string columns.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="neutrino.tools.move_df_column_inplace">
+<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">move_df_column_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.move_df_column_inplace" title="Permalink to this definition"></a></dt>
+<dd><p>Moves a DataFrame column to the specified index position inplace.</p>
+<p>Credit: <a class="reference external" href="https://stackoverflow.com/a/58686641/17591579">https://stackoverflow.com/a/58686641/17591579</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame whose columns will be rearranged.</p></li>
+<li><p><strong>column</strong> (<em>str</em>) – Name of the column to be moved.</p></li>
+<li><p><strong>position</strong> (<em>int</em>) – Index to which the column will be moved.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1357,7 +1323,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-07 16:52:15.
+      <span class="lastupdated">Last updated on 2022-01-07 18:57:50.
       </span></p>
   </div>
 

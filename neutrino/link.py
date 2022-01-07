@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import time
 from datetime import datetime
+from neutrino.authenticator import Authenticator
 from pathlib import Path
 
 MAX_CANDLE_REQUEST = 300
@@ -21,44 +22,29 @@ class Link:
 
     **Instance attributes:** \n
         * **api_url** (*str*): Base URL for Coinbase Pro API endpoints.
-        * **auth** (*Authenticator*): :py:obj:`neutrino.tools.Authenticator` callable.
-        * **database_path** (*Path*): :py:obj:`Path` object containing the absolute filepath to the folder \
-            to which the Link exports CSV files.
+        * **auth** (*Authenticator*): :py:obj:`neutrino.authenticator.Authenticator` callable.
         * **session** (*str*): :py:obj:`requests.Session` object.
 
     Args:
         url (str): Base URL for Coinbase Pro API endpoints.
-        cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
-        database_path (Path): :py:obj:`Path` object containing the absolute filepath to the folder \
-            to which the Link exports CSV files.
+        cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.authenticator.Authenticator`.
     """
 
-    def __init__(self, url, cbkey_set, database_path):
+    def __init__(self, url, cbkey_set):
 
         self.api_url = url
         self.update_auth(cbkey_set)
-        self.update_database_path(database_path)
         self.session = requests.Session()
 
     def update_auth(self, cbkey_set):
-        """Updates the :py:obj:`Link`'s :py:obj:`Authenticator<neutrino.tools.Authenticator>` \
+        """Updates the :py:obj:`Link`'s :py:obj:`Authenticator<neutrino.authenticator.Authenticator>` \
             callable with new keys for authenticating Coinbase WebSocket and API requests.
 
         Args:
-            cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.tools.Authenticator`.
+            cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.authenticator.Authenticator`.
         """
 
-        self.auth = t.Authenticator(cbkey_set)
-
-    def update_database_path(self, database_path):
-        """Update the filepath to the folder to which the :py:obj:`Link` exports CSV files.
-
-        Args:
-            database_path (str): Absolute filepath to the folder to which the :py:obj:`Link` \
-                exports CSV files.
-        """
-
-        self.database_path = Path(database_path)
+        self.auth = Authenticator(cbkey_set)
 
     def send_api_request(self, method, endpoint, params=None, pages=[]):
         """Sends an API request to the specified Coinbase Exchange endpoint and returns the response.
@@ -218,9 +204,6 @@ class Link:
 
             The returned :py:obj:`<activity id>` ``details`` requirements are not explicitly documented \
                 in the API Reference. They have been determined via user observation.
-
-        Args:
-            save (bool, optional): Export the returned DataFrame to a CSV file in the directory specified by ``self.database_path``.
 
         Returns:
             list (dict): List of dictionaries corresponding to the API response headers below:

@@ -1,2 +1,2 @@
 from neutrino.main import Neutrino
-from neutrino import interface, link, stream, tools
+from neutrino import authenticator, datum, link, stream, tools

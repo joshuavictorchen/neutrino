@@ -35,7 +35,10 @@ Neutrino
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: neutrino.interface
+Datum
+-----
+
+.. automodule:: neutrino.datum
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,6 +55,14 @@ Link
 ----
 
 .. automodule:: neutrino.link
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Authenticator
+-------------
+
+.. automodule:: neutrino.authenticator
    :members:
    :undoc-members:
    :show-inheritance:

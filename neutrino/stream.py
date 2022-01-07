@@ -1,7 +1,7 @@
 import json
-import neutrino.tools as t
 import time
 import traceback
+from neutrino.authenticator import Authenticator
 from websocket import create_connection
 
 
@@ -42,7 +42,7 @@ class Stream:
 
         # authenticate by updating the request with auth fields
         timestamp = str(time.time())
-        auth_headers = t.generate_auth_headers(
+        auth_headers = Authenticator.generate_auth_headers(
             timestamp, timestamp + "GET/users/self/verify", auth_keys
         )
         request.update(

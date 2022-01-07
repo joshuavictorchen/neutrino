@@ -94,7 +94,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#neutrino.link.Link.augment_candle_bounds">augment_candle_bounds() (neutrino.link.Link method)</a>
 </li>
-      <li><a href="index.html#neutrino.tools.Authenticator">Authenticator (class in neutrino.tools)</a>
+      <li><a href="index.html#neutrino.authenticator.Authenticator">Authenticator (class in neutrino.authenticator)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -114,7 +114,7 @@
 </li>
       <li><a href="index.html#neutrino.main.Neutrino.configure_new_stream">configure_new_stream() (neutrino.main.Neutrino method)</a>
 </li>
-      <li><a href="index.html#neutrino.tools.convert_API_response_list_to_df">convert_API_response_list_to_df() (in module neutrino.tools)</a>
+      <li><a href="index.html#neutrino.datum.Datum.convert_API_response_list_to_df">convert_API_response_list_to_df() (neutrino.datum.Datum method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -122,7 +122,7 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.tools.Datum">Datum (class in neutrino.tools)</a>
+      <li><a href="index.html#neutrino.datum.Datum">Datum (class in neutrino.datum)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -130,11 +130,11 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.tools.generate_auth_headers">generate_auth_headers() (in module neutrino.tools)</a>
+      <li><a href="index.html#neutrino.authenticator.Authenticator.generate_auth_headers">generate_auth_headers() (neutrino.authenticator.Authenticator static method)</a>
 </li>
       <li><a href="index.html#neutrino.main.Neutrino.generate_candle_pull_bounds">generate_candle_pull_bounds() (neutrino.main.Neutrino method)</a>
 </li>
-      <li><a href="index.html#neutrino.tools.Datum.get">get() (neutrino.tools.Datum method)</a>
+      <li><a href="index.html#neutrino.datum.Datum.get">get() (neutrino.datum.Datum method)</a>
 </li>
       <li><a href="index.html#neutrino.main.Neutrino.get_account_ledger">get_account_ledger() (neutrino.main.Neutrino method)</a>
 </li>
@@ -166,7 +166,7 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.interface.interact">interact() (in module neutrino.interface)</a>
+      <li><a href="index.html#neutrino.main.Neutrino.interact">interact() (neutrino.main.Neutrino method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -194,8 +194,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.tools.load_datum">load_datum() (in module neutrino.tools)</a>
-</li>
       <li><a href="index.html#neutrino.tools.load_yaml_settings">load_yaml_settings() (in module neutrino.tools)</a>
 </li>
       <li><a href="index.html#neutrino.tools.local_to_ISO_time_string">local_to_ISO_time_string() (in module neutrino.tools)</a>
@@ -210,7 +208,9 @@
     module
 
       <ul>
-        <li><a href="index.html#module-neutrino.interface">neutrino.interface</a>
+        <li><a href="index.html#module-neutrino.authenticator">neutrino.authenticator</a>
+</li>
+        <li><a href="index.html#module-neutrino.datum">neutrino.datum</a>
 </li>
         <li><a href="index.html#module-neutrino.link">neutrino.link</a>
 </li>
@@ -232,12 +232,21 @@
       <li><a href="index.html#neutrino.main.Neutrino">Neutrino (class in neutrino.main)</a>
 </li>
       <li>
-    neutrino.interface
+    neutrino.authenticator
 
       <ul>
-        <li><a href="index.html#module-neutrino.interface">module</a>
+        <li><a href="index.html#module-neutrino.authenticator">module</a>
 </li>
       </ul></li>
+      <li>
+    neutrino.datum
+
+      <ul>
+        <li><a href="index.html#module-neutrino.datum">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     neutrino.link
 
@@ -245,8 +254,6 @@
         <li><a href="index.html#module-neutrino.link">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     neutrino.stream
 
@@ -273,9 +280,9 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.tools.print_recursive_dict">print_recursive_dict() (in module neutrino.tools)</a>
+      <li><a href="index.html#neutrino.datum.Datum.print_df">print_df() (neutrino.datum.Datum method)</a>
 </li>
-      <li><a href="index.html#neutrino.tools.process_df">process_df() (in module neutrino.tools)</a>
+      <li><a href="index.html#neutrino.tools.print_recursive_dict">print_recursive_dict() (in module neutrino.tools)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -311,7 +318,9 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.tools.save_dataframe_as_csv">save_dataframe_as_csv() (in module neutrino.tools)</a>
+      <li><a href="index.html#neutrino.datum.Datum.save_csv">save_csv() (neutrino.datum.Datum method)</a>
+</li>
+      <li><a href="index.html#neutrino.tools.save_df_to_csv">save_df_to_csv() (in module neutrino.tools)</a>
 </li>
       <li><a href="index.html#neutrino.link.Link.send_api_request">send_api_request() (neutrino.link.Link method)</a>
 </li>
@@ -337,8 +346,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.link.Link.update_database_path">update_database_path() (neutrino.link.Link method)</a>
-</li>
       <li><a href="index.html#neutrino.main.Neutrino.update_neutrino">update_neutrino() (neutrino.main.Neutrino method)</a>
 </li>
   </ul></td>
@@ -354,7 +361,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-07 16:52:15.
+      <span class="lastupdated">Last updated on 2022-01-07 18:57:50.
       </span></p>
   </div>
 
