@@ -1,7 +1,9 @@
+import neutrino
 import neutrino.tools as t
 import os
 import pandas as pd
 from copy import deepcopy
+from pathlib import Path
 
 
 class Datum:
@@ -30,16 +32,13 @@ class Datum:
             containing data loaded in from the specified database file or API request.
     """
 
-    def __init__(
-        self, from_database, link_method, main_key, database_path, csv_name, **kwargs
-    ):
+    def __init__(self, from_database, link_method, csv_name, **kwargs):
 
-        self.main_key = main_key
-        self.database_path = database_path
         self.csv_name = csv_name
+        self.main_key = neutrino.api_response_keys.get(csv_name)
 
         api_request = True
-        filepath = database_path / (csv_name + ".csv")
+        filepath = neutrino.db_path / (csv_name + ".csv")
 
         if from_database:
             if os.path.isfile(filepath):
@@ -53,7 +52,7 @@ class Datum:
 
         if api_request:
             self.df = self.convert_API_response_list_to_df(
-                link_method(**kwargs), main_key
+                link_method(**kwargs), self.main_key
             )
             self.origin = "api"
 
@@ -115,4 +114,4 @@ class Datum:
 
     def save_csv(self):
 
-        t.save_df_to_csv(self.df, self.csv_name, self.database_path)
+        t.save_df_to_csv(self.df, self.csv_name, neutrino.db_path)

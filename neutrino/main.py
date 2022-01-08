@@ -1,3 +1,4 @@
+import neutrino
 import neutrino.tools as t
 import os
 import pandas as pd
@@ -95,7 +96,7 @@ class Neutrino(Link):
 
         # initialize inherited Link parameters
         super().__init__(
-            self.neutrino_settings.get("api_url"),  # API endoint base url
+            neutrino.settings.get("api_url"),  # API endoint base url
             self.cbkeys.get(cbkey_set_name),  # cbkey dictionary
         )
 
@@ -287,10 +288,10 @@ class Neutrino(Link):
         accounts = Datum(
             from_database=from_database,
             link_method=self.request_accounts,
-            main_key=self.neutrino_settings.get("response_keys").get("accounts"),
-            database_path=self.database_path,
             csv_name="accounts",
         )
+
+        # put accounts here
 
         # filter to only accounts that have had some activity at any point in time, if applicable
         if relevant_only:

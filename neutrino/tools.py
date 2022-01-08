@@ -200,6 +200,8 @@ def save_df_to_csv(df, csv_name, database_path):
         database_path (Path): Absolute path to the directory in which the CSV file will be saved.
     """
 
+    # TODO: default behavior should be to APPEND to CSV, with option to OVERWRITE
+
     filepath = database_path / (csv_name + ".csv")
     df = clean_df_timestrings(df)
 

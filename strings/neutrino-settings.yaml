@@ -7,7 +7,7 @@ stream_url: wss://ws-feed.pro.coinbase.com
 api_url: https://api.pro.coinbase.com
 
 # cbpro API response keys
-response_keys:
+api_response_keys:
   accounts: currency
   ledger: id
   transfers: id
