@@ -100,49 +100,6 @@ class Link:
                 method, endpoint, params=params, pages=list_response
             )
 
-    def request_account_ledger(self, account_id, **kwargs):
-        """Sends a request to retrieve all ledger activity (anything that would affect the account's balance) for a given coin account \
-            (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__).
-
-        Args:
-            account_id (str): Trading account ID for a given coin.
-            **kwargs (various, optional):
-                * **start_date** (*str*): Filter by minimum posted date (``%Y-%m-%d %H:%M``).
-                * **end_date** (*str*): Filter by maximum posted date (``%Y-%m-%d %H:%M``).
-                * **before** (*str*): Used for pagination. Sets start cursor to ``before`` date.
-                * **after** (*str*): Used for pagination. Sets end cursor to ``after`` date.
-                * **limit** (*int*): Limit on number of results to return.
-                * **profile_id** (*str*): Filter results by a specific ``profile_id``.
-
-        Returns:
-            list (dict): List of dictionaries corresponding to the API response headers below:
-            
-            .. code-block::
-
-                # key definitions can be found in API Reference link above
-                # types, response requirements, and notes are described below
-
-                {
-                            id: required (note: this is the transaction id and not the account id)
-                        amount: required
-                    created_at: required, ISO 8601
-                       balance: required
-                          type: required
-                       details: {
-                                            order_id: required
-                                          product_id: required
-                                            trade_id: required
-                                         transfer_id:
-                                       transfer_type:
-                                          account_id:
-                        }
-                }
-        """
-
-        return self.send_api_request(
-            "GET", f"/accounts/{account_id}/ledger", params=kwargs
-        )
-
     def convert_API_response_list_to_df(self, response_list, main_key):
         """Converts a list of dicts from a Coinbase API response to a DataFrame.
 

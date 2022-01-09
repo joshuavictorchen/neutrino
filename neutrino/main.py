@@ -362,6 +362,7 @@ class Neutrino(Link):
     def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
 
         # change to "get ledgers"
+        
         account_ledger = self.generate_datum(
             name="ledger",
             from_database=from_database,
@@ -695,12 +696,10 @@ class Neutrino(Link):
     def interact(self):
         """Temporary rudimentary command line interface that executes neutrino-related commands from user input. \
         The jankiness of this implementation and availability of modules such as ``argparse`` are well-understood. \
-        This is mostly used for highly flexible testing/debugging during development.
+        This is mostly used for flexible testing/debugging during development.
 
         This function is wrapped in a ``while True`` block to execute an arbitrary number of commands \
         until terminated by the user.
-
-        Further documentation TBD.
         """
 
         # set verbosity to True to print outputs to console
@@ -793,6 +792,7 @@ class Neutrino(Link):
 
                     elif arg[1] == "ledger":
 
+                        # parse which currency for which to get the ledger - default to BTC if none given
                         if len(arg) > 2:
                             currency = arg[2]
                         else:
