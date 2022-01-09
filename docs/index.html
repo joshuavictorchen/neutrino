@@ -47,8 +47,8 @@
 <li><a class="reference internal" href="#module-neutrino.datum">Datum</a></li>
 <li><a class="reference internal" href="#module-neutrino.link">Link</a></li>
 <li><a class="reference internal" href="#module-neutrino.stream">Stream</a></li>
-<li><a class="reference internal" href="#module-neutrino.updater">Updater</a></li>
 <li><a class="reference internal" href="#module-neutrino.authenticator">Authenticator</a></li>
+<li><a class="reference internal" href="#module-neutrino.updater">Updater</a></li>
 <li><a class="reference internal" href="#module-neutrino.tools">Tools</a></li>
 </ul>
 </div>
@@ -80,7 +80,8 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Documentation contains many incorrect references and descriptions. User manual is nonexistent.</p>
+<p>Documentation contains many incorrect references and descriptions.</p>
+<p>User manual is nonexistent.</p>
 <p>This is a proof-of-concept and not intended to be used for anything - yet.</p>
 </div>
 <section id="overview">
@@ -275,11 +276,6 @@
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.retrieve_ledgers">
-<span class="sig-name descname"><span class="pre">retrieve_ledgers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">currencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.retrieve_ledgers" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
@@ -616,6 +612,63 @@
 </dd></dl>
 
 </section>
+<section id="module-neutrino.authenticator">
+<span id="authenticator"></span><h1>Authenticator<a class="headerlink" href="#module-neutrino.authenticator" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="neutrino.authenticator.Authenticator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.authenticator.</span></span><span class="sig-name descname"><span class="pre">Authenticator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.authenticator.Authenticator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">requests.auth.AuthBase</span></code></p>
+<p>Custom callable authentication class for Coinbase WebSocket and API authentication:</p>
+<p><a class="reference external" href="https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication">https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication</a></p>
+<p><strong>Instance attributes:</strong></p>
+<ul>
+<li><p><strong>cbkey_set</strong> (<em>dict</em>): Dictionary of API keys with the following format:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+        <span class="n">public</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">public</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+       <span class="n">private</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">secret</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+    <span class="n">passphrase</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">passphrase</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.authenticator.Authenticator.generate_auth_headers">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_auth_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.authenticator.Authenticator.generate_auth_headers" title="Permalink to this definition"></a></dt>
+<dd><p>Generates headers for authenticated Coinbase WebSocket and API messages:</p>
+<p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication">https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> (<em>str</em>) – String representing the current time in seconds since the Epoch.</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Formatted message to be authenticated.</p></li>
+<li><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.authenticator.Authenticator" title="neutrino.authenticator.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Authenticator</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Dictionary of authentication headers with the following format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+            <span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="s1">&#39;Application/JSON&#39;</span>
+          <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">SIGN</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">base64</span><span class="o">-</span><span class="n">encoded</span><span class="o">-</span><span class="n">message</span><span class="o">-</span><span class="n">signature</span><span class="o">&gt;</span>
+     <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">TIMESTAMP</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">message</span><span class="o">-</span><span class="n">timestamp</span><span class="o">&gt;</span>
+           <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">KEY</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">public</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+    <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">PASSPHRASE</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">passphrase</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-neutrino.updater">
 <span id="updater"></span><h1>Updater<a class="headerlink" href="#module-neutrino.updater" title="Permalink to this headline"></a></h1>
 <dl class="py class">
@@ -681,63 +734,6 @@
 <dt class="sig sig-object py" id="neutrino.updater.Updater.print_repo">
 <span class="sig-name descname"><span class="pre">print_repo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.updater.Updater.print_repo" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-neutrino.authenticator">
-<span id="authenticator"></span><h1>Authenticator<a class="headerlink" href="#module-neutrino.authenticator" title="Permalink to this headline"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="neutrino.authenticator.Authenticator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.authenticator.</span></span><span class="sig-name descname"><span class="pre">Authenticator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.authenticator.Authenticator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">requests.auth.AuthBase</span></code></p>
-<p>Custom callable authentication class for Coinbase WebSocket and API authentication:</p>
-<p><a class="reference external" href="https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication">https://docs.python-requests.org/en/latest/user/advanced/#custom-authentication</a></p>
-<p><strong>Instance attributes:</strong></p>
-<ul>
-<li><p><strong>cbkey_set</strong> (<em>dict</em>): Dictionary of API keys with the following format:</p>
-<blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-        <span class="n">public</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">public</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
-       <span class="n">private</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">secret</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
-    <span class="n">passphrase</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">passphrase</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div></blockquote>
-</li>
-</ul>
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.authenticator.Authenticator.generate_auth_headers">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_auth_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.authenticator.Authenticator.generate_auth_headers" title="Permalink to this definition"></a></dt>
-<dd><p>Generates headers for authenticated Coinbase WebSocket and API messages:</p>
-<p><a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication">https://docs.cloud.coinbase.com/exchange/docs/authorization-and-authentication</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>timestamp</strong> (<em>str</em>) – String representing the current time in seconds since the Epoch.</p></li>
-<li><p><strong>message</strong> (<em>str</em>) – Formatted message to be authenticated.</p></li>
-<li><p><strong>cbkey_set</strong> (<em>dict</em>) – Dictionary of API keys with the format defined in <a class="reference internal" href="#neutrino.authenticator.Authenticator" title="neutrino.authenticator.Authenticator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Authenticator</span></code></a>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Dictionary of authentication headers with the following format:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-            <span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="s1">&#39;Application/JSON&#39;</span>
-          <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">SIGN</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">base64</span><span class="o">-</span><span class="n">encoded</span><span class="o">-</span><span class="n">message</span><span class="o">-</span><span class="n">signature</span><span class="o">&gt;</span>
-     <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">TIMESTAMP</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">message</span><span class="o">-</span><span class="n">timestamp</span><span class="o">&gt;</span>
-           <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">KEY</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">public</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
-    <span class="n">CB</span><span class="o">-</span><span class="n">ACCESS</span><span class="o">-</span><span class="n">PASSPHRASE</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">passphrase</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
 
 </dd></dl>
 
@@ -992,7 +988,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-09 13:49:18.
+      <span class="lastupdated">Last updated on 2022-01-09 15:06:09.
       </span></p>
   </div>
 

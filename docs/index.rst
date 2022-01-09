@@ -3,7 +3,9 @@
 
 .. warning::
 
-   Documentation contains many incorrect references and descriptions. User manual is nonexistent.
+   Documentation contains many incorrect references and descriptions.
+   
+   User manual is nonexistent.
    
    This is a proof-of-concept and not intended to be used for anything - yet.
 

@@ -73,7 +73,7 @@ class Stream:
             * Add stored data and periodically flush it (i.e., for live minute-avg calcs, etc.).
         """
 
-        print(f"\n starting stream {self.name}")
+        print(f"\n Starting stream: {self.name}")
 
         # open socket and update streams dict
         self.socket = create_connection(neutrino.stream_url)
@@ -91,8 +91,8 @@ class Stream:
                 self.latest_message = (streamed_message_count, message)
             except Exception:
                 self.kill()
-                print("\n error while parsing message:\n")
-                print(traceback.format_exc().strip())
+                print("\n ERROR: the stream has encountered the following exception:\n")
+                [print(f"   {i}") for i in traceback.format_exc().split("\n")]
 
         # close stream
         self.close()
