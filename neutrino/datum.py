@@ -32,8 +32,14 @@ class Datum:
 
         self.name = name
         self.df = df
-        self.main_key = main_key
         self.origin = origin
+
+        # if the provided main_key is none, then default to 'id':
+        if main_key is None:
+            main_key = "id"
+            print(f"\n WARNING: no main key for {name} found; defaulting to 'id'")
+
+        self.main_key = main_key
 
         if save:
             self.save_csv()

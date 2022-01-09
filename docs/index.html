@@ -143,46 +143,6 @@
 </ul>
 </div></blockquote>
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.check_for_updates">
-<span class="sig-name descname"><span class="pre">check_for_updates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.check_for_updates" title="Permalink to this definition"></a></dt>
-<dd><p>Performs a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">fetch</span></code> command to check for updates to the current branch of the repository.</p>
-<p>If updates exist, then prompts the user to execute <a class="reference internal" href="#neutrino.main.Neutrino.update_neutrino" title="neutrino.main.Neutrino.update_neutrino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino.update_neutrino</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if updates are available.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.update_neutrino">
-<span class="sig-name descname"><span class="pre">update_neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_completed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.update_neutrino" title="Permalink to this definition"></a></dt>
-<dd><p>Performs the following actions to update the neutrino program:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Checks for updates. If no updates are available, the function is exited.</p></li>
-<li><p>Performs a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> if updates are available.</p></li>
-<li><p>Checks <code class="docutils literal notranslate"><span class="pre">\setup\neutrino-settings.yaml</span></code> to see if a <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> is required.</p></li>
-<li><p>If required, prompts the user to approve the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> action.</p></li>
-<li><p>If approved, performs the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> action.</p></li>
-<li><p>Displays the change summary from <code class="docutils literal notranslate"><span class="pre">\setup\neutrino-settings.yaml</span></code>.</p></li>
-<li><p>Exits the program, which must be restarted for the changes to take effect.</p></li>
-</ol>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>check_completed</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
-<li><p><strong>force</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.refresh_user_settings">
 <span class="sig-name descname"><span class="pre">refresh_user_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.refresh_user_settings" title="Permalink to this definition"></a></dt>
 <dd><p>Reloads <code class="docutils literal notranslate"><span class="pre">self.user_settings</span></code> from <code class="docutils literal notranslate"><span class="pre">self.user_settings_file</span></code>. This allows the user to update the             user settings file with different inputs between Neutrino commands.</p>
@@ -388,9 +348,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.interact">
 <span class="sig-name descname"><span class="pre">interact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.interact" title="Permalink to this definition"></a></dt>
-<dd><p>Temporary rudimentary command line interface that executes neutrino-related commands from user input.         The jankiness of this implementation and availability of modules such as <code class="docutils literal notranslate"><span class="pre">argparse</span></code> are well-understood.         This is mostly used for highly flexible testing/debugging during development.</p>
+<dd><p>Temporary rudimentary command line interface that executes neutrino-related commands from user input.         The jankiness of this implementation and availability of modules such as <code class="docutils literal notranslate"><span class="pre">argparse</span></code> are well-understood.         This is mostly used for flexible testing/debugging during development.</p>
 <p>This function is wrapped in a <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">True</span></code> block to execute an arbitrary number of commands         until terminated by the user.</p>
-<p>Further documentation TBD.</p>
 </dd></dl>
 
 </dd></dl>
@@ -569,55 +528,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.request_account_ledger">
-<span class="sig-name descname"><span class="pre">request_account_ledger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.request_account_ledger" title="Permalink to this definition"></a></dt>
-<dd><p>Sends a request to retrieve all ledger activity (anything that would affect the account’s balance) for a given coin account             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger">API Reference</a>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>account_id</strong> (<em>str</em>) – Trading account ID for a given coin.</p></li>
-<li><p><strong>**kwargs</strong> (<em>various</em><em>, </em><em>optional</em>) – <ul>
-<li><p><strong>start_date</strong> (<em>str</em>): Filter by minimum posted date (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
-<li><p><strong>end_date</strong> (<em>str</em>): Filter by maximum posted date (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
-<li><p><strong>before</strong> (<em>str</em>): Used for pagination. Sets start cursor to <code class="docutils literal notranslate"><span class="pre">before</span></code> date.</p></li>
-<li><p><strong>after</strong> (<em>str</em>): Used for pagination. Sets end cursor to <code class="docutils literal notranslate"><span class="pre">after</span></code> date.</p></li>
-<li><p><strong>limit</strong> (<em>int</em>): Limit on number of results to return.</p></li>
-<li><p><strong>profile_id</strong> (<em>str</em>): Filter results by a specific <code class="docutils literal notranslate"><span class="pre">profile_id</span></code>.</p></li>
-</ul>
-</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>List of dictionaries corresponding to the API response headers below:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># key definitions can be found in API Reference link above</span>
-<span class="c1"># types, response requirements, and notes are described below</span>
-
-<span class="p">{</span>
-            <span class="nb">id</span><span class="p">:</span> <span class="n">required</span> <span class="p">(</span><span class="n">note</span><span class="p">:</span> <span class="n">this</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">transaction</span> <span class="nb">id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">the</span> <span class="n">account</span> <span class="nb">id</span><span class="p">)</span>
-        <span class="n">amount</span><span class="p">:</span> <span class="n">required</span>
-    <span class="n">created_at</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="n">ISO</span> <span class="mi">8601</span>
-       <span class="n">balance</span><span class="p">:</span> <span class="n">required</span>
-          <span class="nb">type</span><span class="p">:</span> <span class="n">required</span>
-       <span class="n">details</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="n">order_id</span><span class="p">:</span> <span class="n">required</span>
-                          <span class="n">product_id</span><span class="p">:</span> <span class="n">required</span>
-                            <span class="n">trade_id</span><span class="p">:</span> <span class="n">required</span>
-                         <span class="n">transfer_id</span><span class="p">:</span>
-                       <span class="n">transfer_type</span><span class="p">:</span>
-                          <span class="n">account_id</span><span class="p">:</span>
-        <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list (dict)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.link.Link.convert_API_response_list_to_df">
 <span class="sig-name descname"><span class="pre">convert_API_response_list_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.convert_API_response_list_to_df" title="Permalink to this definition"></a></dt>
 <dd><p>Converts a list of dicts from a Coinbase API response to a DataFrame.</p>
@@ -764,21 +674,6 @@
 </section>
 <section id="module-neutrino.tools">
 <span id="tools"></span><h1>Tools<a class="headerlink" href="#module-neutrino.tools" title="Permalink to this headline"></a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="neutrino.tools.retrieve_repo">
-<span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">retrieve_repo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.retrieve_repo" title="Permalink to this definition"></a></dt>
-<dd><p>Retrieves metadata on the local neutrino repository. Optionally prints to the console in the format of:</p>
-<p><code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">|</span> <span class="pre">&lt;branch&gt;-&lt;commit&gt;-&lt;is_modified&gt;</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">git.Repo</span></code> object representing the local neutrino repository.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Repo</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="neutrino.tools.print_recursive_dict">
 <span class="sig-prename descclassname"><span class="pre">neutrino.tools.</span></span><span class="sig-name descname"><span class="pre">print_recursive_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_spaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.tools.print_recursive_dict" title="Permalink to this definition"></a></dt>
@@ -1027,7 +922,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-09 00:10:24.
+      <span class="lastupdated">Last updated on 2022-01-09 13:46:13.
       </span></p>
   </div>
 

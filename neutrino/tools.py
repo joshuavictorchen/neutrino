@@ -10,39 +10,6 @@ from dateutil.parser import isoparse
 TIME_FORMAT = "%Y-%m-%d %H:%M"
 
 
-def retrieve_repo(verbose=False):
-    """Retrieves metadata on the local neutrino repository. Optionally prints to the console in the format of:
-
-    ``n | <branch>-<commit>-<is_modified>``
-
-    Returns:
-        Repo: :py:obj:`git.Repo` object representing the local neutrino repository.
-    """
-
-    # instantiate a repo object for the neutrino repository
-    repo = git.Repo(
-        f"{os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))}",
-        search_parent_directories=True,
-    )
-
-    # print repo attributes, if applicable
-    if verbose:
-
-        # get repo attributes
-        branch_name = repo.active_branch.name
-        commit_id = repo.head.object.hexsha[:7]
-        is_dirty = repo.is_dirty(untracked_files=True)
-
-        # format output
-        output = f"\n n | {branch_name}-{commit_id}"
-        if is_dirty:
-            output += "-modified"
-
-        print(output)
-
-    return repo
-
-
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
     """Prints a formatted nested dictionary to the console.
 

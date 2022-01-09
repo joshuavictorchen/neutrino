@@ -1,5 +1,5 @@
 from neutrino.main import Neutrino
-from neutrino import authenticator, datum, link, stream, tools
+from neutrino import authenticator, datum, link, stream, tools, updater
 
 import os
 from pathlib import Path
@@ -23,3 +23,7 @@ api_response_keys = {
     "transfers": "id",
     "orders": "id",
 }
+
+DIVIDER = (
+    "\n -------------------------------------------------------------------------------"
+)
