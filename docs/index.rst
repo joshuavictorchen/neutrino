@@ -3,7 +3,7 @@
 
 .. warning::
 
-   Documentation is extremely rough and incomplete. User manual is nonexistent.
+   Documentation contains many incorrect references and descriptions. User manual is nonexistent.
    
    This is a proof-of-concept and not intended to be used for anything - yet.
 
@@ -43,14 +43,6 @@ Datum
    :undoc-members:
    :show-inheritance:
 
-Stream
-------
-
-.. automodule:: neutrino.stream
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Link
 ----
 
@@ -59,10 +51,26 @@ Link
    :undoc-members:
    :show-inheritance:
 
+Stream
+------
+
+.. automodule:: neutrino.stream
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Authenticator
 -------------
 
 .. automodule:: neutrino.authenticator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Updater
+-------
+
+.. automodule:: neutrino.updater
    :members:
    :undoc-members:
    :show-inheritance:

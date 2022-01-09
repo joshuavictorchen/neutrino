@@ -45,8 +45,9 @@
 <li><a class="reference internal" href="#">Overview</a></li>
 <li><a class="reference internal" href="#neutrino">Neutrino</a></li>
 <li><a class="reference internal" href="#module-neutrino.datum">Datum</a></li>
-<li><a class="reference internal" href="#module-neutrino.stream">Stream</a></li>
 <li><a class="reference internal" href="#module-neutrino.link">Link</a></li>
+<li><a class="reference internal" href="#module-neutrino.stream">Stream</a></li>
+<li><a class="reference internal" href="#module-neutrino.updater">Updater</a></li>
 <li><a class="reference internal" href="#module-neutrino.authenticator">Authenticator</a></li>
 <li><a class="reference internal" href="#module-neutrino.tools">Tools</a></li>
 </ul>
@@ -79,7 +80,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Documentation is extremely rough and incomplete. User manual is nonexistent.</p>
+<p>Documentation contains many incorrect references and descriptions. User manual is nonexistent.</p>
 <p>This is a proof-of-concept and not intended to be used for anything - yet.</p>
 </div>
 <section id="overview">
@@ -404,72 +405,6 @@
 </dd></dl>
 
 </section>
-<section id="module-neutrino.stream">
-<span id="stream"></span><h1>Stream<a class="headerlink" href="#module-neutrino.stream" title="Permalink to this headline"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="neutrino.stream.Stream">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.stream.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Opens a WebSocket connection and streams/stores Coinbase Pro data.</p>
-<p>Further reading: <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/overview">https://docs.cloud.coinbase.com/exchange/docs/overview</a></p>
-<p><strong>Instance attributes:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>): Stream’s name.</p></li>
-<li><p><strong>request</strong> (<em>str</em>): Request sent to the WebSocket endpoint upon connection.             Configured during Stream instantiation.</p></li>
-<li><p><strong>socket</strong> (<em>WebSocket</em>): Stream’s WebSocket object.</p></li>
-<li><p><strong>active</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the Stream has a live (connected) WebSocket object, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
-<li><p><strong>kill_order</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the WebSocket connection should be closed on the next iteration,             <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
-<li><p><strong>stored_messages</strong> (<em>list(dict)</em>): <em>to be created</em></p></li>
-<li><p><strong>latest_message</strong> (<em>tuple(int, dict)</em>): Tuple containing the total number of WebSocket messages received,             along with the latest WebSocket message received.</p></li>
-<li><p><strong>killed</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the Stream has already been started and killed. Dead Streams cannot be revived.</p></li>
-</ul>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Unique name for this Stream object.</p></li>
-<li><p><strong>type</strong> (<em>str</em>) – Type of message that is sent to the WebSocket endpoint upon opening a connection             (usually ‘subscribe’).</p></li>
-<li><p><strong>product_ids</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of coin trading pairs (i.e., [‘BTC-USD’]).</p></li>
-<li><p><strong>channels</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of channels specified for the WebSocket connection (i.e., [‘ticker’]).</p></li>
-<li><p><strong>auth_keys</strong> (<em>dict</em><em>(</em><em>str</em><em>)</em>) – Dictionary of Coinbase Pro API keys with which the Stream’s WebSocket connection             will be authenticated.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.stream.Stream.stream">
-<span class="sig-name descname"><span class="pre">stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream.stream" title="Permalink to this definition"></a></dt>
-<dd><p>Opens a WebSocket connection and streams data from the Coinbase Exchange websocket feed             until the Stream is killed.</p>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<ul class="simple">
-<li><p>Check for (and handle) message errors.</p></li>
-<li><p>Add stored data and periodically flush it (i.e., for live minute-avg calcs, etc.).</p></li>
-</ul>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.stream.Stream.kill">
-<span class="sig-name descname"><span class="pre">kill</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream.kill" title="Permalink to this definition"></a></dt>
-<dd><p>Sets the Stream’s <code class="xref py py-obj docutils literal notranslate"><span class="pre">kill_order</span></code> attribute to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>,         which kills the Stream upon receipt of the next WebSocket message.</p>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<ul class="simple">
-<li><p>Kill the stream immediately instead of depending on the receipt of a new message.</p></li>
-</ul>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.stream.Stream.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream.close" title="Permalink to this definition"></a></dt>
-<dd><p>Closes the Stream’s WebSocket connection and sets its <code class="docutils literal notranslate"><span class="pre">active</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">False</span></code>             and <code class="docutils literal notranslate"><span class="pre">killed</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-neutrino.link">
 <span id="link"></span><h1>Link<a class="headerlink" href="#module-neutrino.link" title="Permalink to this headline"></a></h1>
 <dl class="py class">
@@ -611,6 +546,141 @@
 </dd>
 </dl>
 </dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-neutrino.stream">
+<span id="stream"></span><h1>Stream<a class="headerlink" href="#module-neutrino.stream" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="neutrino.stream.Stream">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.stream.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Opens a WebSocket connection and streams/stores Coinbase Pro data.</p>
+<p>Further reading: <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/docs/overview">https://docs.cloud.coinbase.com/exchange/docs/overview</a></p>
+<p><strong>Instance attributes:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>): Stream’s name.</p></li>
+<li><p><strong>request</strong> (<em>str</em>): Request sent to the WebSocket endpoint upon connection.             Configured during Stream instantiation.</p></li>
+<li><p><strong>socket</strong> (<em>WebSocket</em>): Stream’s WebSocket object.</p></li>
+<li><p><strong>active</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the Stream has a live (connected) WebSocket object, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
+<li><p><strong>kill_order</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the WebSocket connection should be closed on the next iteration,             <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></li>
+<li><p><strong>stored_messages</strong> (<em>list(dict)</em>): <em>to be created</em></p></li>
+<li><p><strong>latest_message</strong> (<em>tuple(int, dict)</em>): Tuple containing the total number of WebSocket messages received,             along with the latest WebSocket message received.</p></li>
+<li><p><strong>killed</strong> (<em>bool</em>): <code class="docutils literal notranslate"><span class="pre">True</span></code> if the Stream has already been started and killed. Dead Streams cannot be revived.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Unique name for this Stream object.</p></li>
+<li><p><strong>type</strong> (<em>str</em>) – Type of message that is sent to the WebSocket endpoint upon opening a connection             (usually ‘subscribe’).</p></li>
+<li><p><strong>product_ids</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of coin trading pairs (i.e., [‘BTC-USD’]).</p></li>
+<li><p><strong>channels</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of channels specified for the WebSocket connection (i.e., [‘ticker’]).</p></li>
+<li><p><strong>auth_keys</strong> (<em>dict</em><em>(</em><em>str</em><em>)</em>) – Dictionary of Coinbase Pro API keys with which the Stream’s WebSocket connection             will be authenticated.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.stream.Stream.stream">
+<span class="sig-name descname"><span class="pre">stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream.stream" title="Permalink to this definition"></a></dt>
+<dd><p>Opens a WebSocket connection and streams data from the Coinbase Exchange websocket feed             until the Stream is killed.</p>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<ul class="simple">
+<li><p>Check for (and handle) message errors.</p></li>
+<li><p>Add stored data and periodically flush it (i.e., for live minute-avg calcs, etc.).</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.stream.Stream.kill">
+<span class="sig-name descname"><span class="pre">kill</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream.kill" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the Stream’s <code class="xref py py-obj docutils literal notranslate"><span class="pre">kill_order</span></code> attribute to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>,         which kills the Stream upon receipt of the next WebSocket message.</p>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<ul class="simple">
+<li><p>Kill the stream immediately instead of depending on the receipt of a new message.</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.stream.Stream.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.stream.Stream.close" title="Permalink to this definition"></a></dt>
+<dd><p>Closes the Stream’s WebSocket connection and sets its <code class="docutils literal notranslate"><span class="pre">active</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">False</span></code>             and <code class="docutils literal notranslate"><span class="pre">killed</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-neutrino.updater">
+<span id="updater"></span><h1>Updater<a class="headerlink" href="#module-neutrino.updater" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="neutrino.updater.Updater">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.updater.</span></span><span class="sig-name descname"><span class="pre">Updater</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">print</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.updater.Updater" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.updater.Updater.retrieve_repo">
+<span class="sig-name descname"><span class="pre">retrieve_repo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.updater.Updater.retrieve_repo" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves metadata on the local neutrino repository. Optionally prints to the console in the format of:</p>
+<p><code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">|</span> <span class="pre">&lt;branch&gt;-&lt;commit&gt;-&lt;is_modified&gt;</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">git.Repo</span></code> object representing the local neutrino repository.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Repo</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.updater.Updater.check_for_updates">
+<span class="sig-name descname"><span class="pre">check_for_updates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.updater.Updater.check_for_updates" title="Permalink to this definition"></a></dt>
+<dd><p>Performs a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">fetch</span></code> command to check for updates to the current branch of the repository.</p>
+<p>If updates exist, then prompts the user to execute <code class="xref py py-obj docutils literal notranslate"><span class="pre">Neutrino.update_neutrino</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if updates are available.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.updater.Updater.update_neutrino">
+<span class="sig-name descname"><span class="pre">update_neutrino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_completed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.updater.Updater.update_neutrino" title="Permalink to this definition"></a></dt>
+<dd><p>Performs the following actions to update the neutrino program:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Checks for updates. If no updates are available, the function is exited.</p></li>
+<li><p>Performs a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> if updates are available.</p></li>
+<li><p>Checks <code class="docutils literal notranslate"><span class="pre">\internals\update-info.yaml</span></code> to see if a <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> is required.</p></li>
+<li><p>If required, prompts the user to approve the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> action.</p></li>
+<li><p>If approved, performs the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> action.</p></li>
+<li><p>Displays the change summary from <code class="docutils literal notranslate"><span class="pre">\internals\update-info.yaml</span></code>.</p></li>
+<li><p>Exits the program, which must be restarted for the changes to take effect.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>check_completed</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
+<li><p><strong>force</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description]. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.updater.Updater.print_repo">
+<span class="sig-name descname"><span class="pre">print_repo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.updater.Updater.print_repo" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -922,7 +992,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-09 13:46:13.
+      <span class="lastupdated">Last updated on 2022-01-09 13:49:18.
       </span></p>
   </div>
 
