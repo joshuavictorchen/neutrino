@@ -1,5 +1,6 @@
 import json
 import time
+import neutrino
 import traceback
 from neutrino.authenticator import Authenticator
 from websocket import create_connection
@@ -12,7 +13,6 @@ class Stream:
 
     **Instance attributes:** \n
         * **name** (*str*): Stream's name.
-        * **url** (*str*): URL endpoint for the Coinbase Pro WebSocket feed.
         * **request** (*str*): Request sent to the WebSocket endpoint upon connection. \
             Configured during Stream instantiation.
         * **socket** (*WebSocket*): Stream's WebSocket object.
@@ -26,7 +26,6 @@ class Stream:
 
     Args:
         name (str): Unique name for this Stream object.
-        url (str): URL endpoint for the Coinbase Pro WebSocket feed.
         type (str): Type of message that is sent to the WebSocket endpoint upon opening a connection \
             (usually 'subscribe').
         product_ids (list(str)): List of coin trading pairs (i.e., ['BTC-USD']).
@@ -35,7 +34,7 @@ class Stream:
             will be authenticated.
     """
 
-    def __init__(self, name, url, type, product_ids, channels, auth_keys):
+    def __init__(self, name, type, product_ids, channels, auth_keys):
 
         # create request for the stream
         request = {"type": type, "product_ids": product_ids, "channels": channels}
@@ -56,7 +55,6 @@ class Stream:
 
         # establish attributes
         self.name = name
-        self.url = url
         self.request = request
         self.socket = None
         self.active = False
@@ -78,7 +76,7 @@ class Stream:
         print(f"\n starting stream {self.name}")
 
         # open socket and update streams dict
-        self.socket = create_connection(self.url)
+        self.socket = create_connection(neutrino.stream_url)
         self.socket.send(json.dumps(self.request))
         self.active = True
 
@@ -91,7 +89,7 @@ class Stream:
                 message = json.loads(self.socket.recv())
                 streamed_message_count += 1
                 self.latest_message = (streamed_message_count, message)
-            except Exception as e:
+            except Exception:
                 self.kill()
                 print("\n error while parsing message:\n")
                 print(traceback.format_exc().strip())

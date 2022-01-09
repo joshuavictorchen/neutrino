@@ -1,0 +1,10 @@
+---
+
+# is a pip install required for the most recent update?
+pip_install: True
+
+# summary of changes for the most recent update
+changelog:
+  - Placeholder text for a summary of changes incorporated in this update.
+  - This changelog is in the form a list.
+  - The list contains an arbitrary number of elements.
