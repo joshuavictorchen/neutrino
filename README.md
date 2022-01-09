@@ -22,7 +22,3 @@ Navigate into a directory of your choice and grab the code from this repository:
 
     cd neutrino
     pip install -U -e .
-
----
-
-This project is inspired by, but distinct from and completely unaffiliated with, Dan Paquin's [coinbasepro-python](https://github.com/danpaquin/coinbasepro-python).

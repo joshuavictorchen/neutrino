@@ -206,8 +206,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.get_product_candles">
-<span class="sig-name descname"><span class="pre">get_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.get_product_candles" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.load_product_candles">
+<span class="sig-name descname"><span class="pre">load_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.load_product_candles" title="Permalink to this definition"></a></dt>
 <dd><p>Performs the following actions to efficiently retrieve the requested product candle dataset:</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -408,9 +408,9 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbkey_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Creates an API request session and sends/receives API requests/responses.</p>
+<p>TODO: description re: generic send_api_reuqest, with special candleds functions</p>
 <p>The <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/">Coinbase API Reference</a> provides a comprehensive     list of available REST API endpoints.</p>
 <p>The <a class="reference internal" href="#neutrino.link.Link.send_api_request" title="neutrino.link.Link.send_api_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_api_request</span></code></a> method may be used to send a generic request to any available endpoint.     Pagination is handled automatically.</p>
-<p>Custom methods for requests to specific endpoints are also provided in this class for convenience.</p>
 <p><strong>Instance attributes:</strong></p>
 <blockquote>
 <div><ul class="simple">
@@ -482,6 +482,7 @@
 <dt class="sig sig-object py" id="neutrino.link.Link.retrieve_product_candles">
 <span class="sig-name descname"><span class="pre">retrieve_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_product_candles" title="Permalink to this definition"></a></dt>
 <dd><p>Gets a DataFrame of a product’s historic candle data.             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles">API Reference</a>).</p>
+<p>TODO: this method is here since it is conceptually different from the others</p>
 <p>The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively,         as needed, to return all candles within the given <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> bounds.</p>
 <p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> bound is given, then the current time is used.</p>
 <p>If no <code class="docutils literal notranslate"><span class="pre">start</span></code> bound is given, then <code class="docutils literal notranslate"><span class="pre">end</span></code> minus <code class="docutils literal notranslate"><span class="pre">granularity</span></code> times 300 is used (i.e., maximum number of data points for one API call).</p>
@@ -988,7 +989,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-09 15:06:09.
+      <span class="lastupdated">Last updated on 2022-01-09 15:20:47.
       </span></p>
   </div>
 

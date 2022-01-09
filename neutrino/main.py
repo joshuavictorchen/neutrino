@@ -124,6 +124,10 @@ class Neutrino(Link):
         verb = "will" if verbose else "won't"
         print(f"\n Responses {verb} be printed to the console.")
 
+    ###########################################################################
+    # datum handling
+    ###########################################################################
+
     def generate_datum(
         self, name, from_database, method="get", endpoint=None, save=False, **kwargs
     ):
@@ -251,7 +255,7 @@ class Neutrino(Link):
     # candle methods
     ###########################################################################
 
-    def get_product_candles(
+    def load_product_candles(
         self, product_id, granularity=60, start=None, end=None, save=False
     ):
         """Performs the following actions to efficiently retrieve the requested product candle dataset:
@@ -696,7 +700,7 @@ class Neutrino(Link):
                         t.print_recursive_dict(self.send_api_request("GET", "/fees")[0])
 
                     elif arg[1] == "candles":
-                        self.get_product_candles(
+                        self.load_product_candles(
                             self.user_settings.get("candles").get("product_id"),
                             granularity=self.user_settings.get("candles").get(
                                 "granularity"

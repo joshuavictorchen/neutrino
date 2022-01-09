@@ -13,13 +13,13 @@ MAX_CANDLE_REQUEST = 300
 class Link:
     """Creates an API request session and sends/receives API requests/responses.
 
+    TODO: description re: generic send_api_reuqest, with special candleds functions
+
     The `Coinbase API Reference <https://docs.cloud.coinbase.com/exchange/reference/>`__ provides a comprehensive \
     list of available REST API endpoints.
 
     The :py:obj:`send_api_request` method may be used to send a generic request to any available endpoint. \
     Pagination is handled automatically.
-
-    Custom methods for requests to specific endpoints are also provided in this class for convenience.
 
     **Instance attributes:** \n
         * **auth** (*Authenticator*): :py:obj:`neutrino.authenticator.Authenticator` callable.
@@ -148,6 +148,8 @@ class Link:
     ):
         """Gets a DataFrame of a product's historic candle data. \
             (`API Reference <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles>`__).
+
+        TODO: this method is here since it is conceptually different from the others
 
         The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively, \
         as needed, to return all candles within the given ``start`` and ``end`` bounds.
