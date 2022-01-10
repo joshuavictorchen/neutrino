@@ -113,7 +113,7 @@ class Updater:
                 neutrino.root_dir / "internals/update-info.yaml", echo_yaml=False
             )
 
-            print(f"\n Updates pulled - change summary:")
+            print(f"\n Updates pulled - change summary:\n")
             for i in update_info.get("changelog"):
                 print(f"   + {i}")
 

@@ -47,7 +47,7 @@ class Neutrino(Link):
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
-    def __init__(self, cbkey_set_name="default", from_database=False, verbose=True):
+    def __init__(self, cbkey_set_name="default", from_database=False):
 
         # establish directory in which neutrino is installed
         self.neutrino_dir = Path(
@@ -93,7 +93,6 @@ class Neutrino(Link):
         )
 
         # establish unique neutrino attributes
-        self.verbose = verbose
         self.streams = {}
         self.threads = {}
         self.coins = {}
@@ -111,19 +110,6 @@ class Neutrino(Link):
             self.user_settings_file, self.template_user_settings_file
         )
 
-    def set_verbosity(self, verbose):
-        """Updates Neutrino's behavior to print (or not print) responses to the console.
-
-        Args:
-            verbose (bool): ``True`` if print statements are desired.
-        """
-
-        self.verbose = verbose
-
-        # print settings change to console
-        verb = "will" if verbose else "won't"
-        print(f"\n Responses {verb} be printed to the console.")
-
     ###########################################################################
     # datum handling
     ###########################################################################
@@ -132,7 +118,6 @@ class Neutrino(Link):
         self, name, from_database, method="get", endpoint=None, save=False, **kwargs
     ):
 
-        api_request = True
         db_file = neutrino.db_path / (name + ".csv")
         main_key = neutrino.api_response_keys.get(name)
 
@@ -143,13 +128,13 @@ class Neutrino(Link):
             if os.path.isfile(db_file):
                 df = pd.read_csv(db_file)
                 origin = "db"
-                api_request = False
             else:
+                from_database = False
                 print(
                     f"\n NOTE: {db_file} does not exist.\n       {name} data will be pulled via API request."
                 )
 
-        if api_request:
+        if not from_database:
             df = self.convert_API_response_list_to_df(
                 self.send_api_request(method, endpoint, params=kwargs), main_key
             )
@@ -227,10 +212,6 @@ class Neutrino(Link):
         if exclude_empty_accounts:
             df = df[df["balance"].astype(float) > 0].reset_index(drop=True)
 
-        if self.verbose:
-            print()
-            print(df)
-
         return df
 
     def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
@@ -250,6 +231,44 @@ class Neutrino(Link):
             )
 
         return account_ledger
+
+    def get_ledgers(self, from_database=False, save=False, **kwargs):
+
+        ledgers_df = pd.DataFrame()
+
+        if from_database:
+            db_file = neutrino.db_path / "ledgers.csv"
+            if os.path.isfile(db_file):
+                ledgers_df = pd.read_csv(db_file)
+            else:
+                from_database = False
+                print(
+                    f"\n NOTE: {db_file} does not exist.\n       Ledger data will be pulled via API request."
+                )
+
+        if not from_database:
+            print("\n Requesting relevant ledgers:\n")
+            for i in self.accounts.df.index:
+                account_id = self.accounts.df.at[i, "id"]
+                currency = self.accounts.get("currency", account_id)
+                print(f"   + {currency}")
+                this_ledger = self.generate_datum(
+                    name="ledger",
+                    from_database=from_database,
+                    endpoint=f"/accounts/{account_id}/ledger",
+                    save=False,
+                    **kwargs,
+                ).df
+                this_ledger["currency"] = currency
+                ledgers_df = ledgers_df.append(this_ledger, ignore_index=True)
+
+        ledgers_df.reset_index(drop=True, inplace=True)
+        ledgers_df = t.clean_df_timestrings(ledgers_df)
+        origin = "db" if from_database else "api"
+
+        self.ledgers = Datum("ledgers", ledgers_df, "id", origin, save=save)
+
+        return self.ledgers
 
     ###########################################################################
     # candle methods
@@ -325,10 +344,6 @@ class Neutrino(Link):
         returned_df = candles_df[
             (candles_df["time"] >= start) & (candles_df["time"] <= end)
         ].reset_index(drop=True)
-
-        if self.verbose:
-            print()
-            print(returned_df)
 
         # save to CSV, if applicable
         if save:
@@ -572,9 +587,6 @@ class Neutrino(Link):
         until terminated by the user.
         """
 
-        # set verbosity to True to print outputs to console
-        self.set_verbosity(True)
-
         # continuously accept user input
         while True:
 
@@ -651,9 +663,7 @@ class Neutrino(Link):
 
                         # filter to default filter_accounts filters if 'all' was not specified
                         if len(arg) <= 2 or arg[2] != "all":
-                            self.verbose = False
                             accounts.df = self.filter_accounts(accounts.df)
-                            self.verbose = True
 
                         if save:
                             accounts.save_csv()
@@ -669,10 +679,17 @@ class Neutrino(Link):
                             print("\n No currency provided - using BTC as default:")
                             currency = "BTC"
 
-                        self.get_account_ledger(
-                            self.accounts.get("id", currency, "currency"),
+                        self.generate_datum(
+                            name="ledger",
                             from_database=from_database,
+                            endpoint=f"/accounts/{self.accounts.get('id', currency, 'currency')}/ledger",
                             save=save,
+                        ).print_df()
+
+                    elif arg[1] == "ledgers":
+
+                        self.get_ledgers(
+                            from_database=from_database, save=save
                         ).print_df()
 
                     elif arg[1] == "transfers":
@@ -700,14 +717,16 @@ class Neutrino(Link):
                         t.print_recursive_dict(self.send_api_request("GET", "/fees")[0])
 
                     elif arg[1] == "candles":
-                        self.load_product_candles(
-                            self.user_settings.get("candles").get("product_id"),
-                            granularity=self.user_settings.get("candles").get(
-                                "granularity"
-                            ),
-                            start=self.user_settings.get("candles").get("start"),
-                            end=self.user_settings.get("candles").get("end"),
-                            save=save,
+                        print(
+                            self.load_product_candles(
+                                self.user_settings.get("candles").get("product_id"),
+                                granularity=self.user_settings.get("candles").get(
+                                    "granularity"
+                                ),
+                                start=self.user_settings.get("candles").get("start"),
+                                end=self.user_settings.get("candles").get("end"),
+                                save=save,
+                            )
                         )
 
                     elif arg[1] == "all":
@@ -722,20 +741,6 @@ class Neutrino(Link):
                             endpoint=f"/{arg[1]}",
                             save=save,
                         ).print_df()
-
-                # set Link verbosity
-                elif arg[0] == "verbosity":
-
-                    if len(arg) == 1:
-                        print(
-                            f"\n No verbosity option specified. Acceptable arguments are 'on' or 'off'."
-                        )
-
-                    elif arg[1] == "on":
-                        self.set_verbosity(True)
-
-                    elif arg[1] == "off":
-                        self.set_verbosity(False)
 
                 # stream data
                 elif arg[0] == "stream":
