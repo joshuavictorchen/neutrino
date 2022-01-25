@@ -8,6 +8,16 @@ import traceback
 
 
 class Updater:
+    """Checks for updates to the neutrino repository. Implements them and handles pip installs as applicable.
+
+    **Instance attributes:** \n
+        * **repo** (:py:obj:`git.Repo`): Object representing the local neutrino repository.
+
+    Args:
+        print (bool): Prints the repo's metadata to the console upon instantiation if ``True``. Defaults to ``True``.
+        check (bool): Checks for repo updates upon instantiation if ``True``. Defaults to ``True``.
+    """
+
     def __init__(self, print=True, check=True):
 
         self.retrieve_repo()
@@ -19,19 +29,15 @@ class Updater:
             self.check_for_updates()
 
     def retrieve_repo(self):
-        """Retrieves metadata on the local neutrino repository. Optionally prints to the console in the format of:
-
-        ``n | <branch>-<commit>-<is_modified>``
+        """Retrieves metadata on the local neutrino repository. Optionally prints to the console via :py:obj:`print_repo`.
 
         Returns:
             Repo: :py:obj:`git.Repo` object representing the local neutrino repository.
         """
 
         # instantiate a repo object for the neutrino repository
-        # TODO: generalize this (right now it is repo-structure-dependent)
         self.repo = git.Repo(
-            f"{os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))}",
-            search_parent_directories=True,
+            f"{os.path.abspath(__file__)}", search_parent_directories=True
         )
 
         return self.repo
@@ -39,7 +45,7 @@ class Updater:
     def check_for_updates(self):
         """Performs a ``git fetch`` command to check for updates to the current branch of the repository.
 
-        If updates exist, then prompts the user to execute :py:obj:`Neutrino.update_neutrino`
+        If updates exist, then prompts the user to execute :py:obj:`Neutrino.update_neutrino`.
 
         Returns:
             bool: ``True`` if updates are available.
@@ -72,14 +78,14 @@ class Updater:
                 \n\n Press [enter] to update the neutrino. Input any other key to continue without updating: "
             )
             if update == "":
-                self.update_neutrino(check_completed=True)
+                self.update_neutrino(force=True)
                 sys.exit()
         else:
             print(" the neutrino is up to date.")
 
         return updates_available
 
-    def update_neutrino(self, check_completed=False, force=False):
+    def update_neutrino(self, force=False):
         """Performs the following actions to update the neutrino program:
 
             1. Checks for updates. If no updates are available, the function is exited.
@@ -91,12 +97,11 @@ class Updater:
             7. Exits the program, which must be restarted for the changes to take effect.
 
         Args:
-            check_completed (bool, optional): [description]. Defaults to False.
-            force (bool, optional): [description]. Defaults to False.
+            force (bool, optional): Skips step 1 (above) if set to ``True``. Defaults to ``False``.
         """
 
         # check for updates, unless updates have already been checked for, or a force update has been specified
-        if not check_completed and not force:
+        if not force:
             self.check_for_updates()
             return
 
@@ -157,6 +162,12 @@ class Updater:
         sys.exit("\n Neutrino annihilated.")
 
     def print_repo(self):
+        """Prints information about the current state of :py:obj:`self.repo`'s repository in the following form:
+
+        ``n | {branch}-{commit}`` if the repository is clean
+
+        ``n | {branch}-{commit}-modified`` if the repository is dirty
+        """
 
         # get repo attributes
         branch_name = self.repo.active_branch.name

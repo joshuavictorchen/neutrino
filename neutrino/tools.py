@@ -158,7 +158,8 @@ def parse_yaml(filepath, echo_yaml=True):
 
 
 def save_df_to_csv(df, csv_name, database_path):
-    """Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.
+    """Exports the provided DataFrame to a CSV file. Cleans timestrings per :py:obj:`clean_df_timestrings`.\
+        Prompts the user to close the file if it exists and is open.
 
     Args:
         df (DataFrame): DataFrame to be exported to a CSV file.

@@ -13,8 +13,6 @@ MAX_CANDLE_REQUEST = 300
 class Link:
     """Creates an API request session and sends/receives API requests/responses.
 
-    TODO: description re: generic send_api_reuqest, with special candleds functions
-
     The `Coinbase API Reference <https://docs.cloud.coinbase.com/exchange/reference/>`__ provides a comprehensive \
     list of available REST API endpoints.
 

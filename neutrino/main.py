@@ -47,7 +47,7 @@ class Neutrino(Link):
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
-    def __init__(self, cbkey_set_name="default", from_database=False):
+    def __init__(self, cbkey_set_name="default", from_database=False, save=False):
 
         # establish directory in which neutrino is installed
         self.neutrino_dir = Path(
@@ -99,7 +99,7 @@ class Neutrino(Link):
 
         # load data
         if not sandbox:
-            self.load_all_data(from_database=from_database)
+            self.load_all_data(from_database=from_database, save=save)
 
     def refresh_user_settings(self):
         """Reloads ``self.user_settings`` from ``self.user_settings_file``. This allows the user to update the \
@@ -111,12 +111,24 @@ class Neutrino(Link):
         )
 
     ###########################################################################
-    # datum handling
+    # datum handling and loading
     ###########################################################################
 
     def generate_datum(
         self, name, from_database, method="get", endpoint=None, save=False, **kwargs
     ):
+        """Generates a :py:obj:`Datum<neutrino.datum.Datum>` object corresponding to a Coinbase API endpoint.
+
+        Args:
+            name ([type]): [description]
+            from_database ([type]): [description]
+            method (str, optional): [description]. Defaults to "get".
+            endpoint ([type], optional): [description]. Defaults to None.
+            save (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            [type]: [description]
+        """
 
         db_file = neutrino.db_path / (name + ".csv")
         main_key = neutrino.api_response_keys.get(name)
@@ -131,7 +143,8 @@ class Neutrino(Link):
             else:
                 from_database = False
                 print(
-                    f"\n NOTE: {db_file} does not exist.\n       {name} data will be pulled via API request."
+                    f"\n NOTE: {db_file} does not exist.\
+                    \n       {name} data will be pulled via API request."
                 )
 
         if not from_database:
@@ -144,131 +157,47 @@ class Neutrino(Link):
 
         return Datum(name, df, main_key, origin, save)
 
-    def load_all_data(self, from_database):
+    def load_all_data(self, from_database, save=False):
+        """Loads :py:obj:`Datum<neutrino.datum.Datum>` attributes for the following (more info TBD):
+        
+            1. Accounts
+            2. Ledgers
+            3. Transfers
+            4. Orders
 
+        Args:
+            from_database (bool): Loads data from the local database if ``True``, otherwise requests fresh \
+                Coinbase API pulls.
+            save (bool, optional): Exports the loaded Datum data as a CSV to the default database path if ``True``. \
+                Defaults to ``False``.
+        """
+
+        # choose the data source from neutrino module attributes
         data_source = neutrino.db_path if from_database else neutrino.api_url
         print(f"\n Forming neutrino via: {data_source}")
 
+        # get accounts Datum from the accounts endpoint (or corresponding database CSV)
         self.accounts = self.generate_datum(
-            name="accounts", from_database=from_database
+            name="accounts", from_database=from_database, save=save
         )
 
-        self.ledgers = None  # TBD
+        # TODO: trim this to just active/previously active accounts
 
-        # ledgers = {}
-        # for i in account_df.index:
-        #     ledgers[i] = self.get_account_ledger(account_df.at[i, "id"])
+        # get ledgers Datum from the accounts/{account_id}/ledger endpoint (via the load_ledgers function)
+        self.ledgers = self.load_ledgers(from_database=from_database, save=save)
 
+        # get transfers Datum from the transfers endpoint
         self.transfers = self.generate_datum(
-            name="transfers", from_database=from_database
+            name="transfers", from_database=from_database, save=save
         )
 
+        # get orders Datum from the orders endpoint
         self.orders = self.generate_datum(
-            name="orders", from_database=from_database, status="all"
+            name="orders", from_database=from_database, save=save, status="all"
         )
 
+        # get fees dictionary from the fees endpoint (note: this is just a dictionary of volume and maker/taker rates)
         self.fees = self.send_api_request("GET", "/fees")[0]
-
-    ###########################################################################
-    # get methods
-    ###########################################################################
-
-    def filter_accounts(
-        self, account_df, relevant_only=True, exclude_empty_accounts=False
-    ):
-        """Loads a DataFrame with all relevant trading accounts and their holdings for the authenticated profile.
-
-        Args:
-            relevant_only (bool, optional): The API retuns all accounts for all available coins by default. \
-                Set this to ``True`` to only include accounts that have seen activity in the past in the returned result.
-            exclude_empty_accounts (bool, optional): The API retuns all accounts for all available coins by default. \
-                Set this to ``True`` to exclude zero-balance accounts from the returned result.
-            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
-            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
-        
-        Returns:
-            DataFrame: DataFrame with the following columns:
-            
-                * to be completed
-                * at a later date
-        """
-
-        df = deepcopy(account_df)
-
-        # filter to only accounts that have had some activity at any point in time, if applicable
-        # use order history to get list of currencies where activity has been seen
-        if relevant_only:
-            currencies = (
-                self.orders.df["product_id"]
-                .apply(lambda x: x.split("-")[0])
-                .unique()
-                .tolist()
-            )
-            df = self.accounts.df[
-                self.accounts.df["currency"].isin(currencies)
-            ].reset_index(drop=True)
-
-        # exclude accounts with <= 0 balance, if applicable
-        if exclude_empty_accounts:
-            df = df[df["balance"].astype(float) > 0].reset_index(drop=True)
-
-        return df
-
-    def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
-
-        # change to "get ledgers"
-
-        account_ledger = self.generate_datum(
-            name="ledger",
-            from_database=from_database,
-            endpoint=f"/accounts/{account_id}/ledger",
-            **kwargs,
-        )
-
-        if save:
-            account_ledger.save_csv(
-                f"ledger-{self.accounts.get('currency', account_id)}"
-            )
-
-        return account_ledger
-
-    def get_ledgers(self, from_database=False, save=False, **kwargs):
-
-        ledgers_df = pd.DataFrame()
-
-        if from_database:
-            db_file = neutrino.db_path / "ledgers.csv"
-            if os.path.isfile(db_file):
-                ledgers_df = pd.read_csv(db_file)
-            else:
-                from_database = False
-                print(
-                    f"\n NOTE: {db_file} does not exist.\n       Ledger data will be pulled via API request."
-                )
-
-        if not from_database:
-            print("\n Requesting relevant ledgers:\n")
-            for i in self.accounts.df.index:
-                account_id = self.accounts.df.at[i, "id"]
-                currency = self.accounts.get("currency", account_id)
-                print(f"   + {currency}")
-                this_ledger = self.generate_datum(
-                    name="ledger",
-                    from_database=from_database,
-                    endpoint=f"/accounts/{account_id}/ledger",
-                    save=False,
-                    **kwargs,
-                ).df
-                this_ledger["currency"] = currency
-                ledgers_df = ledgers_df.append(this_ledger, ignore_index=True)
-
-        ledgers_df.reset_index(drop=True, inplace=True)
-        ledgers_df = t.clean_df_timestrings(ledgers_df)
-        origin = "db" if from_database else "api"
-
-        self.ledgers = Datum("ledgers", ledgers_df, "id", origin, save=save)
-
-        return self.ledgers
 
     ###########################################################################
     # candle methods
@@ -578,10 +507,141 @@ class Neutrino(Link):
             + f' | {ticker_product} {pdelta} | {message.get("price")}'
         )
 
+    ###########################################################################
+    # miscellaneous methods
+    ###########################################################################
+
+    def filter_accounts(
+        self, account_df, relevant_only=True, exclude_empty_accounts=False
+    ):
+        """Filters a DataFrame of account information per the supplied arguments and returns the result.
+
+        .. admonition:: TODO
+
+            Ensure ``account_df`` is actually an DataFrame of account info.
+            
+            Handle potential non-existence of :py:obj:`self.orders` prior to performing actions.
+
+        Args:
+            relevant_only (bool, optional): Only includes accounts that have seen activity in the past \
+                if ``True``, using data from :py:obj:`self.orders` to gauge activity. Defaults to ``True``.
+            exclude_empty_accounts (bool, optional): Excludes currently-zero-balanced accounts \
+                from the returned result if ``True``. Defaults to ``False``.
+        
+        Returns:
+            DataFrame: Filtered DataFrame of account information.
+        """
+
+        df = deepcopy(account_df)
+
+        # filter to only accounts that have had some activity at any point in time, if applicable
+        # use order history to get list of currencies where activity has been seen
+        if relevant_only:
+            currencies = (
+                self.orders.df["product_id"]
+                .apply(lambda x: x.split("-")[0])
+                .unique()
+                .tolist()
+            )
+            df = self.accounts.df[
+                self.accounts.df["currency"].isin(currencies)
+            ].reset_index(drop=True)
+
+        # exclude accounts with <= 0 balance, if applicable
+        if exclude_empty_accounts:
+            df = df[df["balance"].astype(float) > 0].reset_index(drop=True)
+
+        return df
+
+    # The following is a legacy function that is left as a comment for potential future use.
+    #
+    # It is an artefact of the original direction of the neutrino program, which sought to
+    # provide functions for each API endpoint, similar to the existing cbpro-python package.
+    #
+    # def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
+    #
+    #     account_ledger = self.generate_datum(
+    #         name="ledger",
+    #         from_database=from_database,
+    #         endpoint=f"/accounts/{account_id}/ledger",
+    #         **kwargs,
+    #     )
+    #
+    #     if save:
+    #         account_ledger.save_csv(
+    #             f"ledger-{self.accounts.get('currency', account_id)}"
+    #         )
+    #
+    #     return account_ledger
+
+    def load_ledgers(self, from_database=False, save=False, **kwargs):
+        """Pulls the ledgers for all accounts loaded in :py:obj:`self.accounts` and consolidates the data into \
+            one Datum.
+
+            More information on ledger data can be found on the `API reference page <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__.
+
+        .. admonition:: TODO
+
+            Handle potential non-existence of :py:obj:`self.accounts` prior to performing actions.
+            
+            If loading from the local database, perform API requests for missing accounts, if any exist.
+
+        Args:
+            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
+            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
+
+        Returns:
+            Datum: Consolidated Datum of all ledger entries associated with :py:obj:`self.accounts`.
+        """
+
+        ledgers_df = pd.DataFrame()
+
+        if from_database:
+            db_file = neutrino.db_path / "ledgers.csv"
+            if os.path.isfile(db_file):
+                ledgers_df = pd.read_csv(db_file)
+            else:
+                from_database = False
+                print(
+                    f"\n NOTE: {db_file} does not exist.\
+                    \n       Ledger data will be pulled via API request."
+                )
+
+        if not from_database:
+            print("\n Requesting ledgers:\n")
+            for i in self.accounts.df.index:
+                account_id = self.accounts.df.at[i, "id"]
+                currency = self.accounts.get("currency", account_id)
+                print(f"   + {currency}")
+                this_ledger = self.generate_datum(
+                    name="ledger",
+                    from_database=from_database,
+                    endpoint=f"/accounts/{account_id}/ledger",
+                    save=False,
+                    **kwargs,
+                ).df
+                this_ledger["currency"] = currency
+                ledgers_df = ledgers_df.append(this_ledger, ignore_index=True)
+
+        ledgers_df.reset_index(drop=True, inplace=True)
+        ledgers_df = t.clean_df_timestrings(ledgers_df)
+        origin = "db" if from_database else "api"
+
+        self.ledgers = Datum("ledgers", ledgers_df, "id", origin, save=save)
+
+        return self.ledgers
+
+    ###########################################################################
+    # temporary 'client' methods
+    ###########################################################################
+
     def interact(self):
         """Temporary rudimentary command line interface that executes neutrino-related commands from user input. \
         The jankiness of this implementation and availability of modules such as ``argparse`` are well-understood. \
         This is mostly used for flexible testing/debugging during development.
+
+        The actions here are mainly loading/exporting data in various chunks, whereas the real actions of this \
+        program are intended to be focused around data analysis and manipulation.
 
         This function is wrapped in a ``while True`` block to execute an arbitrary number of commands \
         until terminated by the user.
@@ -688,7 +748,7 @@ class Neutrino(Link):
 
                     elif arg[1] == "ledgers":
 
-                        self.get_ledgers(
+                        self.load_ledgers(
                             from_database=from_database, save=save
                         ).print_df()
 
