@@ -30,20 +30,28 @@ class Neutrino(Link):
         Authentication is currently handled using a plaintext YAML file defined in ``user-settings.yaml``. \
         It will be updated to use a more secure method in the future.
 
+    .. admonition:: TODO
+
+        More detailed docs to be completed.
+
     Args:
         cbkey_set_name (str, optional): Name of Coinbase Pro API key dictionary \
             with which the Neutrino's ``auth`` value will be initialized. Defaults to "default".
 
-    **Instance attributes:** \n
-        * **placeholder** (*placeholder*): Placeholder text. The following bullets will likely be out of date during ongoing development.
-        * **database_path** (*Path*): :py:obj:`Path` object containing the absolute filepath to the folder \
-            to which the Link exports CSV files.
-        * **accounts** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_accounts`.
-        * **ledgers** (*dict(dict)*): Nested dictionary representations of DataFrames returned from :py:obj:`Link.retrieve_account_ledger`, \
-            with one entry per retrieved ``account_id`` in the form of ``{account_id: {ledger_dict}}``.
-        * **transfers** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_usd_transfers`.
-        * **orders** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_orders`.
-        * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.retrieve_fees`.
+    **Relevant instance attributes:** \n
+        * **user_settings** (*dict*): Dictionary of user settings parameters from ``neutrino\\user-settings.yaml``.
+        * **updater** (*Updater*): Updater object containing neutrino repo attributes and update methods.
+        * **cbkeys** (*dict*): Dictionary of Coinbase Pro API keys from the YAML file specified in ``user_settings``.
+        * **database_path** (*Path*): :py:obj:`Path` containing the absolute filepath to the CSV file directory.
+        * **auth** (*Authenticator*): Callable :py:obj:`Authenticator` for Coinbase WebSocket and API authentication.
+        * **session** (*Session*): :py:obj:`requests.Session` for API requests.
+        * **streams** (*dict*): Dictionary of :py:obj:`Stream` objects for live streams of WebSocket feed data.
+        * **threads** (*dict*): Dictionary of :py:obj:`Thread` objects corresponding :py:obj:`Stream` objects.
+        * **accounts** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "accounts" endpoint.
+        * **ledgers** (*Datum*): :py:obj:`Datum` of consolidated ledger entries associated with all :py:obj:`self.accounts`.
+        * **transfers** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "transfers" endpoint.
+        * **orders** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "orders" endpoint.
+        * **fees** (*dict*): Dictionary of trailing 30 day USD volume, maker fee rate, and taker fee rate.
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
@@ -114,32 +122,44 @@ class Neutrino(Link):
     # datum handling and loading
     ###########################################################################
 
-    def generate_datum(
+    def load_datum(
         self, name, from_database, method="get", endpoint=None, save=False, **kwargs
     ):
         """Generates a :py:obj:`Datum<neutrino.datum.Datum>` object corresponding to a Coinbase API endpoint.
 
+        .. admonition:: TODO
+
+            More thorough documentation TBD.
+
+            Update program structure for a more generalized Datum load and/or add checks to ensure the Datum is valid.
+
         Args:
-            name ([type]): [description]
-            from_database ([type]): [description]
-            method (str, optional): [description]. Defaults to "get".
-            endpoint ([type], optional): [description]. Defaults to None.
-            save (bool, optional): [description]. Defaults to False.
+            name (str): Name of the :py:obj:`Datum` to be loaded.
+            from_database (bool): Loads data from the local database if ``True``, otherwise requests fresh \
+                Coinbase API pulls.
+            method (str, optional): API request method (``get``, ``post``, etc.). Defaults to "get".
+            endpoint (str, optional): API request endpoint, with no leading ``/`` (i.e., "accounts"). Defaults to the provided ``name``.
+            save (bool, optional): Exports the DataFrame's data as a CSV to the default database path if ``True``. Defaults to ``False``.
 
         Returns:
-            [type]: [description]
+            Datum: Datum object corresponding to the requested name and/or Coinbase API endpoint.
         """
 
-        db_file = neutrino.db_path / (name + ".csv")
+        # get the Datum's main key from neutrino module attributes
         main_key = neutrino.api_response_keys.get(name)
 
+        # if no enpoint is explicitly defined, then default to using the Datum's name as the endpoint
         if endpoint is None:
-            endpoint = f"/{name}"
+            endpoint = f"{name}"
 
+        # load df data from CSV database, if applicable
         if from_database:
+            db_file = neutrino.db_path / (name + ".csv")
             if os.path.isfile(db_file):
                 df = pd.read_csv(db_file)
                 origin = "db"
+            # if no database file exists, then default to performing a fresh API request
+            # set from_database to false to ensure this happens
             else:
                 from_database = False
                 print(
@@ -147,14 +167,17 @@ class Neutrino(Link):
                     \n       {name} data will be pulled via API request."
                 )
 
+        # perform a fresh API request for df data, if a database pull was not performed
         if not from_database:
             df = self.convert_API_response_list_to_df(
                 self.send_api_request(method, endpoint, params=kwargs), main_key
             )
             origin = "api"
 
+        # clean the df's time strings
         df = t.clean_df_timestrings(df)
 
+        # return an instantiated a Datum object with the df and its metadata
         return Datum(name, df, main_key, origin, save)
 
     def load_all_data(self, from_database, save=False):
@@ -177,7 +200,7 @@ class Neutrino(Link):
         print(f"\n Forming neutrino via: {data_source}")
 
         # get accounts Datum from the accounts endpoint (or corresponding database CSV)
-        self.accounts = self.generate_datum(
+        self.accounts = self.load_datum(
             name="accounts", from_database=from_database, save=save
         )
 
@@ -187,17 +210,17 @@ class Neutrino(Link):
         self.ledgers = self.load_ledgers(from_database=from_database, save=save)
 
         # get transfers Datum from the transfers endpoint
-        self.transfers = self.generate_datum(
+        self.transfers = self.load_datum(
             name="transfers", from_database=from_database, save=save
         )
 
         # get orders Datum from the orders endpoint
-        self.orders = self.generate_datum(
+        self.orders = self.load_datum(
             name="orders", from_database=from_database, save=save, status="all"
         )
 
         # get fees dictionary from the fees endpoint (note: this is just a dictionary of volume and maker/taker rates)
-        self.fees = self.send_api_request("GET", "/fees")[0]
+        self.fees = self.send_api_request("GET", "fees")[0]
 
     ###########################################################################
     # candle methods
@@ -563,7 +586,7 @@ class Neutrino(Link):
     #     account_ledger = self.generate_datum(
     #         name="ledger",
     #         from_database=from_database,
-    #         endpoint=f"/accounts/{account_id}/ledger",
+    #         endpoint=f"accounts/{account_id}/ledger",
     #         **kwargs,
     #     )
     #
@@ -591,7 +614,7 @@ class Neutrino(Link):
             save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
 
         Returns:
-            Datum: Consolidated Datum of all ledger entries associated with :py:obj:`self.accounts`.
+            Datum: Datum of consolidated ledger entries associated with all :py:obj:`self.accounts`.
         """
 
         ledgers_df = pd.DataFrame()
@@ -613,10 +636,10 @@ class Neutrino(Link):
                 account_id = self.accounts.df.at[i, "id"]
                 currency = self.accounts.get("currency", account_id)
                 print(f"   + {currency}")
-                this_ledger = self.generate_datum(
+                this_ledger = self.load_datum(
                     name="ledger",
                     from_database=from_database,
-                    endpoint=f"/accounts/{account_id}/ledger",
+                    endpoint=f"accounts/{account_id}/ledger",
                     save=False,
                     **kwargs,
                 ).df
@@ -716,7 +739,7 @@ class Neutrino(Link):
                     elif arg[1] == "accounts":
 
                         # get account data
-                        accounts = self.generate_datum(
+                        accounts = self.load_datum(
                             name="accounts",
                             from_database=from_database,
                         )
@@ -739,10 +762,10 @@ class Neutrino(Link):
                             print("\n No currency provided - using BTC as default:")
                             currency = "BTC"
 
-                        self.generate_datum(
+                        self.load_datum(
                             name="ledger",
                             from_database=from_database,
-                            endpoint=f"/accounts/{self.accounts.get('id', currency, 'currency')}/ledger",
+                            endpoint=f"accounts/{self.accounts.get('id', currency, 'currency')}/ledger",
                             save=save,
                         ).print_df()
 
@@ -754,7 +777,7 @@ class Neutrino(Link):
 
                     elif arg[1] == "transfers":
 
-                        self.generate_datum(
+                        self.load_datum(
                             name="transfers", from_database=from_database, save=save
                         ).print_df()
 
@@ -766,7 +789,7 @@ class Neutrino(Link):
                         # if no statuses are requested, then default to 'all'
                         status = "all" if status == [] else status
 
-                        self.generate_datum(
+                        self.load_datum(
                             name="orders",
                             from_database=from_database,
                             save=save,
@@ -774,7 +797,7 @@ class Neutrino(Link):
                         ).print_df()
 
                     elif arg[1] == "fees":
-                        t.print_recursive_dict(self.send_api_request("GET", "/fees")[0])
+                        t.print_recursive_dict(self.send_api_request("GET", "fees")[0])
 
                     elif arg[1] == "candles":
                         print(
@@ -794,11 +817,11 @@ class Neutrino(Link):
 
                     else:  # generic API/database request
 
-                        self.generate_datum(
+                        self.load_datum(
                             name=arg[1],
                             from_database=from_database,
                             method="get",
-                            endpoint=f"/{arg[1]}",
+                            endpoint=f"{arg[1]}",
                             save=save,
                         ).print_df()
 

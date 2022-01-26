@@ -13,24 +13,21 @@ TIME_FORMAT = "%Y-%m-%d %H:%M"
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
     """Prints a formatted nested dictionary to the console.
 
+    .. code-block::
+
+        # example console output for an input of {'123':{'456':['aaa', 'bbb', 'ccc']}}
+
+        "
+            123 :
+                    456 : aaa
+                        bbb
+                        ccc"
+
     Args:
         data (dict): Dictionary of values that can be converted to strings.
         indent_spaces (int, optional): Number of leading whitespaces to insert before each element. Defaults to 3.
         indent_step (int, optional): Number of whitespaces to increase the indentation by, for each level of ``dict`` nesting. Defaults to 2.
         recursion (bool, optional): Whether or not this method is being called by itself. Defaults to False.
-
-    Returns:
-        bool: ``True`` if the function was executed successfully.
-
-        .. code-block::
-
-            # example console output for an input of {'123':{'456':['aaa', 'bbb', 'ccc']}}
-
-            "
-               123 :
-                     456 : aaa
-                           bbb
-                           ccc"
 
     """
 
@@ -63,8 +60,6 @@ def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
                 " " * indent_spaces
                 + f"{key.rjust(rjust)} : {list_to_string(value, rjust + indent_spaces + 3)}"
             )
-
-    return True
 
 
 def list_to_string(value, leading_whitespaces=1):

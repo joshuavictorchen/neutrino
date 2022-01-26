@@ -21,7 +21,7 @@ class Link:
 
     **Instance attributes:** \n
         * **auth** (*Authenticator*): :py:obj:`neutrino.authenticator.Authenticator` callable.
-        * **session** (*str*): :py:obj:`requests.Session` object.
+        * **session** (*str*): :py:obj:`requests.Session` object for API requests.
 
     Args:
         cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.authenticator.Authenticator`.
@@ -53,7 +53,7 @@ class Link:
 
         Args:
             method (str): API request method (``get``, ``post``, etc.).
-            endpoint (str): API request endpoint.
+            endpoint (str): API request endpoint, with no leading ``/`` (i.e., "accounts").
             params (dict(str), optional): API request parameters (varies per request).
             pages (list, optional): Previous data compiled for a paginated requests.
 
@@ -68,7 +68,7 @@ class Link:
         # get the api response
         api_response = self.session.request(
             method,
-            neutrino.api_url + endpoint,
+            neutrino.api_url + "/" + endpoint,
             params=params,
             auth=self.auth,
             timeout=30,
@@ -214,7 +214,7 @@ class Link:
 
         # send API request
         candles_list = self.send_api_request(
-            "GET", f"/products/{product_id}/candles", params=params_dict
+            "GET", f"products/{product_id}/candles", params=params_dict
         )
 
         # convert retrieved timestamps
