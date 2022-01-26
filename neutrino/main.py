@@ -71,9 +71,13 @@ class Neutrino(Link):
             self.user_settings_file, self.template_user_settings_file
         )
 
-        # temporary measure for testing:
-        # if keys_file does not exist, update keys file to sanbox test keys
+        # NOTE: the sandbox variable is a temporary workaround to get GitHub test builds to work
+        #       until actual unit tests are implemented
+        #       for now, it's set to True (i.e., don't perform certain actions) if no valid cbkeys file is provided
         sandbox = False
+
+        # temporary measure for testing:
+        # if keys_file does not exist, update keys file to sandbox test keys
         if not os.path.isfile(self.user_settings.get("keys_file")):
             sandbox = True
             self.user_settings["keys_file"] = (
@@ -81,7 +85,8 @@ class Neutrino(Link):
             )
 
         # check for updates, if specified by user settings entry
-        self.updater = Updater(check=self.user_settings.get("check_for_updates"))
+        if not sandbox:
+            self.updater = Updater(check=self.user_settings.get("check_for_updates"))
 
         # load dictionary of cbkey dicts
         # TODO: don't store secrets in an attribute like this
