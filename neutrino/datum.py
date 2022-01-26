@@ -1,117 +1,92 @@
 import neutrino
 import neutrino.tools as t
-import os
-import pandas as pd
-from copy import deepcopy
-from pathlib import Path
 
 
 class Datum:
-    """Loads data from the database or an API request per the user's specification.
+    """Custom data object that contains a DataFrame, a main key (with which to pull specific DataFrame values), and the \
+        origin of the DataFrame's data.
 
-    Defaults to performing an API request if database data is requested, but no database file exists.
-
-    .. note::
-
-        ``**kwargs`` arguments are not handled for database pulls. The calling method must handle any actions \
-            associated with those parameters if ``db`` is returned.
+    **Instance attributes:** \n
+        * **name** (*str*): Name of the Datum.
+        * **df** (*DataFrame*): The Datum's DataFrame object, where data is stored.
+        * **main_key** (*str*): Name of the main (unique) key column of the Datum's DataFrame.
+        * **origin** (*str*): Source of the Datum's data (``api`` if freshly pulled from Coinbase API endpoint,\
+            or ``db`` if loaded from local database).
 
     Args:
-        from_database (bool): ``True`` if data is to be loaded from the CSV database.
-        link_method (obj): placeholder
-        main_key (str): placeholder
-        database_path (Path, optional): Absolute path to the Neutrino's database directory.
-        csv_name (str, optional): Name of the CSV file to be loaded from, if applicable, **without** the ``.csv`` extension \
-            (i.e., ``loaded_file`` instead of ``loaded_file.csv``).
-        link_method (Object, optional): Link's API request method to be called, if not loading from a database file.
-        clean_timestrings (bool, optional): Runs :py:obj:`clean_df_timestrings` on the provided DataFrame if ``True``. Defaults to ``False``.
-
-    Returns:
-        Datum: TO BE CHANGED Tuple in the form of ``(load_method, df)`` where ``load_method`` is "db" or "api" \
-            depending on the actual method used to pull the data, and ``df`` is the DataFrame object \
-            containing data loaded in from the specified database file or API request.
+        name (str): Name of the :py:obj:`Datum` to be generated. Used as the default filename when exporting data to CSV.
+        df (DataFrame): DataFrame object for the Datum.
+        main_key (str): Name of the main (unique) key column of the provided DataFrame.\
+            Used to retrieve values from the DataFrame in a similar manner to a dictionary.
+        origin (str): Source of the Datum's data. Allowable values are: ``api`` or ``db``.
+        save (bool, optional): Exports the DataFrame's data as a CSV to the default database path if ``True``. Defaults to ``False``.
     """
 
-    def __init__(self, from_database, link_method, csv_name, **kwargs):
+    def __init__(self, name, df, main_key, origin, save=False):
 
-        self.csv_name = csv_name
-        self.main_key = neutrino.api_response_keys.get(csv_name)
-
-        api_request = True
-        filepath = neutrino.db_path / (csv_name + ".csv")
-
-        if from_database:
-            if os.path.isfile(filepath):
-                self.df = pd.read_csv(filepath)
-                self.origin = "db"
-                api_request = False
-            else:
-                print(
-                    f"\n WARNING: {filepath} does not exist.\n\n Data will be pulled via API request."
-                )
-
-        if api_request:
-            self.df = self.convert_API_response_list_to_df(
-                link_method(**kwargs), self.main_key
+        self.name = name
+        self.df = df
+        if origin in ("api", "db"):
+            self.origin = origin
+        else:
+            raise Exception(
+                f"\n ERROR: Datum origin specified as '{origin}'\n Allowed values are: 'api', 'db'"
             )
-            self.origin = "api"
 
-        self.df = t.clean_df_timestrings(self.df)
+        # if the provided main_key is none, then default to 'id':
+        if main_key is None:
+            main_key = "id"
+            print(f"\n WARNING: no main key for {name} found; defaulting to 'id'")
 
-    def convert_API_response_list_to_df(self, response_list, main_key):
-        """Converts a list of dicts from a Coinbase API response to a DataFrame.
+        self.main_key = main_key
+
+        if save:
+            self.save_csv()
+
+    def get(self, return_column, lookup_value, lookup_key=None):
+        """Treats the :py:obj:`self.df` DataFrame as a dictionary and pulls the value of ``return_column`` corresponding to \
+            the row containing ``lookup_value`` within the ``lookup_key`` column.
+
+        .. admonition:: TODO
+
+            Throw a warning/error if the key is not unique, doesn't exist, etc. Currently, the first matching value is returned \
+            if multiple matches exist.
 
         Args:
-            response_list (list(dict)): Response from a Coinbase API request.
-            main_key (str): Key containing a unique identifier for a response element.
+            return_column (str): Column of the value to be returned.
+            lookup_value (str): Value of the key to look up.
+            lookup_key (str, optional): Column of the key to look up. Defaults to :py:obj:`self.main_key`.
 
         Returns:
-            DataFrame: DataFrame of values loaded from a Coinbase API response.
+            various: Value of the ``return_column`` corresponding to the lookup inputs.
         """
 
-        # create a deepcopy in order to prevent carry-over to/from unrelated method calls, since lists are mutable
-        response_list = deepcopy(response_list)
+        # TODO: throw warning if key is not unique, doesn't exist, etc.
 
-        # convert list of dicts into dict of dicts
-        data_dict = {}
-        [data_dict.update({i.get(main_key): i}) for i in response_list]
-
-        # create a df object to load data into
-        converted_df = pd.DataFrame()
-
-        # prep data and load into converted_df for each coin
-        for data_value_dict in data_dict.values():
-
-            for key, value in data_value_dict.copy().items():
-
-                # the Coinbase API nests multiple items under a 'details' key for certain responses
-                # un-nest these items and delete the 'details' key for these cases
-                # finally, put all values into list format so that they can be loaded via pd.DataFrame.from_dict()
-                if key == "details":
-                    for inner_key, inner_value in value.items():
-                        data_value_dict[inner_key] = [inner_value]
-                    data_value_dict.pop(key, None)
-                else:
-                    data_value_dict[key] = [value]
-
-            # add this data to the df object
-            converted_df = converted_df.append(
-                pd.DataFrame.from_dict(data_value_dict), ignore_index=True
-            )
-
-        return converted_df
-
-    def get(self, return_column, lookup_value):
+        if lookup_key is None:
+            lookup_key = self.main_key
 
         return self.df[return_column].iloc[
-            self.df[self.df[self.main_key] == lookup_value].index[0]
+            self.df[self.df[lookup_key] == lookup_value].index[0]
         ]
 
     def print_df(self):
+        """Simply prints :py:obj:`self.df` to the console with a leading newline."""
 
         print()
         print(self.df)
 
-    def save_csv(self):
+    def save_csv(self, custom_name=None, custom_dir=None):
+        """Exports :py:obj:`self.df` to a CSV file via :py:obj:`neutrino.tools.save_df_to_csv`.\
+            The CSV name and filepath may be specified.
 
-        t.save_df_to_csv(self.df, self.csv_name, neutrino.db_path)
+        Args:
+            custom_name (str, optional): Name of the CSV file to be saved. Defaults to :py:obj:`self.name`.
+            custom_dir (str, optional): Path to where the CSV file will be saved.\
+                Defaults to the :py:obj:`neutrino.main.Neutrino`'s ``db_path``.
+        """
+
+        csv_name = custom_name if custom_name else self.name
+        database_path = custom_dir if custom_dir else neutrino.db_path
+
+        t.save_df_to_csv(self.df, csv_name, database_path)

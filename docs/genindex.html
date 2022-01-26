@@ -72,6 +72,7 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -104,7 +105,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#neutrino.link.Link.calculate_max_candle_pull_minutes">calculate_max_candle_pull_minutes() (neutrino.link.Link method)</a>
 </li>
-      <li><a href="index.html#neutrino.main.Neutrino.check_for_updates">check_for_updates() (neutrino.main.Neutrino method)</a>
+      <li><a href="index.html#neutrino.updater.Updater.check_for_updates">check_for_updates() (neutrino.updater.Updater method)</a>
 </li>
       <li><a href="index.html#neutrino.tools.clean_df_timestrings">clean_df_timestrings() (in module neutrino.tools)</a>
 </li>
@@ -114,7 +115,7 @@
 </li>
       <li><a href="index.html#neutrino.main.Neutrino.configure_new_stream">configure_new_stream() (neutrino.main.Neutrino method)</a>
 </li>
-      <li><a href="index.html#neutrino.datum.Datum.convert_API_response_list_to_df">convert_API_response_list_to_df() (neutrino.datum.Datum method)</a>
+      <li><a href="index.html#neutrino.link.Link.convert_API_response_list_to_df">convert_API_response_list_to_df() (neutrino.link.Link method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -127,30 +128,24 @@
   </ul></td>
 </tr></table>
 
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="index.html#neutrino.main.Neutrino.filter_accounts">filter_accounts() (neutrino.main.Neutrino method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#neutrino.authenticator.Authenticator.generate_auth_headers">generate_auth_headers() (neutrino.authenticator.Authenticator static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#neutrino.main.Neutrino.generate_candle_pull_bounds">generate_candle_pull_bounds() (neutrino.main.Neutrino method)</a>
 </li>
       <li><a href="index.html#neutrino.datum.Datum.get">get() (neutrino.datum.Datum method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.get_account_ledger">get_account_ledger() (neutrino.main.Neutrino method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.get_accounts">get_accounts() (neutrino.main.Neutrino method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.main.Neutrino.get_all_link_data">get_all_link_data() (neutrino.main.Neutrino method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.get_fees">get_fees() (neutrino.main.Neutrino method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.get_orders">get_orders() (neutrino.main.Neutrino method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.get_product_candles">get_product_candles() (neutrino.main.Neutrino method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.get_transfers">get_transfers() (neutrino.main.Neutrino method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -192,8 +187,16 @@
 </li>
       <li><a href="index.html#neutrino.tools.list_to_string">list_to_string() (in module neutrino.tools)</a>
 </li>
+      <li><a href="index.html#neutrino.main.Neutrino.load_all_data">load_all_data() (neutrino.main.Neutrino method)</a>
+</li>
+      <li><a href="index.html#neutrino.main.Neutrino.load_datum">load_datum() (neutrino.main.Neutrino method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="index.html#neutrino.main.Neutrino.load_ledgers">load_ledgers() (neutrino.main.Neutrino method)</a>
+</li>
+      <li><a href="index.html#neutrino.main.Neutrino.load_product_candles">load_product_candles() (neutrino.main.Neutrino method)</a>
+</li>
       <li><a href="index.html#neutrino.tools.load_yaml_settings">load_yaml_settings() (in module neutrino.tools)</a>
 </li>
       <li><a href="index.html#neutrino.tools.local_to_ISO_time_string">local_to_ISO_time_string() (in module neutrino.tools)</a>
@@ -217,6 +220,8 @@
         <li><a href="index.html#module-neutrino.stream">neutrino.stream</a>
 </li>
         <li><a href="index.html#module-neutrino.tools">neutrino.tools</a>
+</li>
+        <li><a href="index.html#module-neutrino.updater">neutrino.updater</a>
 </li>
       </ul></li>
   </ul></td>
@@ -245,8 +250,6 @@
         <li><a href="index.html#module-neutrino.datum">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     neutrino.link
 
@@ -254,6 +257,8 @@
         <li><a href="index.html#module-neutrino.link">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     neutrino.stream
 
@@ -266,6 +271,13 @@
 
       <ul>
         <li><a href="index.html#module-neutrino.tools">module</a>
+</li>
+      </ul></li>
+      <li>
+    neutrino.updater
+
+      <ul>
+        <li><a href="index.html#module-neutrino.updater">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -284,6 +296,8 @@
 </li>
       <li><a href="index.html#neutrino.tools.print_recursive_dict">print_recursive_dict() (in module neutrino.tools)</a>
 </li>
+      <li><a href="index.html#neutrino.updater.Updater.print_repo">print_repo() (neutrino.updater.Updater method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -292,25 +306,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#neutrino.main.Neutrino.refresh_user_settings">refresh_user_settings() (neutrino.main.Neutrino method)</a>
 </li>
-      <li><a href="index.html#neutrino.link.Link.request_account_by_id">request_account_by_id() (neutrino.link.Link method)</a>
-</li>
-      <li><a href="index.html#neutrino.link.Link.request_account_ledger">request_account_ledger() (neutrino.link.Link method)</a>
-</li>
-      <li><a href="index.html#neutrino.link.Link.request_accounts">request_accounts() (neutrino.link.Link method)</a>
-</li>
-      <li><a href="index.html#neutrino.link.Link.request_fees">request_fees() (neutrino.link.Link method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.link.Link.request_orders">request_orders() (neutrino.link.Link method)</a>
-</li>
-      <li><a href="index.html#neutrino.link.Link.request_transfers">request_transfers() (neutrino.link.Link method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.retrieve_ledgers">retrieve_ledgers() (neutrino.main.Neutrino method)</a>
-</li>
       <li><a href="index.html#neutrino.link.Link.retrieve_product_candles">retrieve_product_candles() (neutrino.link.Link method)</a>
 </li>
-      <li><a href="index.html#neutrino.tools.retrieve_repo">retrieve_repo() (in module neutrino.tools)</a>
+      <li><a href="index.html#neutrino.updater.Updater.retrieve_repo">retrieve_repo() (neutrino.updater.Updater method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -323,8 +323,6 @@
       <li><a href="index.html#neutrino.tools.save_df_to_csv">save_df_to_csv() (in module neutrino.tools)</a>
 </li>
       <li><a href="index.html#neutrino.link.Link.send_api_request">send_api_request() (neutrino.link.Link method)</a>
-</li>
-      <li><a href="index.html#neutrino.main.Neutrino.set_verbosity">set_verbosity() (neutrino.main.Neutrino method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -346,7 +344,9 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#neutrino.main.Neutrino.update_neutrino">update_neutrino() (neutrino.main.Neutrino method)</a>
+      <li><a href="index.html#neutrino.updater.Updater.update_neutrino">update_neutrino() (neutrino.updater.Updater method)</a>
+</li>
+      <li><a href="index.html#neutrino.updater.Updater">Updater (class in neutrino.updater)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -361,7 +361,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-07 21:49:31.
+      <span class="lastupdated">Last updated on 2022-01-25 23:30:09.
       </span></p>
   </div>
 

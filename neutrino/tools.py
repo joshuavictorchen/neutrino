@@ -10,60 +10,24 @@ from dateutil.parser import isoparse
 TIME_FORMAT = "%Y-%m-%d %H:%M"
 
 
-def retrieve_repo(verbose=False):
-    """Retrieves metadata on the local neutrino repository. Optionally prints to the console in the format of:
-
-    ``n | <branch>-<commit>-<is_modified>``
-
-    Returns:
-        Repo: :py:obj:`git.Repo` object representing the local neutrino repository.
-    """
-
-    # instantiate a repo object for the neutrino repository
-    repo = git.Repo(
-        f"{os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))}",
-        search_parent_directories=True,
-    )
-
-    # print repo attributes, if applicable
-    if verbose:
-
-        # get repo attributes
-        branch_name = repo.active_branch.name
-        commit_id = repo.head.object.hexsha[:7]
-        is_dirty = repo.is_dirty(untracked_files=True)
-
-        # format output
-        output = f"\n n | {branch_name}-{commit_id}"
-        if is_dirty:
-            output += "-modified"
-
-        print(output)
-
-    return repo
-
-
 def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
     """Prints a formatted nested dictionary to the console.
+
+    .. code-block::
+
+        # example console output for an input of {'123':{'456':['aaa', 'bbb', 'ccc']}}
+
+        "
+            123 :
+                    456 : aaa
+                        bbb
+                        ccc"
 
     Args:
         data (dict): Dictionary of values that can be converted to strings.
         indent_spaces (int, optional): Number of leading whitespaces to insert before each element. Defaults to 3.
         indent_step (int, optional): Number of whitespaces to increase the indentation by, for each level of ``dict`` nesting. Defaults to 2.
         recursion (bool, optional): Whether or not this method is being called by itself. Defaults to False.
-
-    Returns:
-        bool: ``True`` if the function was executed successfully.
-
-        .. code-block::
-
-            # example console output for an input of {'123':{'456':['aaa', 'bbb', 'ccc']}}
-
-            "
-               123 :
-                     456 : aaa
-                           bbb
-                           ccc"
 
     """
 
@@ -96,8 +60,6 @@ def print_recursive_dict(data, indent_spaces=3, indent_step=2, recursion=False):
                 " " * indent_spaces
                 + f"{key.rjust(rjust)} : {list_to_string(value, rjust + indent_spaces + 3)}"
             )
-
-    return True
 
 
 def list_to_string(value, leading_whitespaces=1):
@@ -191,7 +153,8 @@ def parse_yaml(filepath, echo_yaml=True):
 
 
 def save_df_to_csv(df, csv_name, database_path):
-    """Exports the provided DataFrame to a CSV file. Prompts the user to close the file if it exists and is open.
+    """Exports the provided DataFrame to a CSV file. Cleans timestrings per :py:obj:`clean_df_timestrings`.\
+        Prompts the user to close the file if it exists and is open.
 
     Args:
         df (DataFrame): DataFrame to be exported to a CSV file.

@@ -2,36 +2,23 @@ import neutrino
 import neutrino.tools as t
 import os
 import pandas as pd
-import subprocess
-import sys
 import traceback
+from copy import deepcopy
 from neutrino.datum import Datum
 from neutrino.link import Link
 from neutrino.stream import Stream
+from neutrino.updater import Updater
 from pathlib import Path
 from threading import Thread
-
-DIVIDER = (
-    "\n -------------------------------------------------------------------------------"
-)
 
 
 def main():
 
-    # print repository data
-    t.retrieve_repo(verbose=True)
-
     # instantiate a Neutrino
-    # hard-code 'default' cbkey_set_name for now
-    # TODO: make this an input parameter and/or echo list of default values
-    n = Neutrino("default")
+    n = Neutrino(cbkey_set_name="default", from_database=True)
 
-    # perform actions
+    # start interacting
     n.interact()
-
-    # exit program
-    print("\n Neutrino annihilated.")
-    print(DIVIDER)
 
 
 class Neutrino(Link):
@@ -43,197 +30,89 @@ class Neutrino(Link):
         Authentication is currently handled using a plaintext YAML file defined in ``user-settings.yaml``. \
         It will be updated to use a more secure method in the future.
 
+    .. admonition:: TODO
+
+        More detailed docs to be completed.
+
     Args:
         cbkey_set_name (str, optional): Name of Coinbase Pro API key dictionary \
             with which the Neutrino's ``auth`` value will be initialized. Defaults to "default".
 
-    **Instance attributes:** \n
-        * **placeholder** (*placeholder*): Placeholder text. The following bullets will likely be out of date during ongoing development.
-        * **database_path** (*Path*): :py:obj:`Path` object containing the absolute filepath to the folder \
-            to which the Link exports CSV files.
-        * **accounts** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_accounts`.
-        * **ledgers** (*dict(dict)*): Nested dictionary representations of DataFrames returned from :py:obj:`Link.retrieve_account_ledger`, \
-            with one entry per retrieved ``account_id`` in the form of ``{account_id: {ledger_dict}}``.
-        * **transfers** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.get_usd_transfers`.
-        * **orders** (*dict*): Dictionary representation of DataFrame returned from :py:obj:`Link.retrieve_orders`.
-        * **fees** (*dict*): Dictionary of Coinbase fee data returned from :py:obj:`Link.retrieve_fees`.
+    **Relevant instance attributes:** \n
+        * **user_settings** (*dict*): Dictionary of user settings parameters from ``neutrino\\user-settings.yaml``.
+        * **updater** (*Updater*): Updater object containing neutrino repo attributes and update methods.
+        * **cbkeys** (*dict*): Dictionary of Coinbase Pro API keys from the YAML file specified in ``user_settings``.
+        * **database_path** (*Path*): :py:obj:`Path` containing the absolute filepath to the CSV file directory.
+        * **auth** (*Authenticator*): Callable :py:obj:`Authenticator` for Coinbase WebSocket and API authentication.
+        * **session** (*Session*): :py:obj:`requests.Session` for API requests.
+        * **streams** (*dict*): Dictionary of :py:obj:`Stream` objects for live streams of WebSocket feed data.
+        * **threads** (*dict*): Dictionary of :py:obj:`Thread` objects corresponding :py:obj:`Stream` objects.
+        * **accounts** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "accounts" endpoint.
+        * **ledgers** (*Datum*): :py:obj:`Datum` of consolidated ledger entries associated with all :py:obj:`self.accounts`.
+        * **transfers** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "transfers" endpoint.
+        * **orders** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "orders" endpoint.
+        * **fees** (*dict*): Dictionary of trailing 30 day USD volume, maker fee rate, and taker fee rate.
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
 
-    def __init__(self, cbkey_set_name="default", verbose=True):
+    def __init__(self, cbkey_set_name="default", from_database=False, save=False):
 
         # establish directory in which neutrino is installed
         self.neutrino_dir = Path(
             os.path.abspath(os.path.join(os.path.join(__file__, os.pardir), os.pardir))
         )
 
-        # load neutrino settings
-        self.neutrino_settings = t.parse_yaml(
-            self.neutrino_dir / "strings/neutrino-settings.yaml", echo_yaml=False
-        )
-
         # load user settings
         self.user_settings_file = self.neutrino_dir / "user-settings.yaml"
         self.template_user_settings_file = (
-            self.neutrino_dir / "strings/template-user-settings.yaml"
+            self.neutrino_dir / "internals/template-user-settings.yaml"
         )
         self.user_settings = t.load_yaml_settings(
             self.user_settings_file, self.template_user_settings_file
         )
 
+        # NOTE: the sandbox variable is a temporary workaround to get GitHub test builds to work
+        #       until actual unit tests are implemented
+        #       for now, it's set to True (i.e., don't perform certain actions) if no valid cbkeys file is provided
+        sandbox = False
+
         # temporary measure for testing:
-        # if keys_file does not exist, update keys file to sanbox test keys
+        # if keys_file does not exist, update keys file to sandbox test keys
         if not os.path.isfile(self.user_settings.get("keys_file")):
+            sandbox = True
             self.user_settings["keys_file"] = (
                 self.neutrino_dir / "tests/sandbox-keys.yaml"
             )
 
+        # check for updates, if specified by user settings entry
+        if not sandbox:
+            self.updater = Updater(check=self.user_settings.get("check_for_updates"))
+
         # load dictionary of cbkey dicts
+        # TODO: don't store secrets in an attribute like this
         self.cbkeys = t.parse_yaml(self.user_settings.get("keys_file"), echo_yaml=False)
 
         # define database path
         self.database_path = self.neutrino_dir / "database"  # CSV database path
 
+        # create database dir if one doesn't already exist
+        if not os.path.isdir(self.database_path):
+            print(f"\n Initializing database directory: {self.database_path}")
+            os.mkdir(self.database_path)
+
         # initialize inherited Link parameters
         super().__init__(
-            neutrino.settings.get("api_url"),  # API endoint base url
             self.cbkeys.get(cbkey_set_name),  # cbkey dictionary
         )
 
-        # check for updates
-        self.repo = t.retrieve_repo()
-        if self.user_settings.get("check_for_updates"):
-            self.check_for_updates()
-
         # establish unique neutrino attributes
-        self.verbose = verbose
-        self.accounts = None
-        self.ledgers = None
-        self.transfers = None
-        self.orders = None
-        self.fees = {}
         self.streams = {}
         self.threads = {}
         self.coins = {}
 
-    def check_for_updates(self):
-        """Performs a ``git fetch`` command to check for updates to the current branch of the repository.
-
-        If updates exist, then prompts the user to execute :py:obj:`Neutrino.update_neutrino`
-
-        Returns:
-            bool: ``True`` if updates are available.
-        """
-
-        print("\n Checking for updates...", end="")
-        self.repo.remotes.origin.fetch()
-        updates_available = False
-
-        # if head is in detached state, then return with no updates
-        if self.repo.head.is_detached:
-            print(" repo's HEAD is detached.")
-            return updates_available
-
-        # check for newer commits
-        if (
-            sum(
-                1
-                for i in self.repo.iter_commits(
-                    f"{self.repo.active_branch.name}..origin/{self.repo.active_branch.name}"
-                )
-            )
-            > 0
-        ):
-            updates_available = True
-
-        if updates_available:
-            update = input(
-                " updates are available. \
-                \n\n Press [enter] to update the neutrino. Input any other key to continue without updating: "
-            )
-            if update == "":
-                self.update_neutrino(check_completed=True)
-                sys.exit()
-        else:
-            print(" the neutrino is up to date.")
-
-        return updates_available
-
-    def update_neutrino(self, check_completed=False, force=False):
-        """Performs the following actions to update the neutrino program:
-
-            1. Checks for updates. If no updates are available, the function is exited.
-            2. Performs a ``git pull`` if updates are available.
-            3. Checks ``\\setup\\neutrino-settings.yaml`` to see if a ``pip install`` is required.
-            4. If required, prompts the user to approve the ``pip install`` action.
-            5. If approved, performs the ``pip install`` action.
-            6. Displays the change summary from ``\\setup\\neutrino-settings.yaml``.
-            7. Exits the program, which must be restarted for the changes to take effect.
-
-        Args:
-            check_completed (bool, optional): [description]. Defaults to False.
-            force (bool, optional): [description]. Defaults to False.
-        """
-
-        if not check_completed and not force:
-            self.check_for_updates()
-            return
-
-        try:
-            # git pull
-            self.repo.remotes.origin.pull()
-
-            # git submodule update --init
-            for submodule in self.repo.submodules:
-                submodule.update(init=True)
-
-            # refresh internal settings
-            self.neutrino_settings = t.parse_yaml(
-                self.neutrino_dir / "strings/neutrino-settings.yaml", echo_yaml=False
-            )
-
-            print(f"\n Updates pulled - change summary:")
-            for i in self.neutrino_settings.get("changelog"):
-                print(f"   + {i}")
-
-            t.retrieve_repo(verbose=True)
-
-            # if a pip install is required for this update, then do a pip install
-            # remember to switch to the neutrino directory first, then switch back after
-            # NOTE: permissions issues arise during setup if the user is in a venv
-            #       if the user is in a venv, then prompt them to execute the pip install command manually
-            if self.neutrino_settings.get("pip_install"):
-                print(DIVIDER)
-                print("\n A pip install is required to complete this update.")
-                if os.environ.get("VIRTUAL_ENV") is not None:
-                    input(
-                        f" Since you are in a venv, the following command must be executed manually: \
-                        \n\n   pip install -U -e . \
-                        \n\n Press [enter] or input any key to acknowledge: "
-                    )
-                else:
-                    pip_install = input(
-                        f"\n Press [enter] to perform this installation. Input any other key to decline: "
-                    )
-                    if pip_install == "":
-                        print()
-                        this_dir = os.getcwd()
-                        os.chdir(self.neutrino_dir)
-                        subprocess.call("pip install -U -e . --user")
-                        os.chdir(this_dir)
-                    else:
-                        print(
-                            f"\n WARNING: pip install not performed - some dependencies may be missing."
-                        )
-
-        except Exception as exc:
-            print(f"\n Error during self-update process:\n")
-            [print(f"   {i}") for i in repr(exc).split("\n")]
-            sys.exit(
-                "\n Self-update cancelled. Please check your repository configuration and/or try a manual update."
-            )
-
-        sys.exit("\n Neutrino annihilated.")
+        # load data
+        if not sandbox:
+            self.load_all_data(from_database=from_database, save=save)
 
     def refresh_user_settings(self):
         """Reloads ``self.user_settings`` from ``self.user_settings_file``. This allows the user to update the \
@@ -244,281 +123,115 @@ class Neutrino(Link):
             self.user_settings_file, self.template_user_settings_file
         )
 
-    def set_verbosity(self, verbose):
-        """Updates Neutrino's behavior to print (or not print) responses to the console.
-
-        Args:
-            verbose (bool): ``True`` if print statements are desired.
-        """
-
-        self.verbose = verbose
-
-        # print settings change to console
-        verb = "will" if verbose else "won't"
-        print(f"\n Responses {verb} be printed to the console.")
-
     ###########################################################################
-    # get methods
+    # datum handling and loading
     ###########################################################################
 
-    def get_accounts(
-        self,
-        relevant_only=True,
-        exclude_empty_accounts=False,
-        from_database=False,
-        save=False,
+    def load_datum(
+        self, name, from_database, method="get", endpoint=None, save=False, **kwargs
     ):
-        """Loads a DataFrame with all relevant trading accounts and their holdings for the authenticated profile.
-
-        Args:
-            relevant_only (bool, optional): The API retuns all accounts for all available coins by default. \
-                Set this to ``True`` to only include accounts that have seen activity in the past in the returned result.
-            exclude_empty_accounts (bool, optional): The API retuns all accounts for all available coins by default. \
-                Set this to ``True`` to exclude zero-balance accounts from the returned result.
-            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
-            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
-        
-        Returns:
-            DataFrame: DataFrame with the following columns:
-            
-                * to be completed
-                * at a later date
-        """
-
-        accounts = Datum(
-            from_database=from_database,
-            link_method=self.request_accounts,
-            csv_name="accounts",
-        )
-
-        # put accounts here
-
-        # filter to only accounts that have had some activity at any point in time, if applicable
-        if relevant_only:
-
-            # use order history to get list of currencies where activity has been seen
-            # TODO: change this to self.get_orders(from_database)
-            # temporarily set verbosity to false for the orders retrieval, then switch it back
-            initial__verbosity = self.verbose
-            self.verbose = False
-            orders = self.get_orders(from_database=from_database, status=["all"])
-            self.verbose = initial__verbosity
-            currencies = (
-                orders.df["product_id"]
-                .apply(lambda x: x.split("-")[0])
-                .unique()
-                .tolist()
-            )
-            accounts.df = accounts.df[
-                accounts.df["currency"].isin(currencies)
-            ].reset_index(drop=True)
-
-        # exclude accounts with <= 0 balance, if applicable
-        if exclude_empty_accounts:
-            accounts.df = accounts.df[
-                accounts.df["balance"].astype(float) > 0
-            ].reset_index(drop=True)
-
-        if self.verbose:
-            accounts.print_df()
-
-        if save:
-            accounts.save_csv()
-
-        # update object attribute
-        self.accounts = accounts
-
-        return accounts
-
-    def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
-
-        account_ledger = Datum(
-            from_database=from_database,
-            link_method=self.request_account_ledger,
-            main_key=self.neutrino_settings.get("response_keys").get("ledger"),
-            database_path=self.database_path,
-            csv_name="ledgers",  # TODO this will be used, but need to do some filtering here
-            account_id=account_id,
-            **kwargs,
-        )
-
-        # APPEND ACCOUNT_ID TO DF COLUMN
-
-        if account_ledger.origin == "db":
-            # TODO: data was loaded in from db; filter based on kwargs
-            pass
-
-        if self.verbose:
-            account_ledger.print_df()
-
-        # update object attribute
-        if self.ledgers is None:
-            self.ledgers = account_ledger
-            # TODO: consider changing main key
-        else:
-            # TODO: combine ledgers
-            pass
-
-        # save to CSV, if applicable
-        # ledger data across accounts is stored in a single table
-
-        return account_ledger
-
-    def get_transfers(self, from_database=False, save=False):
-        """Loads a DataFrame with in-progress and completed transfers of funds in/out of any of the authenticated profiles' accounts.
-
-        Args:
-            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
-            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
-
-        Returns:
-            DataFrame: DataFrame with the following columns:
-
-                * to be completed
-                * at a later date
-        """
-
-        transfers = Datum(
-            from_database=from_database,
-            link_method=self.request_transfers,
-            main_key=self.neutrino_settings.get("response_keys").get("transfers"),
-            database_path=self.database_path,
-            csv_name="transfers",
-        )
-
-        if self.verbose:
-            transfers.print_df()
-
-        # save to CSV, if applicable
-        if save:
-            transfers.save()
-
-        # update object attribute
-        self.transfers = transfers
-
-        return transfers
-
-    def get_orders(self, from_database=False, save=False, **kwargs):
-        """Loads a DataFrame with orders associated with the authenticated profile.
-
-        Args:
-            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
-            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
-            **kwargs (various, optional):
-                * **profile_id** (*str*): Filter results by a specific ``profile_id``.
-                * **product_id** (*str*): Filter results by a specific ``product_id``.
-                * **sortedBy** (*str*): Sort criteria for results: \
-                    ``created_at``, ``price``, ``size``, ``order_id``, ``side``, ``type``.
-                * **sorting** (*str*): Sort results by ``asc`` or ``desc``.
-                * **start_date** (*str*): Filter by minimum posted date (``%Y-%m-%d %H:%M``).
-                * **end_date** (*str*): Filter by maximum posted date (``%Y-%m-%d %H:%M``).
-                * **before** (*str*): Used for pagination. Sets start cursor to ``before`` date.
-                * **after** (*str*): Used for pagination. Sets end cursor to ``after`` date.
-                * **limit** (*int*): Limit on number of results to return.
-                * **status** (*list(str)*): List of order statuses to filter by: \
-                    ``open``, ``pending``, ``rejected``, ``done``, ``active``, ``received``, ``all``.
-        
-        Returns:
-            DataFrame: DataFrame with the following columns:
-            
-                * to be completed
-                * at a later date
-        """
-
-        # TODO: implement kwargs for from_database
-        orders = Datum(
-            from_database=from_database,
-            link_method=self.request_orders,
-            main_key=self.neutrino_settings.get("response_keys").get("orders"),
-            database_path=self.database_path,
-            csv_name="orders",
-            **kwargs,
-        )
-
-        if orders.origin == "db":
-            # TODO: data was loaded in from db; filter based on kwargs <-- or not
-            pass
-
-        if self.verbose:
-            orders.print_df()
-
-        # save to CSV, if applicable
-        if save:
-            orders.save_csv()
-
-        # update object attribute
-        self.orders = orders
-
-        return orders
-
-    def get_fees(self):
-        """Gets the fee rates and 30-day trailing volume for the authenticated profile.
+        """Generates a :py:obj:`Datum<neutrino.datum.Datum>` object corresponding to a Coinbase API endpoint.
 
         .. admonition:: TODO
 
-            This is currently just a call to Link's ``retrieve_fees`` function. \
-            It should be updated to pull fees from the database using historical data \
-            and optionally append fee rates to that data.
+            More thorough documentation TBD.
 
-        Returns:
-            dict (str): .. code-block::
-
-                # key definitions can be found in API Reference link above
-                # types, response requirements, and notes are described below
-
-                {
-                    taker_fee_rate: required
-                    maker_fee_rate: required
-                        usd_volume: 
-                }
-        """
-
-        self.fees = self.request_fees()
-
-        if self.verbose:
-            t.print_recursive_dict(self.fees)
-
-        return self.fees
-
-    def get_all_link_data(self, from_database=False, save=False):
-        """Executes all ``retrieve`` methods of the :py:obj:`Neutrino<neutrino.main.Neutrino>`'s inherited :py:obj:`Link<neutrino.link.Link>`:
-
-        * :py:obj:`Link.retrieve_accounts<neutrino.link.Link.retrieve_accounts>`
-        * :py:obj:`Link.retrieve_account_ledger<neutrino.link.Link.retrieve_account_ledger>` for all accounts
-        * :py:obj:`Link.retrieve_transfers<neutrino.link.Link.retrieve_transfers>`
-        * :py:obj:`Link.retrieve_orders<neutrino.link.Link.retrieve_orders>`
-        * :py:obj:`Link.retrieve_fees<neutrino.link.Link.retrieve_fees>`
+            Update program structure for a more generalized Datum load and/or add checks to ensure the Datum is valid.
 
         Args:
-            save (bool, optional): Exports DataFrames returned from the above ``retrieve`` methods to the ``self.database`` directory \
-                in CSV format if set to ``True``. Defaults to False.
+            name (str): Name of the :py:obj:`Datum` to be loaded.
+            from_database (bool): Loads data from the local database if ``True``, otherwise requests fresh \
+                Coinbase API pulls.
+            method (str, optional): API request method (``get``, ``post``, etc.). Defaults to "get".
+            endpoint (str, optional): API request endpoint, with no leading ``/`` (i.e., "accounts"). Defaults to the provided ``name``.
+            save (bool, optional): Exports the DataFrame's data as a CSV to the default database path if ``True``. Defaults to ``False``.
+
+        Returns:
+            Datum: Datum object corresponding to the requested name and/or Coinbase API endpoint.
         """
 
-        # get all active accounts - use default options for now
-        # TODO: generalize for all options
-        account_df = t.process_df(
-            self.get_accounts(from_database=from_database, save=save)
+        # get the Datum's main key from neutrino module attributes
+        main_key = neutrino.api_response_keys.get(name)
+
+        # if no enpoint is explicitly defined, then default to using the Datum's name as the endpoint
+        if endpoint is None:
+            endpoint = f"{name}"
+
+        # load df data from CSV database, if applicable
+        if from_database:
+            db_file = neutrino.db_path / (name + ".csv")
+            if os.path.isfile(db_file):
+                df = pd.read_csv(db_file)
+                origin = "db"
+            # if no database file exists, then default to performing a fresh API request
+            # set from_database to false to ensure this happens
+            else:
+                from_database = False
+                print(
+                    f"\n NOTE: {db_file} does not exist.\
+                    \n       {name} data will be pulled via API request."
+                )
+
+        # perform a fresh API request for df data, if a database pull was not performed
+        if not from_database:
+            df = self.convert_API_response_list_to_df(
+                self.send_api_request(method, endpoint, params=kwargs), main_key
+            )
+            origin = "api"
+
+        # clean the df's time strings
+        df = t.clean_df_timestrings(df)
+
+        # return an instantiated a Datum object with the df and its metadata
+        return Datum(name, df, main_key, origin, save)
+
+    def load_all_data(self, from_database, save=False):
+        """Loads :py:obj:`Datum<neutrino.datum.Datum>` attributes for the following (more info TBD):
+        
+            1. Accounts
+            2. Ledgers
+            3. Transfers
+            4. Orders
+
+        Args:
+            from_database (bool): Loads data from the local database if ``True``, otherwise requests fresh \
+                Coinbase API pulls.
+            save (bool, optional): Exports the loaded Datum data as a CSV to the default database path if ``True``. \
+                Defaults to ``False``.
+        """
+
+        # choose the data source from neutrino module attributes
+        data_source = neutrino.db_path if from_database else neutrino.api_url
+        print(f"\n Forming neutrino via: {data_source}")
+
+        # get accounts Datum from the accounts endpoint (or corresponding database CSV)
+        self.accounts = self.load_datum(
+            name="accounts", from_database=from_database, save=save
         )
 
-        # export ledgers for all those accounts
-        ledgers = {}
-        for i in account_df.index:
-            ledgers[i] = self.get_account_ledger(account_df.at[i, "id"])
+        # TODO: trim this to just active/previously active accounts
 
-        # get all transfers
-        self.get_transfers(from_database=from_database, save=save)
+        # get ledgers Datum from the accounts/{account_id}/ledger endpoint (via the load_ledgers function)
+        self.ledgers = self.load_ledgers(from_database=from_database, save=save)
 
-        # get all orders
-        self.get_orders(from_database=from_database, save=save, status=["all"])
+        # get transfers Datum from the transfers endpoint
+        self.transfers = self.load_datum(
+            name="transfers", from_database=from_database, save=save
+        )
 
-        # get fees
-        self.get_fees()
+        # get orders Datum from the orders endpoint
+        self.orders = self.load_datum(
+            name="orders", from_database=from_database, save=save, status="all"
+        )
+
+        # get fees dictionary from the fees endpoint (note: this is just a dictionary of volume and maker/taker rates)
+        self.fees = self.send_api_request("GET", "fees")[0]
 
     ###########################################################################
     # candle methods
     ###########################################################################
 
-    def get_product_candles(
+    def load_product_candles(
         self, product_id, granularity=60, start=None, end=None, save=False
     ):
         """Performs the following actions to efficiently retrieve the requested product candle dataset:
@@ -588,10 +301,6 @@ class Neutrino(Link):
         returned_df = candles_df[
             (candles_df["time"] >= start) & (candles_df["time"] <= end)
         ].reset_index(drop=True)
-
-        if self.verbose:
-            print()
-            print(returned_df)
 
         # save to CSV, if applicable
         if save:
@@ -686,10 +395,6 @@ class Neutrino(Link):
 
         return pull_bounds
 
-    def retrieve_ledgers(self, currencies, save=False):
-
-        pass
-
     ###########################################################################
     # stream methods
     ###########################################################################
@@ -724,7 +429,6 @@ class Neutrino(Link):
         # initialize a stream + thread, and add to self.streams and self.threads
         stream = Stream(
             name,
-            self.neutrino_settings.get("stream_url"),
             type,
             product_ids,
             channels,
@@ -831,31 +535,157 @@ class Neutrino(Link):
             + f' | {ticker_product} {pdelta} | {message.get("price")}'
         )
 
+    ###########################################################################
+    # miscellaneous methods
+    ###########################################################################
+
+    def filter_accounts(
+        self, account_df, relevant_only=True, exclude_empty_accounts=False
+    ):
+        """Filters a DataFrame of account information per the supplied arguments and returns the result.
+
+        .. admonition:: TODO
+
+            Ensure ``account_df`` is actually an DataFrame of account info.
+            
+            Handle potential non-existence of :py:obj:`self.orders` prior to performing actions.
+
+        Args:
+            relevant_only (bool, optional): Only includes accounts that have seen activity in the past \
+                if ``True``, using data from :py:obj:`self.orders` to gauge activity. Defaults to ``True``.
+            exclude_empty_accounts (bool, optional): Excludes currently-zero-balanced accounts \
+                from the returned result if ``True``. Defaults to ``False``.
+        
+        Returns:
+            DataFrame: Filtered DataFrame of account information.
+        """
+
+        df = deepcopy(account_df)
+
+        # filter to only accounts that have had some activity at any point in time, if applicable
+        # use order history to get list of currencies where activity has been seen
+        if relevant_only:
+            currencies = (
+                self.orders.df["product_id"]
+                .apply(lambda x: x.split("-")[0])
+                .unique()
+                .tolist()
+            )
+            df = self.accounts.df[
+                self.accounts.df["currency"].isin(currencies)
+            ].reset_index(drop=True)
+
+        # exclude accounts with <= 0 balance, if applicable
+        if exclude_empty_accounts:
+            df = df[df["balance"].astype(float) > 0].reset_index(drop=True)
+
+        return df
+
+    # The following is a legacy function that is left as a comment for potential future use.
+    #
+    # It is an artefact of the original direction of the neutrino program, which sought to
+    # provide functions for each API endpoint, similar to the existing cbpro-python package.
+    #
+    # def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):
+    #
+    #     account_ledger = self.generate_datum(
+    #         name="ledger",
+    #         from_database=from_database,
+    #         endpoint=f"accounts/{account_id}/ledger",
+    #         **kwargs,
+    #     )
+    #
+    #     if save:
+    #         account_ledger.save_csv(
+    #             f"ledger-{self.accounts.get('currency', account_id)}"
+    #         )
+    #
+    #     return account_ledger
+
+    def load_ledgers(self, from_database=False, save=False, **kwargs):
+        """Pulls the ledgers for all accounts loaded in :py:obj:`self.accounts` and consolidates the data into \
+            one Datum.
+
+            More information on ledger data can be found on the `API reference page <https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger>`__.
+
+        .. admonition:: TODO
+
+            Handle potential non-existence of :py:obj:`self.accounts` prior to performing actions.
+            
+            If loading from the local database, perform API requests for missing accounts, if any exist.
+
+        Args:
+            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.
+            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.
+
+        Returns:
+            Datum: Datum of consolidated ledger entries associated with all :py:obj:`self.accounts`.
+        """
+
+        ledgers_df = pd.DataFrame()
+
+        if from_database:
+            db_file = neutrino.db_path / "ledgers.csv"
+            if os.path.isfile(db_file):
+                ledgers_df = pd.read_csv(db_file)
+            else:
+                from_database = False
+                print(
+                    f"\n NOTE: {db_file} does not exist.\
+                    \n       Ledger data will be pulled via API request."
+                )
+
+        if not from_database:
+            print("\n Requesting ledgers:\n")
+            for i in self.accounts.df.index:
+                account_id = self.accounts.df.at[i, "id"]
+                currency = self.accounts.get("currency", account_id)
+                print(f"   + {currency}")
+                this_ledger = self.load_datum(
+                    name="ledger",
+                    from_database=from_database,
+                    endpoint=f"accounts/{account_id}/ledger",
+                    save=False,
+                    **kwargs,
+                ).df
+                this_ledger["currency"] = currency
+                ledgers_df = ledgers_df.append(this_ledger, ignore_index=True)
+
+        ledgers_df.reset_index(drop=True, inplace=True)
+        ledgers_df = t.clean_df_timestrings(ledgers_df)
+        origin = "db" if from_database else "api"
+
+        self.ledgers = Datum("ledgers", ledgers_df, "id", origin, save=save)
+
+        return self.ledgers
+
+    ###########################################################################
+    # temporary 'client' methods
+    ###########################################################################
+
     def interact(self):
         """Temporary rudimentary command line interface that executes neutrino-related commands from user input. \
         The jankiness of this implementation and availability of modules such as ``argparse`` are well-understood. \
-        This is mostly used for highly flexible testing/debugging during development.
+        This is mostly used for flexible testing/debugging during development.
+
+        The actions here are mainly loading/exporting data in various chunks, whereas the real actions of this \
+        program are intended to be focused around data analysis and manipulation.
 
         This function is wrapped in a ``while True`` block to execute an arbitrary number of commands \
         until terminated by the user.
-
-        Further documentation TBD.
         """
-
-        # set verbosity to True to print outputs to console
-        self.set_verbosity(True)
 
         # continuously accept user input
         while True:
 
             try:
 
-                print(DIVIDER)
+                print(neutrino.DIVIDER)
 
                 # gather user input as a list of tokens
                 arg = input("\n>>> ").split()
 
-                # reload user settings (user can update settings file prior to providing new command)
+                # reload user settings (user can update settings file prior to providing a new command)
                 self.refresh_user_settings()
 
                 # don't do anything if no input was provided
@@ -870,29 +700,38 @@ class Neutrino(Link):
 
                 # print list of available commands
                 if arg[0] in ("help", "h"):
-                    print("\n Help coming soon.")
+                    print(
+                        "\n A printed list of available commands. Not yet implemented."
+                    )
 
-                # print self attributes/internal data
+                # print n attributes/internal data
                 if arg[0] in ("state"):
-                    print("\n State coming soon.")
+                    print(
+                        "\n A summary of the Neutrino's Datum objects. Not yet implemented."
+                    )
 
-                # update cbkey_set used for authentication
+                # update cbkey_set_name used for authentication
                 elif arg[0] == "cbkeys":
 
-                    # TODO: display default value and prompt user to accept or override this default w/ list of acceptable values
                     if len(arg) == 1:
                         print(
                             f"\n No keys provided. Please provide a value for cbkey_set_name."
                         )
 
+                    # list the available cbkey names
+                    elif arg[-1] == "-l":
+                        print("\n Available API key sets:")
+                        [print(f"   + {i}") for i in self.cbkeys.keys()]
+
                     else:
-                        self.update_auth(arg[1])
-                        print(f"\n self authentication keys changed to: {arg[1]}")
+                        self.update_auth(self.cbkeys.get(arg[1]))
+                        print(f"\n API key set changed to: {arg[1]}")
 
                 # parse 'get' statements
                 elif arg[0] == "get":
 
-                    # establish whether or not to export retrieved data to CSV
+                    # establish whether or not to export retrieved data to CSV,
+                    # or whether or not to load data from CSV
                     save = True if arg[-1] == "-s" else False
                     from_database = True if arg[-1] == "-d" else False
 
@@ -903,76 +742,93 @@ class Neutrino(Link):
                         )
 
                     elif arg[1] == "accounts":
-                        self.get_accounts(save=save, from_database=from_database)
+
+                        # get account data
+                        accounts = self.load_datum(
+                            name="accounts",
+                            from_database=from_database,
+                        )
+
+                        # filter to default filter_accounts filters if 'all' was not specified
+                        if len(arg) <= 2 or arg[2] != "all":
+                            accounts.df = self.filter_accounts(accounts.df)
+
+                        if save:
+                            accounts.save_csv()
+
+                        accounts.print_df()
 
                     elif arg[1] == "ledger":
 
+                        # parse which currency for which to get the ledger - default to BTC if none given
                         if len(arg) > 2:
                             currency = arg[2]
                         else:
                             print("\n No currency provided - using BTC as default:")
                             currency = "BTC"
 
-                        self.get_account_ledger(
-                            self.accounts.get("id", currency),
-                            save=save,
+                        self.load_datum(
+                            name="ledger",
                             from_database=from_database,
-                        )
+                            endpoint=f"accounts/{self.accounts.get('id', currency, 'currency')}/ledger",
+                            save=save,
+                        ).print_df()
+
+                    elif arg[1] == "ledgers":
+
+                        self.load_ledgers(
+                            from_database=from_database, save=save
+                        ).print_df()
 
                     elif arg[1] == "transfers":
-                        self.get_transfers(save=save, from_database=from_database)
+
+                        self.load_datum(
+                            name="transfers", from_database=from_database, save=save
+                        ).print_df()
 
                     elif arg[1] == "orders":
 
-                        if len(arg) > 2:
-                            if not save and not from_database:
-                                self.get_orders(save=save, status=arg[2:])
-                            else:
-                                self.get_orders(
-                                    save=save,
-                                    from_database=from_database,
-                                    status=arg[2:-1],
-                                )
-                        else:
-                            self.get_orders()
+                        # get the list of requested statuses from args
+                        status = [i for i in arg[2:] if i not in ("-s", "-d")]
+
+                        # if no statuses are requested, then default to 'all'
+                        status = "all" if status == [] else status
+
+                        self.load_datum(
+                            name="orders",
+                            from_database=from_database,
+                            save=save,
+                            status=status,
+                        ).print_df()
 
                     elif arg[1] == "fees":
-                        self.get_fees()
+                        t.print_recursive_dict(self.send_api_request("GET", "fees")[0])
 
                     elif arg[1] == "candles":
-                        self.get_product_candles(
-                            self.user_settings.get("candles").get("product_id"),
-                            granularity=self.user_settings.get("candles").get(
-                                "granularity"
-                            ),
-                            start=self.user_settings.get("candles").get("start"),
-                            end=self.user_settings.get("candles").get("end"),
-                            save=save,
+                        print(
+                            self.load_product_candles(
+                                self.user_settings.get("candles").get("product_id"),
+                                granularity=self.user_settings.get("candles").get(
+                                    "granularity"
+                                ),
+                                start=self.user_settings.get("candles").get("start"),
+                                end=self.user_settings.get("candles").get("end"),
+                                save=save,
+                            )
                         )
 
                     elif arg[1] == "all":
-                        self.get_all_link_data(save=save)
+                        print("\n TBD")
 
-                    else:
-                        print(f"\n Unrecognized 'get' method: {arg[1]}")
+                    else:  # generic API/database request
 
-                # set Link verbosity
-                elif arg[0] == "verbosity":
-
-                    # hard-code for now - this is a temporary proof-of-concept
-                    if len(arg) == 1:
-                        print(
-                            f"\n No verbosity option specified. Acceptable arguments are 'on' or 'off'."
-                        )
-
-                    elif arg[1] == "on":
-                        self.set_verbosity(True)
-
-                    elif arg[1] == "off":
-                        self.set_verbosity(False)
-
-                    else:
-                        print(f"\n Unrecognized verbosity specification: {arg[1]}")
+                        self.load_datum(
+                            name=arg[1],
+                            from_database=from_database,
+                            method="get",
+                            endpoint=f"{arg[1]}",
+                            save=save,
+                        ).print_df()
 
                 # stream data
                 elif arg[0] == "stream":
@@ -1005,21 +861,24 @@ class Neutrino(Link):
                 elif arg[0] == "update":
 
                     if arg[-1] == "-f":
-                        self.update_self(check_completed=True)
+                        self.updater.update_neutrino(force=True)
                     else:
-                        self.update_self()
+                        self.updater.check_for_updates()
 
                 else:
-                    print("\n Unrecognized command.")
+                    print("\n Unrecognized command or specification.")
 
             except Exception as exc:
-                if exc == "\n self annihilated.":
+                if exc == "\n Neutrino annihilated.":
                     break
                 else:
                     print(
                         "\n ERROR: prototype interface has encountered the following exception:\n"
                     )
-                    traceback.print_exc()
+                    [print(f"   {i}") for i in traceback.format_exc().split("\n")]
+
+        print("\n Neutrino annihilated.")
+        print(neutrino.DIVIDER)
 
 
 if __name__ == "__main__":
