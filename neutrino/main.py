@@ -1,4 +1,4 @@
-import neutrino
+import neutrino.config as c
 import neutrino.tools as t
 import os
 import pandas as pd
@@ -116,7 +116,7 @@ class Neutrino(Link):
         if not sandbox:
 
             # choose the data source from neutrino module attributes
-            data_source = neutrino.db_path if from_database else neutrino.api_url
+            data_source = c.db_path if from_database else c.api_url
             print(f"\n Forming neutrino via: {data_source}")
 
             # get accounts Datum from the accounts endpoint (or corresponding database CSV)
@@ -188,7 +188,7 @@ class Neutrino(Link):
         """
 
         # get the Datum's main key from neutrino module attributes, if not already provided
-        main_key = neutrino.api_response_keys.get(name) if not main_key else main_key
+        main_key = c.api_response_keys.get(name) if not main_key else main_key
 
         if not main_key:
             raise ValueError(
@@ -202,7 +202,7 @@ class Neutrino(Link):
 
         # load df data from CSV database, if applicable
         if from_database:
-            db_file = neutrino.db_path / (name + ".csv")
+            db_file = c.db_path / (name + ".csv")
             if os.path.isfile(db_file):
                 df = pd.read_csv(db_file)
             # if no database file exists, then default to performing a fresh API request
@@ -295,7 +295,7 @@ class Neutrino(Link):
         # pull data from database, if applicable
         # if no local ledgers data exists, then default to pulling via API request
         if from_database:
-            db_file = neutrino.db_path / "ledgers.csv"
+            db_file = c.db_path / "ledgers.csv"
             if os.path.isfile(db_file):
                 ledgers_df = pd.read_csv(db_file)
             else:
@@ -569,7 +569,7 @@ class Neutrino(Link):
         #     f"\n Requesting {product_id} candles from {start} to {printed_end}..."
         # )
 
-        # determine if the number of requested data points exceeds neutrino.MAX_CANDLE_REQUEST
+        # determine if the number of requested data points exceeds config.MAX_CANDLE_REQUEST
         recurse = end > t.add_minutes_to_time_string(start, max_data_pull)
 
         # define the actual start/end parameters which will be passed into the API request
@@ -652,9 +652,9 @@ class Neutrino(Link):
         """
 
         # granularity / 60 <-- get time in minutes
-        # neutrino.MAX_CANDLE_REQUEST -1 <-- account for fenceposting
+        # c.MAX_CANDLE_REQUEST -1 <-- account for fenceposting
 
-        return granularity / 60 * (neutrino.MAX_CANDLE_REQUEST - 1)
+        return granularity / 60 * (c.MAX_CANDLE_REQUEST - 1)
 
     def augment_candle_bounds(self, max_data_pull, start, end):
         """Update a candle request's ``start`` and ``end`` parameters if none are provided.
@@ -844,7 +844,7 @@ class Neutrino(Link):
 
             try:
 
-                print(neutrino.DIVIDER)
+                print(c.DIVIDER)
 
                 # gather user input as a list of tokens
                 arg = input("\n>>> ").split()
@@ -1047,7 +1047,7 @@ class Neutrino(Link):
                     [print(f"   {i}") for i in traceback.format_exc().split("\n")]
 
         print("\n Neutrino annihilated.")
-        print(neutrino.DIVIDER)
+        print(c.DIVIDER)
 
 
 if __name__ == "__main__":
