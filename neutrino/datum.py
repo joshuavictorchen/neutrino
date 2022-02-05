@@ -1,4 +1,4 @@
-import neutrino
+import neutrino.config as c
 import neutrino.tools as t
 
 
@@ -82,6 +82,6 @@ class Datum:
         """
 
         csv_name = custom_name if custom_name else self.name
-        database_path = custom_dir if custom_dir else neutrino.db_path
+        database_path = custom_dir if custom_dir else c.db_path
 
         t.save_df_to_csv(self.df, csv_name, database_path)

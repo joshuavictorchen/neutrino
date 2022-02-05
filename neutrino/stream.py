@@ -1,6 +1,6 @@
 import json
 import time
-import neutrino
+import neutrino.config as c
 import traceback
 from neutrino.authenticator import Authenticator
 from websocket import create_connection
@@ -76,7 +76,7 @@ class Stream:
         print(f"\n Starting stream: {self.name}")
 
         # open socket and update streams dict
-        self.socket = create_connection(neutrino.stream_url)
+        self.socket = create_connection(c.stream_url)
         self.socket.send(json.dumps(self.request))
         self.active = True
 

@@ -1,4 +1,4 @@
-import neutrino
+import neutrino.config as c
 import os
 import shutil
 import sys
@@ -223,7 +223,7 @@ def move_df_column_inplace(df, column, position):
     df.insert(position, column.name, column)
 
 
-def local_to_ISO_time_string(local_time_string, time_format=neutrino.TIME_FORMAT):
+def local_to_ISO_time_string(local_time_string, time_format=c.TIME_FORMAT):
     """Converts a local time string to an ISO 8601 time string.
 
     Example use case: converting user-specified start/end times in Link.get_product_candles().
@@ -257,7 +257,7 @@ def ISO_to_local_time_dt(ISO_time_string):
     return isoparse(ISO_time_string).replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 
-def ISO_to_local_time_string(ISO_time_string, time_format=neutrino.TIME_FORMAT):
+def ISO_to_local_time_string(ISO_time_string, time_format=c.TIME_FORMAT):
     """Converts an ISO 8601 time string to a local time string.
 
     Example use case: converting API-retrieved timestamps to local time format for output to the console.
@@ -273,9 +273,7 @@ def ISO_to_local_time_string(ISO_time_string, time_format=neutrino.TIME_FORMAT):
     return datetime.strftime(ISO_to_local_time_dt(ISO_time_string), time_format)
 
 
-def add_minutes_to_time_string(
-    time_string, minute_delta, time_format=neutrino.TIME_FORMAT
-):
+def add_minutes_to_time_string(time_string, minute_delta, time_format=c.TIME_FORMAT):
     """Adds minutes to a given time string and returns the result as another time string.
 
     Args:

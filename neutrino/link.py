@@ -1,4 +1,4 @@
-import neutrino
+import neutrino.config as c
 import neutrino.tools as t
 import pandas as pd
 import requests
@@ -71,7 +71,7 @@ class Link:
         # get the api response
         api_response = self.session.request(
             method,
-            neutrino.api_url + "/" + endpoint,
+            c.api_url + "/" + endpoint,
             params=params,
             auth=self.auth,
             timeout=30,
