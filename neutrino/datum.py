@@ -3,35 +3,30 @@ import neutrino.tools as t
 
 
 class Datum:
-    """Custom data object that contains a DataFrame, a main key (with which to pull specific DataFrame values), and the \
-        origin of the DataFrame's data.
+    """Custom data object that contains a DataFrame and a corresponding main key \
+        with which to pull specific DataFrame values.
+    
+    .. note::
+
+        This class may be used to do more useful things in the future.
 
     **Instance attributes:** \n
         * **name** (*str*): Name of the Datum.
         * **df** (*DataFrame*): The Datum's DataFrame object, where data is stored.
         * **main_key** (*str*): Name of the main (unique) key column of the Datum's DataFrame.
-        * **origin** (*str*): Source of the Datum's data (``api`` if freshly pulled from Coinbase API endpoint,\
-            or ``db`` if loaded from local database).
 
     Args:
         name (str): Name of the :py:obj:`Datum` to be generated. Used as the default filename when exporting data to CSV.
         df (DataFrame): DataFrame object for the Datum.
         main_key (str): Name of the main (unique) key column of the provided DataFrame.\
             Used to retrieve values from the DataFrame in a similar manner to a dictionary.
-        origin (str): Source of the Datum's data. Allowable values are: ``api`` or ``db``.
         save (bool, optional): Exports the DataFrame's data as a CSV to the default database path if ``True``. Defaults to ``False``.
     """
 
-    def __init__(self, name, df, main_key, origin, save=False):
+    def __init__(self, name, df, main_key, save=False):
 
         self.name = name
         self.df = df
-        if origin in ("api", "db"):
-            self.origin = origin
-        else:
-            raise Exception(
-                f"\n ERROR: Datum origin specified as '{origin}'\n Allowed values are: 'api', 'db'"
-            )
 
         # if the provided main_key is none, then default to 'id':
         if main_key is None:

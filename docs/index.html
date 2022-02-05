@@ -162,12 +162,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.load_datum">
-<span class="sig-name descname"><span class="pre">load_datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'get'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.load_datum" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'get'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.load_datum" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a <a class="reference internal" href="#neutrino.datum.Datum" title="neutrino.datum.Datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Datum</span></code></a> object corresponding to a Coinbase API endpoint.</p>
+<p>More thorough documentation TBD.</p>
 <div class="admonition-todo admonition">
 <p class="admonition-title">TODO</p>
-<p>More thorough documentation TBD.</p>
-<p>Update program structure for a more generalized Datum load and/or add checks to ensure the Datum is valid.</p>
+<p>Update program structure for more generalized Datum loading, and/or add checks to ensure the Datum is valid.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -189,23 +189,61 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.load_all_data">
-<span class="sig-name descname"><span class="pre">load_all_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.load_all_data" title="Permalink to this definition"></a></dt>
-<dd><p>Loads <a class="reference internal" href="#neutrino.datum.Datum" title="neutrino.datum.Datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Datum</span></code></a> attributes for the following (more info TBD):</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Accounts</p></li>
-<li><p>Ledgers</p></li>
-<li><p>Transfers</p></li>
-<li><p>Orders</p></li>
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.filter_accounts">
+<span class="sig-name descname"><span class="pre">filter_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orders_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.filter_accounts" title="Permalink to this definition"></a></dt>
+<dd><p>Filters a DataFrame of account information per the supplied arguments and returns the result.</p>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<ol class="arabic simple">
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">account_df</span></code> is actually a DataFrame of account info.</p></li>
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">orders_df</span></code> is actually a DataFrame of orders info.</p></li>
+<li><p>Handle potential non-existence of <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.orders</span></code> prior to performing actions.</p></li>
 </ol>
-</div></blockquote>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>from_database</strong> (<em>bool</em>) – Loads data from the local database if <code class="docutils literal notranslate"><span class="pre">True</span></code>, otherwise requests fresh                 Coinbase API pulls.</p></li>
-<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the loaded Datum data as a CSV to the default database path if <code class="docutils literal notranslate"><span class="pre">True</span></code>.                 Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>account_df</strong> (<em>DataFrame</em>) – DataFrame of account data as pulled from the Coinbase API.</p></li>
+<li><p><strong>orders_df</strong> (<em>DataFrame</em>) – DataFrame of orders data as pulled from the Coinbase API.</p></li>
+<li><p><strong>relevant_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – Only includes accounts that have seen activity in the past                 if <code class="docutils literal notranslate"><span class="pre">True</span></code>, using data from <code class="docutils literal notranslate"><span class="pre">orders_df</span></code> to gauge activity. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>exclude_empty_accounts</strong> (<em>bool</em><em>, </em><em>optional</em>) – Excludes currently-zero-balanced accounts                 from the returned result if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Filtered DataFrame of account information.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.load_ledgers">
+<span class="sig-name descname"><span class="pre">load_ledgers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_datum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orders_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.load_ledgers" title="Permalink to this definition"></a></dt>
+<dd><p>Pulls the ledgers for all relevant accounts loaded in <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.accounts</span></code> and consolidates the data into             one Datum.</p>
+<blockquote>
+<div><p>More information on ledger data can be found on the <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger">API reference page</a>.</p>
+<p>More detailed documentation TBD.</p>
+</div></blockquote>
+<div class="admonition-todo admonition">
+<p class="admonition-title">TODO</p>
+<p>If loading from the local database, perform API requests for missing accounts and orders, if any exist.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>account_datum</strong> (<a class="reference internal" href="#neutrino.datum.Datum" title="neutrino.datum.Datum"><em>Datum</em></a>) – Datum of account data as pulled from the Coinbase API.</p></li>
+<li><p><strong>orders_df</strong> (<em>DataFrame</em>) – DataFrame of orders data as pulled from the Coinbase API.</p></li>
+<li><p><strong>from_database</strong> (<em>bool</em><em>, </em><em>optional</em>) – Loads from the local CSV database if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Otherwise, performs an API request for fresh data. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Datum of consolidated ledger entries associated with all <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.accounts</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#neutrino.datum.Datum" title="neutrino.datum.Datum">Datum</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -283,6 +321,71 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.retrieve_product_candles">
+<span class="sig-name descname"><span class="pre">retrieve_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.retrieve_product_candles" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a DataFrame of a product’s historic candle data.             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles">API Reference</a>).</p>
+<p>The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively,         as needed, to return all candles within the given <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> bounds.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> bound is given, then the current time is used.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">start</span></code> bound is given, then <code class="docutils literal notranslate"><span class="pre">end</span></code> minus <code class="docutils literal notranslate"><span class="pre">granularity</span></code> times 300 is used (i.e., maximum number of data points for one API call).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>product_id</strong> (<em>str</em>) – The coin trading pair (i.e., ‘BTC-USD’).</p></li>
+<li><p><strong>granularity</strong> (<em>int</em><em>, </em><em>optional</em>) – Granularity of the returned candles in seconds. Must be one of the following values:                 <code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">300</span></code>, <code class="docutils literal notranslate"><span class="pre">900</span></code>, <code class="docutils literal notranslate"><span class="pre">3600</span></code>, <code class="docutils literal notranslate"><span class="pre">21600</span></code>, <code class="docutils literal notranslate"><span class="pre">86400</span></code>.</p></li>
+<li><p><strong>start</strong> (<em>str</em><em>, </em><em>optional</em>) – Start bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>end</strong> (<em>str</em><em>, </em><em>optional</em>) – End bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with the following columns for each candle:                 <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">product_id</span></code>, <code class="docutils literal notranslate"><span class="pre">low</span></code>, <code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">open</span></code>, <code class="docutils literal notranslate"><span class="pre">close</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.calculate_max_candle_pull_minutes">
+<span class="sig-name descname"><span class="pre">calculate_max_candle_pull_minutes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">granularity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.calculate_max_candle_pull_minutes" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the maximum allowable time range for a single Coinbase API request             for the provided granularity. The API allows a maximum pull of 300 time steps per request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>granularity</strong> (<em>int</em><em>, </em><em>optional</em>) – Granularity of the returned candles in seconds. Must be one of the following values:                 <code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">300</span></code>, <code class="docutils literal notranslate"><span class="pre">900</span></code>, <code class="docutils literal notranslate"><span class="pre">3600</span></code>, <code class="docutils literal notranslate"><span class="pre">21600</span></code>, <code class="docutils literal notranslate"><span class="pre">86400</span></code>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Maximum allowable time range for a single API request in minutes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neutrino.main.Neutrino.augment_candle_bounds">
+<span class="sig-name descname"><span class="pre">augment_candle_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_data_pull</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.augment_candle_bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Update a candle request’s <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> parameters if none are provided.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> time is provided, then the current local time is used.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">start</span></code> time is provided, then <code class="docutils literal notranslate"><span class="pre">start</span></code> is set to the earliest time that fits into         a single API request, as calculated by the <code class="docutils literal notranslate"><span class="pre">end</span></code> time minus <code class="docutils literal notranslate"><span class="pre">max_data_pull</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_data_pull</strong> (<em>int</em>) – Maximum allowable time range for a single API request in minutes.</p></li>
+<li><p><strong>start</strong> (<em>str</em>) – Start bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+<li><p><strong>end</strong> (<em>str</em>) – End bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> parameters in the form of <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple (str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.configure_new_stream">
 <span class="sig-name descname"><span class="pre">configure_new_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subscribe'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbkey_set_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.configure_new_stream" title="Permalink to this definition"></a></dt>
 <dd><p>Instantiates and configures a new <a class="reference internal" href="#neutrino.stream.Stream" title="neutrino.stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
@@ -348,59 +451,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.filter_accounts">
-<span class="sig-name descname"><span class="pre">filter_accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relevant_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_empty_accounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.filter_accounts" title="Permalink to this definition"></a></dt>
-<dd><p>Filters a DataFrame of account information per the supplied arguments and returns the result.</p>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<p>Ensure <code class="docutils literal notranslate"><span class="pre">account_df</span></code> is actually an DataFrame of account info.</p>
-<p>Handle potential non-existence of <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.orders</span></code> prior to performing actions.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>relevant_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – Only includes accounts that have seen activity in the past                 if <code class="docutils literal notranslate"><span class="pre">True</span></code>, using data from <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.orders</span></code> to gauge activity. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
-<li><p><strong>exclude_empty_accounts</strong> (<em>bool</em><em>, </em><em>optional</em>) – Excludes currently-zero-balanced accounts                 from the returned result if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Filtered DataFrame of account information.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.main.Neutrino.load_ledgers">
-<span class="sig-name descname"><span class="pre">load_ledgers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.load_ledgers" title="Permalink to this definition"></a></dt>
-<dd><p>Pulls the ledgers for all accounts loaded in <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.accounts</span></code> and consolidates the data into             one Datum.</p>
-<blockquote>
-<div><p>More information on ledger data can be found on the <a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger">API reference page</a>.</p>
-</div></blockquote>
-<div class="admonition-todo admonition">
-<p class="admonition-title">TODO</p>
-<p>Handle potential non-existence of <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.accounts</span></code> prior to performing actions.</p>
-<p>If loading from the local database, perform API requests for missing accounts, if any exist.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>from_database</strong> (<em>bool</em><em>, </em><em>optional</em>) – Loads from the local CSV database if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Otherwise, performs an API request for fresh data. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the returned DataFrame to a CSV file in the directory specified by <code class="docutils literal notranslate"><span class="pre">self.database_path</span></code> if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Datum of consolidated ledger entries associated with all <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.accounts</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#neutrino.datum.Datum" title="neutrino.datum.Datum">Datum</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="neutrino.main.Neutrino.interact">
 <span class="sig-name descname"><span class="pre">interact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.main.Neutrino.interact" title="Permalink to this definition"></a></dt>
 <dd><p>Temporary rudimentary command line interface that executes neutrino-related commands from user input.         The jankiness of this implementation and availability of modules such as <code class="docutils literal notranslate"><span class="pre">argparse</span></code> are well-understood.         This is mostly used for flexible testing/debugging during development.</p>
@@ -415,16 +465,19 @@
 <span id="datum"></span><h1>Datum<a class="headerlink" href="#module-neutrino.datum" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="neutrino.datum.Datum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.datum.</span></span><span class="sig-name descname"><span class="pre">Datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.datum.Datum" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neutrino.datum.</span></span><span class="sig-name descname"><span class="pre">Datum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.datum.Datum" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Custom data object that contains a DataFrame, a main key (with which to pull specific DataFrame values), and the         origin of the DataFrame’s data.</p>
+<p>Custom data object that contains a DataFrame and a corresponding main key         with which to pull specific DataFrame values.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class may be used to do more useful things in the future.</p>
+</div>
 <p><strong>Instance attributes:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>): Name of the Datum.</p></li>
 <li><p><strong>df</strong> (<em>DataFrame</em>): The Datum’s DataFrame object, where data is stored.</p></li>
 <li><p><strong>main_key</strong> (<em>str</em>): Name of the main (unique) key column of the Datum’s DataFrame.</p></li>
-<li><p><strong>origin</strong> (<em>str</em>): Source of the Datum’s data (<code class="docutils literal notranslate"><span class="pre">api</span></code> if freshly pulled from Coinbase API endpoint,            or <code class="docutils literal notranslate"><span class="pre">db</span></code> if loaded from local database).</p></li>
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
@@ -433,7 +486,6 @@
 <li><p><strong>name</strong> (<em>str</em>) – Name of the <a class="reference internal" href="#neutrino.datum.Datum" title="neutrino.datum.Datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Datum</span></code></a> to be generated. Used as the default filename when exporting data to CSV.</p></li>
 <li><p><strong>df</strong> (<em>DataFrame</em>) – DataFrame object for the Datum.</p></li>
 <li><p><strong>main_key</strong> (<em>str</em>) – Name of the main (unique) key column of the provided DataFrame.            Used to retrieve values from the DataFrame in a similar manner to a dictionary.</p></li>
-<li><p><strong>origin</strong> (<em>str</em>) – Source of the Datum’s data. Allowable values are: <code class="docutils literal notranslate"><span class="pre">api</span></code> or <code class="docutils literal notranslate"><span class="pre">db</span></code>.</p></li>
 <li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – Exports the DataFrame’s data as a CSV to the default database path if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
@@ -558,72 +610,6 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.retrieve_product_candles">
-<span class="sig-name descname"><span class="pre">retrieve_product_candles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">granularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.retrieve_product_candles" title="Permalink to this definition"></a></dt>
-<dd><p>Gets a DataFrame of a product’s historic candle data.             (<a class="reference external" href="https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles">API Reference</a>).</p>
-<p>TODO: this method is here since it is conceptually different from the others</p>
-<p>The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively,         as needed, to return all candles within the given <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> bounds.</p>
-<p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> bound is given, then the current time is used.</p>
-<p>If no <code class="docutils literal notranslate"><span class="pre">start</span></code> bound is given, then <code class="docutils literal notranslate"><span class="pre">end</span></code> minus <code class="docutils literal notranslate"><span class="pre">granularity</span></code> times 300 is used (i.e., maximum number of data points for one API call).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>product_id</strong> (<em>str</em>) – The coin trading pair (i.e., ‘BTC-USD’).</p></li>
-<li><p><strong>granularity</strong> (<em>int</em><em>, </em><em>optional</em>) – Granularity of the returned candles in seconds. Must be one of the following values:                 <code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">300</span></code>, <code class="docutils literal notranslate"><span class="pre">900</span></code>, <code class="docutils literal notranslate"><span class="pre">3600</span></code>, <code class="docutils literal notranslate"><span class="pre">21600</span></code>, <code class="docutils literal notranslate"><span class="pre">86400</span></code>.</p></li>
-<li><p><strong>start</strong> (<em>str</em><em>, </em><em>optional</em>) – Start bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
-<li><p><strong>end</strong> (<em>str</em><em>, </em><em>optional</em>) – End bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>DataFrame with the following columns for each candle:                 <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">product_id</span></code>, <code class="docutils literal notranslate"><span class="pre">low</span></code>, <code class="docutils literal notranslate"><span class="pre">high</span></code>, <code class="docutils literal notranslate"><span class="pre">open</span></code>, <code class="docutils literal notranslate"><span class="pre">close</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.calculate_max_candle_pull_minutes">
-<span class="sig-name descname"><span class="pre">calculate_max_candle_pull_minutes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">granularity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.calculate_max_candle_pull_minutes" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate the maximum allowable time range for a single Coinbase API request             for the provided granularity. The API allows a maximum pull of 300 time steps per request.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>granularity</strong> (<em>int</em><em>, </em><em>optional</em>) – Granularity of the returned candles in seconds. Must be one of the following values:                 <code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">300</span></code>, <code class="docutils literal notranslate"><span class="pre">900</span></code>, <code class="docutils literal notranslate"><span class="pre">3600</span></code>, <code class="docutils literal notranslate"><span class="pre">21600</span></code>, <code class="docutils literal notranslate"><span class="pre">86400</span></code>.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Maximum allowable time range for a single API request in minutes.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="neutrino.link.Link.augment_candle_bounds">
-<span class="sig-name descname"><span class="pre">augment_candle_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_data_pull</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neutrino.link.Link.augment_candle_bounds" title="Permalink to this definition"></a></dt>
-<dd><p>Update a candle request’s <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> parameters if none are provided.</p>
-<p>If no <code class="docutils literal notranslate"><span class="pre">end</span></code> time is provided, then the current local time is used.</p>
-<p>If no <code class="docutils literal notranslate"><span class="pre">start</span></code> time is provided, then <code class="docutils literal notranslate"><span class="pre">start</span></code> is set to the earliest time that fits into         a single API request, as calculated by the <code class="docutils literal notranslate"><span class="pre">end</span></code> time minus <code class="docutils literal notranslate"><span class="pre">max_data_pull</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>max_data_pull</strong> (<em>int</em>) – Maximum allowable time range for a single API request in minutes.</p></li>
-<li><p><strong>start</strong> (<em>str</em>) – Start bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
-<li><p><strong>end</strong> (<em>str</em>) – End bound of the request (<code class="docutils literal notranslate"><span class="pre">%Y-%m-%d</span> <span class="pre">%H:%M</span></code>).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Updated <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> parameters in the form of <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple (str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1080,7 +1066,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-01-25 23:30:09.
+      <span class="lastupdated">Last updated on 2022-02-04 23:21:15.
       </span></p>
   </div>
 
