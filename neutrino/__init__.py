@@ -1,6 +1,3 @@
-from neutrino.main import Neutrino
-from neutrino import authenticator, datum, link, stream, tools, updater
-
 import os
 from pathlib import Path
 
@@ -29,3 +26,4 @@ DIVIDER = (
 )
 
 MAX_CANDLE_REQUEST = 300
+TIME_FORMAT = "%Y-%m-%d %H:%M"
