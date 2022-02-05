@@ -3,14 +3,18 @@
 
 .. warning::
 
-   Documentation is incomplete.
+   Documentation contains many incorrect references and descriptions.
+   
+   User manual is nonexistent.
+   
+   This is a proof-of-concept and not intended to be used for anything - yet.
 
 Overview
 --------
 
 * **Neutrino** // :py:obj:`neutrino.main.Neutrino`
 
-   * Manages :py:obj:`Streams<neutrino.stream.Stream>` and :py:obj:`Links<neutrino.link.Link>`.
+   * Manages :py:obj:`Streams<neutrino.stream.Stream>` and inherits from :py:obj:`Link<neutrino.link.Link>`.
    * Performs operations as directed by the user.
    * TBD re: data structure.
 
@@ -33,7 +37,18 @@ Neutrino
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: neutrino.interface
+Datum
+-----
+
+.. automodule:: neutrino.datum
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Link
+----
+
+.. automodule:: neutrino.link
    :members:
    :undoc-members:
    :show-inheritance:
@@ -46,10 +61,18 @@ Stream
    :undoc-members:
    :show-inheritance:
 
-Link
-----
+Authenticator
+-------------
 
-.. automodule:: neutrino.link
+.. automodule:: neutrino.authenticator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Updater
+-------
+
+.. automodule:: neutrino.updater
    :members:
    :undoc-members:
    :show-inheritance:

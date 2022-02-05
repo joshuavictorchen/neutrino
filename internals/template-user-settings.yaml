@@ -1,0 +1,23 @@
+---
+
+# path to yaml containing definitions for API keys; example below
+# (this will be handled more securely in the future)
+#
+# key_nickname:
+#   public: access_key_string
+#   private: secret_key_string
+#   passphrase: user_passphrase_string
+#    
+keys_file: absolute\path\to\keys\file.yaml
+
+check_for_updates: True
+
+reference_time: 2021-11-06 00:00
+
+default_stream:
+  type: ticker
+  product_ids:
+    - BTC-USD
+  channels:
+    - ticker
+    - user
