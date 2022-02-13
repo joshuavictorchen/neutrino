@@ -13,6 +13,7 @@ setup(
         "datetime",
         "matplotlib",
         "numpy",
+        "pandasql",
         "python-dateutil",
         "pyyaml",
         "sphinx",

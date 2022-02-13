@@ -10,6 +10,7 @@ from neutrino.datum import Datum
 from neutrino.link import Link
 from neutrino.stream import Stream
 from neutrino.updater import Updater
+from pandasql import sqldf
 from pathlib import Path
 from threading import Thread
 
@@ -17,7 +18,7 @@ from threading import Thread
 def main():
 
     # instantiate a Neutrino
-    n = Neutrino(cbkey_set_name="default", from_database=True)
+    n = Neutrino(cbkey_set_name="default", from_database=True, save=False)
 
     # start interacting
     n.interact()
@@ -326,10 +327,11 @@ class Neutrino(Link):
                     **kwargs,
                 ).df
 
-                # store the currency of the account for which the ledger is being pulled
+                # store the currency and account_id of the account for which the ledger is being pulled
                 # this is important because some product_ids contain two currencies (i.e. "LRC-BTC"),
                 # but from different currency perspectives (i.e., one with LRC denomination and one with BTC)
                 this_ledger["currency"] = currency
+                this_ledger["account_id"] = account_id
 
                 ledgers_df = ledgers_df.append(this_ledger, ignore_index=True)
 
@@ -343,7 +345,6 @@ class Neutrino(Link):
         return self.ledgers
 
     # The following is a legacy function that is left as a comment for potential future use.
-    #
     # It is an artefact of the original direction of the neutrino program, which sought to
     # provide functions for each API endpoint, similar to the existing cbpro-python package.
     #
@@ -362,6 +363,176 @@ class Neutrino(Link):
     #         )
     #
     #     return account_ledger
+
+    ###########################################################################
+    # analysis methods
+    ###########################################################################
+
+    def get_consolidated_history(self, accounts_df=None, orders_df=None, transfers_df=None, ledgers_df=None):
+        
+        accounts_df = self.accounts.df if not accounts_df else accounts_df
+        orders_df = self.orders.df if not orders_df else orders_df
+        transfers_df = self.transfers.df if not transfers_df else transfers_df
+        ledgers_df = self.ledgers.df if not ledgers_df else ledgers_df
+
+        accounts_df = deepcopy(accounts_df)
+        orders_df = deepcopy(orders_df)
+        transfers_df = deepcopy(transfers_df)
+        ledgers_df = deepcopy(ledgers_df)
+
+        # create orders_df fields for: reference_coin, exchange_coin
+        orders_df['reference_coin'] = orders_df['product_id'].apply(lambda x: x.split('-')[0])
+        orders_df['exchange_coin'] = orders_df['product_id'].apply(lambda x: x.split('-')[1])
+
+        # create 'reverse_side' field that is reverse of buy/sell
+        orders_df['reverse_side'] = orders_df['side'].apply(
+            lambda x: 'sell' if x == 'buy' else ('buy' if x == 'sell' else None)
+        )
+
+        # prep ledgers_df
+        ledgers_df = sqldf("""
+            select
+                sum(amount) as amount,
+                balance,
+                max(created_at) as created_at,
+                type,
+                order_id,
+                product_id,
+                transfer_id,
+                transfer_type,
+                account_id
+            from
+                ledgers_df
+            group by
+                order_id,
+                product_id,
+                transfer_id,
+                transfer_type,
+                account_id
+        """, locals())
+
+        # generate history table
+        history_df = sqldf("""
+            select
+                ledgers_df.created_at as timestamp,
+                accounts_df.currency as account_coin,
+                ledgers_df.account_id,
+                ledgers_df.balance as account_balance,
+                null as account_usd_value,
+                null as account_btc_value,
+                case
+                    when
+                        orders_df.reference_coin = accounts_df.currency
+                    then
+                        orders_df.side
+                    when
+                        orders_df.reference_coin != accounts_df.currency
+                    then
+                        orders_df.reverse_side
+                    else
+                        transfers_df.type
+                end as activity,
+                case
+                    when
+                        orders_df.id is not null
+                    then
+                        orders_df.id
+                    when
+                        transfers_df.id is not null
+                    then
+                        transfers_df.id
+                end as activity_id,
+                case
+                    when
+                        orders_df.reference_coin = accounts_df.currency
+                    then
+                        case
+                            when
+                                orders_df.side = 'buy'
+                            then
+                                orders_df.filled_size
+                            else
+                                orders_df.filled_size * -1
+                        end
+                    when
+                        orders_df.reference_coin != accounts_df.currency
+                    then
+                        case
+                            when
+                                orders_df.side = 'buy'
+                            then
+                                (orders_df.executed_value + orders_df.fill_fees) * -1
+                            else
+                                orders_df.executed_value - orders_df.fill_fees
+                        end
+                    when
+                        transfers_df.type = 'deposit'
+                    then
+                        transfers_df.amount
+                    when
+                        transfers_df.type = 'withdraw'
+                    then
+                        transfers_df.amount * -1
+                end as activity_impact,
+                null as activity_impact_usd_value,
+                null as activity_impact_btc_value,
+                orders_df.product_id as order_product_id,
+                case
+                    when
+                        orders_df.reference_coin = accounts_df.currency
+                    then
+                        TRUE
+                    else
+                        FALSE
+                end as order_product_id_reference,
+                orders_df.type as order_type,
+                orders_df.post_only as order_post_only,
+                orders_df.created_at as order_creation_timestamp,
+                null as order_duration,
+                case
+                    when
+                        orders_df.reference_coin = accounts_df.currency
+                    then
+                        orders_df.exchange_coin
+                    else
+                        orders_df.reference_coin
+                end as order_exchanged_coin,
+                case
+                    when
+                        orders_df.reference_coin = accounts_df.currency
+                    then
+                        orders_df.executed_value
+                    else
+                        orders_df.filled_size
+                end as order_exchanged_amount,
+                case
+                    when
+                        orders_df.reference_coin = accounts_df.currency
+                    then
+                        orders_df.fill_fees
+                    else
+                        null
+                end as order_exchanged_fee,
+                null as final_balance
+            from
+                ledgers_df
+            left join
+                accounts_df
+            on
+                ledgers_df.account_id = accounts_df.id
+            left join
+                orders_df
+            on
+                ledgers_df.order_id = orders_df.id
+            left join
+                transfers_df
+            on
+                ledgers_df.transfer_id = transfers_df.id
+            order by
+                ledgers_df.created_at
+        """, locals())
+
+        return history_df
 
     ###########################################################################
     # candle methods
@@ -986,8 +1157,15 @@ class Neutrino(Link):
                         print()
                         print(candles_df)
 
-                    elif arg[1] == "all":
-                        print("\n TBD")
+                    elif arg[1] == "history":
+                        history_df = self.get_consolidated_history(
+                            self.accounts.df,
+                            self.orders.df,
+                            self.transfers.df,
+                            self.ledgers.df
+                        )
+                        print()
+                        print(history_df)
 
                     else:  # generic API/database request
 
