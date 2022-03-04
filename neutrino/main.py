@@ -433,14 +433,14 @@ class Neutrino(Link):
                 product_id, granularity, start, end
             )
 
+        # save to CSV, if applicable
+        if save:
+            t.save_df_to_csv(candles_df, csv_name, self.database_path)
+
         # trim candles_df to the requested bounds
         returned_df = candles_df[
             (candles_df["time"] >= start) & (candles_df["time"] <= end)
         ].reset_index(drop=True)
-
-        # save to CSV, if applicable
-        if save:
-            returned_df = t.save_df_to_csv(candles_df, csv_name, self.database_path)
 
         return returned_df
 
