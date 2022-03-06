@@ -8,7 +8,7 @@ This project is under construction. `Initial documentation can be found here <ht
 Overview
 --------
 
-.. figure:: _images/flow-overview.png
+.. figure:: docs/_images/flow-overview.png
    :scale: 75 %
 
 .. |Build Status| image:: https://github.com/joshuavictorchen/neutrino/actions/workflows/main.yml/badge.svg?branch=master
