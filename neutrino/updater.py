@@ -1,5 +1,5 @@
 import git
-import neutrino
+import neutrino.config as c
 import neutrino.tools as t
 import os
 import subprocess
@@ -115,7 +115,7 @@ class Updater:
 
             # get update metadata
             update_info = t.parse_yaml(
-                neutrino.root_dir / "internals/update-info.yaml", echo_yaml=False
+                c.root_dir / "internals/update-info.yaml", echo_yaml=False
             )
 
             print(f"\n Updates pulled - change summary:\n")
@@ -129,7 +129,7 @@ class Updater:
             # NOTE: permissions issues arise during setup if the user is in a venv
             #       if the user is in a venv, then prompt them to execute the pip install command manually
             if update_info.get("pip_install"):
-                print(neutrino.DIVIDER)
+                print(c.DIVIDER)
                 print("\n A pip install is required to complete this update.")
                 if os.environ.get("VIRTUAL_ENV") is not None:
                     input(
@@ -144,7 +144,7 @@ class Updater:
                     if pip_install == "":
                         print()
                         this_dir = os.getcwd()
-                        os.chdir(neutrino.root_dir)
+                        os.chdir(c.root_dir)
                         subprocess.call("pip install -U -e . --user")
                         os.chdir(this_dir)
                     else:
