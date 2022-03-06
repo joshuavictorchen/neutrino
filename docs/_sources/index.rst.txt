@@ -1,6 +1,8 @@
-.. include:: overview.rst
+Overview
+--------
 
-.. include:: installation.rst
+.. figure:: _images/flow-overview.png
+   :scale: 75 %
 
 Contents
 --------
@@ -8,4 +10,6 @@ Contents
 .. toctree::
    :maxdepth: 1
 
+   manual
+   architecture
    api

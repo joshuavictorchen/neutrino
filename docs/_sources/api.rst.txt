@@ -3,7 +3,7 @@ API Documentation
 
 .. warning::
 
-   This is a prototype. Documentation may contain incorrect references and descriptions.
+   This is a prototype. Documentation is incomplete and may contain incorrect references and descriptions.
 
 * **Neutrino** // :py:obj:`neutrino.main.Neutrino`
 

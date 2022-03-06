@@ -1,5 +1,8 @@
+User Manual
+-----------
+
 Installation
-------------
+============
 
 Prerequisites:
     * Python 3.8+
@@ -14,3 +17,8 @@ Navigate into a directory of choice and grab the code from this repository::
 
     cd neutrino
     pip install -U -e .
+
+Initial Configuration
+=====================
+
+*to be completed*
