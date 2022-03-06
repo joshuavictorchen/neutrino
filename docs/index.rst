@@ -1,86 +1,29 @@
-.. toctree::
- :maxdepth: 3
-
-.. warning::
-
-   Documentation contains many incorrect references and descriptions.
-   
-   User manual is nonexistent.
-   
-   This is a proof-of-concept and not intended to be used for anything - yet.
-
 Overview
 --------
 
-* **Neutrino** // :py:obj:`neutrino.main.Neutrino`
+.. image:: _images/flow-overview.png
 
-   * Manages :py:obj:`Streams<neutrino.stream.Stream>` and inherits from :py:obj:`Link<neutrino.link.Link>`.
-   * Performs operations as directed by the user.
-   * TBD re: data structure.
+Installation
+------------
 
-* **Stream** // :py:obj:`neutrino.stream.Stream`
-   
-   * Connects to the Coinbase Pro WebSocket feed and retrieves ticker, order, etc. data.
-   * Performs a **minimal** amount of actions as to not fall behind the WebSocket feed.
-   * TBD re: if there should be one instance per coin/channel.
-   * TBD re: storing a limited amount of internal data.
+Prerequisites:
+   * Python 3.8+
+   * Git 2.33+
+   * Coinbase Pro API keys
 
-* **Link** // :py:obj:`neutrino.link.Link`
+Navigate into a directory of choice and grab the code from this repository::
 
-   * Handles Coinbase Pro API requests. Used to get account information, place orders, etc.
+   git clone https://github.com/joshuavictorchen/neutrino.git neutrino
 
-Neutrino
+``cd`` into ``neutrino`` and install the application. Use of a venv is recommended::
+
+   cd neutrino
+   pip install -U -e .
+
+Contents
 --------
 
-.. autoclass:: neutrino.main.Neutrino
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
 
-Datum
------
-
-.. automodule:: neutrino.datum
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Link
-----
-
-.. automodule:: neutrino.link
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Stream
-------
-
-.. automodule:: neutrino.stream
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Authenticator
--------------
-
-.. automodule:: neutrino.authenticator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Updater
--------
-
-.. automodule:: neutrino.updater
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Tools
------
-
-.. automodule:: neutrino.tools
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   api

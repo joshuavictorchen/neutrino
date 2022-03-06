@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>neutrino.updater &mdash; docs</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/logo-original.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #283618" >
+            <a href="../../index.html" class="icon icon-home"> neutrino
+            <img src="../../_static/logo-64.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                beta
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #283618" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">neutrino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>neutrino.updater</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for neutrino.updater</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">git</span>
+<span class="kn">import</span> <span class="nn">neutrino.config</span> <span class="k">as</span> <span class="nn">c</span>
+<span class="kn">import</span> <span class="nn">neutrino.tools</span> <span class="k">as</span> <span class="nn">t</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+
+<div class="viewcode-block" id="Updater"><a class="viewcode-back" href="../../api.html#neutrino.updater.Updater">[docs]</a><span class="k">class</span> <span class="nc">Updater</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Checks for updates to the neutrino repository. Implements them and handles pip installs as applicable.</span>
+
+<span class="sd">    **Instance attributes:** \n</span>
+<span class="sd">        * **repo** (:py:obj:`git.Repo`): Object representing the local neutrino repository.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        print (bool): Prints the repo&#39;s metadata to the console upon instantiation if ``True``. Defaults to ``True``.</span>
+<span class="sd">        check (bool): Checks for repo updates upon instantiation if ``True``. Defaults to ``True``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_repo</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">print</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_repo</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_for_updates</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Updater.retrieve_repo"><a class="viewcode-back" href="../../api.html#neutrino.updater.Updater.retrieve_repo">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves metadata on the local neutrino repository. Optionally prints to the console via :py:obj:`print_repo`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Repo: :py:obj:`git.Repo` object representing the local neutrino repository.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># instantiate a repo object for the neutrino repository</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">search_parent_directories</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span></div>
+
+<div class="viewcode-block" id="Updater.check_for_updates"><a class="viewcode-back" href="../../api.html#neutrino.updater.Updater.check_for_updates">[docs]</a>    <span class="k">def</span> <span class="nf">check_for_updates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs a ``git fetch`` command to check for updates to the current branch of the repository.</span>
+
+<span class="sd">        If updates exist, then prompts the user to execute :py:obj:`Neutrino.update_neutrino`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: ``True`` if updates are available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Checking for updates...&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">remotes</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+        <span class="n">updates_available</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># if head is in detached state, then return with no updates</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">is_detached</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; repo&#39;s HEAD is detached.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">updates_available</span>
+
+        <span class="c1"># check for newer commits</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span>
+                <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">iter_commits</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">active_branch</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">..origin/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">active_branch</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="n">updates_available</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">updates_available</span><span class="p">:</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                <span class="s2">&quot; updates are available. </span><span class="se">\</span>
+<span class="s2">                </span><span class="se">\n\n</span><span class="s2"> Press [enter] to update the neutrino. Input any other key to continue without updating: &quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">update</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_neutrino</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; the neutrino is up to date.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">updates_available</span></div>
+
+<div class="viewcode-block" id="Updater.update_neutrino"><a class="viewcode-back" href="../../api.html#neutrino.updater.Updater.update_neutrino">[docs]</a>    <span class="k">def</span> <span class="nf">update_neutrino</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs the following actions to update the neutrino program:</span>
+
+<span class="sd">            1. Checks for updates. If no updates are available, the function is exited.</span>
+<span class="sd">            2. Performs a ``git pull`` if updates are available.</span>
+<span class="sd">            3. Checks ``\\internals\\update-info.yaml`` to see if a ``pip install`` is required.</span>
+<span class="sd">            4. If required, prompts the user to approve the ``pip install`` action.</span>
+<span class="sd">            5. If approved, performs the ``pip install`` action.</span>
+<span class="sd">            6. Displays the change summary from ``\\internals\\update-info.yaml``.</span>
+<span class="sd">            7. Exits the program, which must be restarted for the changes to take effect.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            force (bool, optional): Skips step 1 (above) if set to ``True``. Defaults to ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># check for updates, unless updates have already been checked for, or a force update has been specified</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_for_updates</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># git pull</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">remotes</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+
+            <span class="c1"># git submodule update --init</span>
+            <span class="k">for</span> <span class="n">submodule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">submodules</span><span class="p">:</span>
+                <span class="n">submodule</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># get update metadata</span>
+            <span class="n">update_info</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">parse_yaml</span><span class="p">(</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="s2">&quot;internals/update-info.yaml&quot;</span><span class="p">,</span> <span class="n">echo_yaml</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Updates pulled - change summary:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">update_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;changelog&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   + </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_repo</span><span class="p">()</span>
+
+            <span class="c1"># if a pip install is required for this update, then do a pip install</span>
+            <span class="c1"># remember to switch to the root directory first, then switch back after</span>
+            <span class="c1"># NOTE: permissions issues arise during setup if the user is in a venv</span>
+            <span class="c1">#       if the user is in a venv, then prompt them to execute the pip install command manually</span>
+            <span class="k">if</span> <span class="n">update_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pip_install&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">DIVIDER</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> A pip install is required to complete this update.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;VIRTUAL_ENV&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">input</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot; Since you are in a venv, the following command must be executed manually: </span><span class="se">\</span>
+<span class="s2">                        </span><span class="se">\n\n</span><span class="s2">   pip install -U -e . </span><span class="se">\</span>
+<span class="s2">                        </span><span class="se">\n\n</span><span class="s2"> Press [enter] or input any key to acknowledge: &quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pip_install</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Press [enter] to perform this installation. Input any other key to decline: &quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pip_install</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">()</span>
+                        <span class="n">this_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span>
+                        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;pip install -U -e . --user&quot;</span><span class="p">)</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">this_dir</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> WARNING: pip install not performed - some dependencies may be missing.&quot;</span>
+                        <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Error during self-update process:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)]</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+                <span class="s2">&quot; Self-update cancelled. Please check your repository configuration and/or try a manual update.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Neutrino annihilated.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Updater.print_repo"><a class="viewcode-back" href="../../api.html#neutrino.updater.Updater.print_repo">[docs]</a>    <span class="k">def</span> <span class="nf">print_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prints information about the current state of :py:obj:`self.repo`&#39;s repository in the following form:</span>
+
+<span class="sd">        ``n | {branch}-{commit}`` if the repository is clean</span>
+
+<span class="sd">        ``n | {branch}-{commit}-modified`` if the repository is dirty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># get repo attributes</span>
+        <span class="n">branch_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">active_branch</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">commit_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">hexsha</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span>
+        <span class="n">is_dirty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">is_dirty</span><span class="p">(</span><span class="n">untracked_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># format output</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> n | </span><span class="si">{</span><span class="n">branch_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">commit_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">is_dirty</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;-modified&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Joshua Chen.
+      <span class="lastupdated">Last updated on 2022-03-06 15:08:55.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>neutrino.stream &mdash; docs</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/logo-original.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #283618" >
+            <a href="../../index.html" class="icon icon-home"> neutrino
+            <img src="../../_static/logo-64.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                beta
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #283618" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">neutrino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>neutrino.stream</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for neutrino.stream</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">neutrino.config</span> <span class="k">as</span> <span class="nn">c</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">neutrino.authenticator</span> <span class="kn">import</span> <span class="n">Authenticator</span>
+<span class="kn">from</span> <span class="nn">websocket</span> <span class="kn">import</span> <span class="n">create_connection</span>
+
+
+<div class="viewcode-block" id="Stream"><a class="viewcode-back" href="../../api.html#neutrino.stream.Stream">[docs]</a><span class="k">class</span> <span class="nc">Stream</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Opens a WebSocket connection and streams/stores Coinbase Pro data.</span>
+
+<span class="sd">    Further reading: https://docs.cloud.coinbase.com/exchange/docs/overview</span>
+
+<span class="sd">    **Instance attributes:** \n</span>
+<span class="sd">        * **name** (*str*): Stream&#39;s name.</span>
+<span class="sd">        * **request** (*str*): Request sent to the WebSocket endpoint upon connection. \</span>
+<span class="sd">            Configured during Stream instantiation.</span>
+<span class="sd">        * **socket** (*WebSocket*): Stream&#39;s WebSocket object.</span>
+<span class="sd">        * **active** (*bool*): ``True`` if the Stream has a live (connected) WebSocket object, ``False`` otherwise.</span>
+<span class="sd">        * **kill_order** (*bool*): ``True`` if the WebSocket connection should be closed on the next iteration, \</span>
+<span class="sd">            ``False`` otherwise.</span>
+<span class="sd">        * **stored_messages** (*list(dict)*): *to be created*</span>
+<span class="sd">        * **latest_message** (*tuple(int, dict)*): Tuple containing the total number of WebSocket messages received, \</span>
+<span class="sd">            along with the latest WebSocket message received.</span>
+<span class="sd">        * **killed** (*bool*): ``True`` if the Stream has already been started and killed. Dead Streams cannot be revived.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): Unique name for this Stream object.</span>
+<span class="sd">        type (str): Type of message that is sent to the WebSocket endpoint upon opening a connection \</span>
+<span class="sd">            (usually &#39;subscribe&#39;).</span>
+<span class="sd">        product_ids (list(str)): List of coin trading pairs (i.e., [&#39;BTC-USD&#39;]).</span>
+<span class="sd">        channels (list(str)): List of channels specified for the WebSocket connection (i.e., [&#39;ticker&#39;]).</span>
+<span class="sd">        auth_keys (dict(str)): Dictionary of Coinbase Pro API keys with which the Stream&#39;s WebSocket connection \</span>
+<span class="sd">            will be authenticated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">product_ids</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">auth_keys</span><span class="p">):</span>
+
+        <span class="c1"># create request for the stream</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;product_ids&quot;</span><span class="p">:</span> <span class="n">product_ids</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="n">channels</span><span class="p">}</span>
+
+        <span class="c1"># authenticate by updating the request with auth fields</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">auth_headers</span> <span class="o">=</span> <span class="n">Authenticator</span><span class="o">.</span><span class="n">generate_auth_headers</span><span class="p">(</span>
+            <span class="n">timestamp</span><span class="p">,</span> <span class="n">timestamp</span> <span class="o">+</span> <span class="s2">&quot;GET/users/self/verify&quot;</span><span class="p">,</span> <span class="n">auth_keys</span>
+        <span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;signature&quot;</span><span class="p">:</span> <span class="n">auth_headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CB-ACCESS-SIGN&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">auth_headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CB-ACCESS-KEY&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;passphrase&quot;</span><span class="p">:</span> <span class="n">auth_headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CB-ACCESS-PASSPHRASE&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">auth_headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CB-ACCESS-TIMESTAMP&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># establish attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kill_order</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stored_messages</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latest_message</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">killed</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Stream.stream"><a class="viewcode-back" href="../../api.html#neutrino.stream.Stream.stream">[docs]</a>    <span class="k">def</span> <span class="nf">stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Opens a WebSocket connection and streams data from the Coinbase Exchange websocket feed \</span>
+<span class="sd">            until the Stream is killed.</span>
+
+<span class="sd">        .. admonition:: TODO</span>
+
+<span class="sd">            * Check for (and handle) message errors.</span>
+<span class="sd">            * Add stored data and periodically flush it (i.e., for live minute-avg calcs, etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Starting stream: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># open socket and update streams dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">create_connection</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">stream_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># keep streaming data until self.kill_order = True</span>
+        <span class="n">streamed_message_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">kill_order</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># load WebSocket message into dictionary and store it in self.latest_message</span>
+                <span class="c1"># along with the message count</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv</span><span class="p">())</span>
+                <span class="n">streamed_message_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">latest_message</span> <span class="o">=</span> <span class="p">(</span><span class="n">streamed_message_count</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> ERROR: the stream has encountered the following exception:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)]</span>
+
+        <span class="c1"># close stream</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Stream.kill"><a class="viewcode-back" href="../../api.html#neutrino.stream.Stream.kill">[docs]</a>    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the Stream&#39;s :py:obj:`kill_order` attribute to :py:obj:`True`, \</span>
+<span class="sd">        which kills the Stream upon receipt of the next WebSocket message.</span>
+
+<span class="sd">        .. admonition:: TODO</span>
+
+<span class="sd">            * Kill the stream immediately instead of depending on the receipt of a new message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kill_order</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Stream.close"><a class="viewcode-back" href="../../api.html#neutrino.stream.Stream.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Closes the Stream&#39;s WebSocket connection and sets its ``active`` attribute to ``False`` \</span>
+<span class="sd">            and ``killed`` attribute to ``True``.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">killed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> stream &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; closed&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Joshua Chen.
+      <span class="lastupdated">Last updated on 2022-03-06 15:08:55.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

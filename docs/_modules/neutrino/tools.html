@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>neutrino.tools &mdash; docs</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/logo-original.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #283618" >
+            <a href="../../index.html" class="icon icon-home"> neutrino
+            <img src="../../_static/logo-64.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                beta
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #283618" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">neutrino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>neutrino.tools</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for neutrino.tools</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">neutrino.config</span> <span class="k">as</span> <span class="nn">c</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">dateutil.parser</span> <span class="kn">import</span> <span class="n">isoparse</span>
+
+
+<div class="viewcode-block" id="print_recursive_dict"><a class="viewcode-back" href="../../api.html#neutrino.tools.print_recursive_dict">[docs]</a><span class="k">def</span> <span class="nf">print_recursive_dict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent_spaces</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">indent_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">recursion</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prints a formatted nested dictionary to the console.</span>
+
+<span class="sd">    .. code-block::</span>
+
+<span class="sd">        # example console output for an input of {&#39;123&#39;:{&#39;456&#39;:[&#39;aaa&#39;, &#39;bbb&#39;, &#39;ccc&#39;]}}</span>
+
+<span class="sd">        &quot;</span>
+<span class="sd">            123 :</span>
+<span class="sd">                    456 : aaa</span>
+<span class="sd">                        bbb</span>
+<span class="sd">                        ccc&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (dict): Dictionary of values that can be converted to strings.</span>
+<span class="sd">        indent_spaces (int, optional): Number of leading whitespaces to insert before each element. Defaults to 3.</span>
+<span class="sd">        indent_step (int, optional): Number of whitespaces to increase the indentation by, for each level of ``dict`` nesting. Defaults to 2.</span>
+<span class="sd">        recursion (bool, optional): Whether or not this method is being called by itself. Defaults to False.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># print a newline once, prior to the formatted dictionary</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">recursion</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">()</span>
+
+    <span class="c1"># loop through the dictionary</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="c1"># the right-justification for each key is equal to the length of the longest key</span>
+        <span class="n">rjust</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">))</span>
+
+        <span class="c1"># if the value is a dictionary, then recursively call this function to print the inner dictionary</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">indent_spaces</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">rjust</span><span class="p">)</span><span class="si">}</span><span class="s2"> : &quot;</span><span class="p">)</span>
+            <span class="n">print_recursive_dict</span><span class="p">(</span>
+                <span class="n">list_to_string</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">rjust</span><span class="p">),</span>
+                <span class="n">indent_spaces</span>
+                <span class="o">+</span> <span class="n">indent_step</span>
+                <span class="o">+</span> <span class="n">rjust</span>
+                <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># adjust the indentation level of the inner dictionary</span>
+                <span class="n">indent_step</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># if the value is not a dictionary, then print the key-value pair</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">indent_spaces</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">rjust</span><span class="p">)</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">list_to_string</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">rjust</span> <span class="o">+</span> <span class="n">indent_spaces</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="list_to_string"><a class="viewcode-back" href="../../api.html#neutrino.tools.list_to_string">[docs]</a><span class="k">def</span> <span class="nf">list_to_string</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">leading_whitespaces</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes a list and returns a formatted string containing each element delimited by newlines.</span>
+
+<span class="sd">    .. admonition:: TODO</span>
+
+<span class="sd">        Incorporate :py:obj:`print_recursive_dict` for lists with dictionary elements, i.e. ``[{}, {}]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value (list): A list of elements that can be represented by strings.</span>
+<span class="sd">        leading_whitespaces (int, optional): Number of leading whitespaces to insert before each element. Defaults to 1.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Formatted string containing each element of the provided list delimited by newlines, with ``leading_whitespaces`` leading whitespaces before each element.</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            # example returned string for an input of [&#39;abc&#39;, &#39;def&#39;, &#39;ghi&#39;]</span>
+
+<span class="sd">            &quot; abc\\n def\\n ghi&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># just return the same value if it&#39;s not a list</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="c1"># if the list is empty, then return a blank string</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="c1"># if the list has only one element, then return that element</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># if the list has more than one element, then return a string containing each element delimited by newlines</span>
+    <span class="c1"># add leading_whitespaces number of leading whitespaces before each element</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">return_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+            <span class="n">return_string</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">leading_whitespaces</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">return_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="load_yaml_settings"><a class="viewcode-back" href="../../api.html#neutrino.tools.load_yaml_settings">[docs]</a><span class="k">def</span> <span class="nf">load_yaml_settings</span><span class="p">(</span><span class="n">settings_file</span><span class="p">,</span> <span class="n">settings_template_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads a dictionary of settings values from a YAML file.</span>
+
+<span class="sd">    This YAML file is gitignored so that the repository&#39;s configuration is not affected by user personalization.</span>
+
+<span class="sd">    If the YAML file does not exist, then it is copied from the repository&#39;s version controlled template.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        settings_file (str): Absolute path to the gitignored YAML file.</span>
+<span class="sd">        settings_template_file (str): Absolute path to the version controlled YAML template.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary representation of loaded settings from a YAML file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># if file does not exist, copy one from the default template</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">settings_file</span><span class="p">):</span>
+        <span class="c1"># TODO: prompt user to update keys_file defs, etc.</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">settings_template_file</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Settings file generated: </span><span class="si">{</span><span class="n">settings_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">parse_yaml</span><span class="p">(</span><span class="n">settings_file</span><span class="p">,</span> <span class="n">echo_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">settings</span></div>
+
+
+<div class="viewcode-block" id="parse_yaml"><a class="viewcode-back" href="../../api.html#neutrino.tools.parse_yaml">[docs]</a><span class="k">def</span> <span class="nf">parse_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">echo_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses a YAML file and returns a dict of its contents. Optionally prints the formatted dict to the console.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filepath (str): Path to the supplied YAML file.</span>
+<span class="sd">        echo_yaml (bool, optional): Whether or not to print the formatted loaded dict to the console. Defaults to True.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary of contents loaded from the supplied YAML file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># open the file and load its data into a dict</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Neutrino annihilated - YAML file is corrupted:</span><span class="se">\n\n</span><span class="s2"> </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># if echo_yaml is True, then print the formatted dict to the console</span>
+    <span class="k">if</span> <span class="n">echo_yaml</span><span class="p">:</span>
+        <span class="n">print_recursive_dict</span><span class="p">(</span><span class="n">yaml_data</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">yaml_data</span></div>
+
+
+<div class="viewcode-block" id="save_df_to_csv"><a class="viewcode-back" href="../../api.html#neutrino.tools.save_df_to_csv">[docs]</a><span class="k">def</span> <span class="nf">save_df_to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">csv_name</span><span class="p">,</span> <span class="n">database_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exports the provided DataFrame to a CSV file. Cleans timestrings per :py:obj:`clean_df_timestrings`.\</span>
+<span class="sd">        Prompts the user to close the file if it exists and is open.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (DataFrame): DataFrame to be exported to a CSV file.</span>
+<span class="sd">        csv_name (str): Name of the CSV file to be saved, **without** the ``.csv`` extension \</span>
+<span class="sd">            (i.e., ``saved_file`` instead of ``saved_file.csv``).</span>
+<span class="sd">        database_path (Path): Absolute path to the directory in which the CSV file will be saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: default behavior should be to APPEND to CSV, with option to OVERWRITE</span>
+
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">database_path</span> <span class="o">/</span> <span class="p">(</span><span class="n">csv_name</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">clean_df_timestrings</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="ne">PermissionError</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Error exporting </span><span class="si">{</span><span class="n">csv_name</span><span class="si">}</span><span class="s2"> to CSV: </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2"> is currently open.</span><span class="se">\</span>
+<span class="s2">                </span><span class="se">\n</span><span class="s2"> Close the file and press [enter] to continue. Input any other key to abort: &quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">csv_name</span><span class="si">}</span><span class="s2"> CSV not saved.&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">csv_name</span><span class="si">}</span><span class="s2"> exported to: </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="clean_df_timestrings"><a class="viewcode-back" href="../../api.html#neutrino.tools.clean_df_timestrings">[docs]</a><span class="k">def</span> <span class="nf">clean_df_timestrings</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ensure the provided DataFrame&#39;s time string columns are properly formatted (``%Y-%m-%d %H:%M``). \</span>
+<span class="sd">    This is needed because timestrings loaded into a DataFrame from a CSV file may be automatically reformatted \</span>
+<span class="sd">    into another configuration.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">    </span>
+<span class="sd">        This does not affect time strings stored in ISO 8601 format.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (DataFrame): DataFrame to be processed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame: DataFrame object with cleaned time string columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># use the add_minutes_to_time_string method (adding 0 minutes) on each column</span>
+    <span class="c1"># this ensures proper time string formatting for all columns containing generic time string strings</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">add_minutes_to_time_string</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="move_df_column_inplace"><a class="viewcode-back" href="../../api.html#neutrino.tools.move_df_column_inplace">[docs]</a><span class="k">def</span> <span class="nf">move_df_column_inplace</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Moves a DataFrame column to the specified index position inplace.</span>
+
+<span class="sd">    Credit: https://stackoverflow.com/a/58686641/17591579</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (DataFrame): DataFrame whose columns will be rearranged.</span>
+<span class="sd">        column (str): Name of the column to be moved.</span>
+<span class="sd">        position (int): Index to which the column will be moved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="local_to_ISO_time_string"><a class="viewcode-back" href="../../api.html#neutrino.tools.local_to_ISO_time_string">[docs]</a><span class="k">def</span> <span class="nf">local_to_ISO_time_string</span><span class="p">(</span><span class="n">local_time_string</span><span class="p">,</span> <span class="n">time_format</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">TIME_FORMAT</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts a local time string to an ISO 8601 time string.</span>
+
+<span class="sd">    Example use case: converting user-specified start/end times in Link.get_product_candles().</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        local_time_string (string): Time string with the specified time_format.</span>
+<span class="sd">        time_format (string, optional): Format of local_time_string.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: ISO 8601 time string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># use epoch as an intermediary for conversion</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">local_time_string</span><span class="p">,</span> <span class="n">time_format</span><span class="p">))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ISO_to_local_time_dt"><a class="viewcode-back" href="../../api.html#neutrino.tools.ISO_to_local_time_dt">[docs]</a><span class="k">def</span> <span class="nf">ISO_to_local_time_dt</span><span class="p">(</span><span class="n">ISO_time_string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts an ISO 8601 time string to a local-timezone datetime object.</span>
+
+<span class="sd">    Example use case: converting API-retrieved timestamps to a usable format for data processing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ISO_time_string (str): ISO 8601 time string.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        datetime: Datetime object (local timezone).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">isoparse</span><span class="p">(</span><span class="n">ISO_time_string</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ISO_to_local_time_string"><a class="viewcode-back" href="../../api.html#neutrino.tools.ISO_to_local_time_string">[docs]</a><span class="k">def</span> <span class="nf">ISO_to_local_time_string</span><span class="p">(</span><span class="n">ISO_time_string</span><span class="p">,</span> <span class="n">time_format</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">TIME_FORMAT</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts an ISO 8601 time string to a local time string.</span>
+
+<span class="sd">    Example use case: converting API-retrieved timestamps to local time format for output to the console.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ISO_time_string (str): ISO 8601 time string.</span>
+<span class="sd">        time_format (str, optional): Format of the returned local time string.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Local time string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">ISO_to_local_time_dt</span><span class="p">(</span><span class="n">ISO_time_string</span><span class="p">),</span> <span class="n">time_format</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_minutes_to_time_string"><a class="viewcode-back" href="../../api.html#neutrino.tools.add_minutes_to_time_string">[docs]</a><span class="k">def</span> <span class="nf">add_minutes_to_time_string</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span> <span class="n">minute_delta</span><span class="p">,</span> <span class="n">time_format</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">TIME_FORMAT</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adds minutes to a given time string and returns the result as another time string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        time_string (str): Original time string.</span>
+<span class="sd">        minute_delta (int): Minutes to add to the original time string. Can be negative.</span>
+<span class="sd">        time_format (str, optional): Format of the provided and returned time strings.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Result from time_string plus minute_delta.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">time_string</span><span class="p">,</span> <span class="n">time_format</span><span class="p">)</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">minute_delta</span><span class="p">),</span>
+        <span class="n">time_format</span><span class="p">,</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Joshua Chen.
+      <span class="lastupdated">Last updated on 2022-03-06 15:08:55.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
