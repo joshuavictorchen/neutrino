@@ -134,7 +134,7 @@ class Updater:
                 if os.environ.get("VIRTUAL_ENV") is not None:
                     input(
                         f" Since you are in a venv, the following command must be executed manually: \
-                        \n\n   pip install -U -e . \
+                        \n   pip install -U -e . \
                         \n\n Press [enter] or input any key to acknowledge: "
                     )
                 else:
