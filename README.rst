@@ -29,7 +29,7 @@ for constructing meaningful portfolio trackers and trading algorithms. At the ri
 overview, here's a simple prototype view that shows the performance of various currencies relative to BTC \
 using a fixed frame of reference:
 
-.. figure:: _docs/images/proto-view.jpg
+.. figure:: docs/_images/proto-view.jpg
 
    Prototype notebook view of currency performance relative to BTC using a fixed frame of reference.
 
@@ -58,40 +58,6 @@ Phase 2 - Reporting and analytics
 Phase 3 - Data-driven actions
     * Data posting features
     * Trading algorithms and implementation
-
-Prototype Example Screenshots
-=============================
-
-.. figure:: docs/_images/screenshot-initialization.png
-   :width: 800 px
-
-   Initialization of the **neutrino**. Repository metadata are displayed, and a ``git fetch`` command is executed \
-   in the background to check for updates. Data can be loaded via fresh API calls, or from a local database. \
-   In this case, the latter is used.
-
-.. figure:: docs/_images/screenshot-candles.png
-   :width: 800 px
-
-   BTC candle data pull as specified by a user settings file. This handled by \
-   :py:obj:`Neutrino.load_product_candles<neutrino.main.Neutrino.load_product_candles>`, which splits \
-   the request into requisite sub-requests per Coinbase Pro API constraints.
-
-.. figure:: docs/_images/screenshot-ledger.png
-   :width: 800 px
-
-   BTC ledger data pull for an authenticated account (private info redacted) \
-   via paginated API requests, which are recursively handled by \
-   :py:obj:`Link.send_api_request<neutrino.link.Link.send_api_request>`.
-
-.. figure:: docs/_images/screenshot-stream.png
-   :width: 800 px
-
-   Websocket stream as configured by a user settings file.
-
-.. figure:: docs/_images/screenshot-update.png
-   :width: 800 px
-
-   Built-in self-update capability using the :py:obj:`Updater<neutrino.updater.Updater>` module.
 
 .. |Build Status| image:: https://github.com/joshuavictorchen/neutrino/actions/workflows/main.yml/badge.svg?branch=master
     :target: https://github.com/joshuavictorchen/neutrino/actions/workflows/main.yml
