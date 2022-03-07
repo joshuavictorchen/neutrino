@@ -31,14 +31,12 @@ using a fixed frame of reference:
 
 .. figure:: docs/_images/proto-view.jpg
 
-   Prototype notebook view of currency performance relative to BTC using a fixed frame of reference.
-
 This kind of view gives a clear apples-to-apples performace comparison across currencies, and eliminates the \
 moving window problem by using a fixed reference point in time. This particular chart is useful for traders who \
 prefer BTC over fiat.
 
 Development Approach
-====================
+--------------------
 
 Formation of the **neutrino** is taking place across three phrases. It is currently in **Phase 1**, \
 as is evident by its lack of unit tests and meaningful documentation:
@@ -58,6 +56,8 @@ Phase 2 - Reporting and analytics
 Phase 3 - Data-driven actions
     * Data posting features
     * Trading algorithms and implementation
+
+Screenshots of the prototype CLI can be found in the `initial documentation here <https://joshuavictorchen.github.io/neutrino/>`_.
 
 .. |Build Status| image:: https://github.com/joshuavictorchen/neutrino/actions/workflows/main.yml/badge.svg?branch=master
     :target: https://github.com/joshuavictorchen/neutrino/actions/workflows/main.yml
