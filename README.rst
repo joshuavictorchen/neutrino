@@ -29,7 +29,9 @@ for constructing meaningful portfolio trackers and trading algorithms. At the ri
 overview, here's a simple prototype view that shows the performance of various currencies relative to BTC \
 using a fixed frame of reference:
 
+
 .. figure:: docs/_images/proto-view.jpg
+
 
 This kind of view gives a clear apples-to-apples performace comparison across currencies, and eliminates the \
 moving window problem by using a fixed reference point in time. This particular chart is useful for traders who \
