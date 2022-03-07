@@ -81,7 +81,7 @@ Prototype Example Screenshots
 
    Websocket stream as configured by a user settings file.
 
-screenshot of updates
+screenshot of updates 
 
 Contents
 --------
