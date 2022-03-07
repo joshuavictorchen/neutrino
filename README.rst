@@ -25,17 +25,14 @@ on most of the major exchanges, such as:
 3. How are XYZ currencies performing *relative to each other, from the perspective of Y point in time*?
 
 These are relatively simple examples, but one can imagine the usefulness of this data as a starting point \
-for constructing meaningful portfolio trackers and trading algorithms. At the risk of derailing this high-level \
-overview, here's a simple prototype view that shows the performance of various currencies relative to BTC \
-using a fixed frame of reference:
+for constructing meaningful portfolio trackers and trading algorithms.
 
+At the risk of derailing this high-level overview, here's a simple prototype view that shows the performance \
+of various currencies relative to BTC using a fixed frame of reference. This kind of view gives a clear apples-to-apples \
+performace comparison across currencies, and eliminates the moving window problem by using a fixed reference point in time. \
+This particular chart is useful for traders who prefer BTC over fiat:
 
 .. figure:: docs/_images/proto-view.jpg
-
-
-This kind of view gives a clear apples-to-apples performace comparison across currencies, and eliminates the \
-moving window problem by using a fixed reference point in time. This particular chart is useful for traders who \
-prefer BTC over fiat.
 
 Development Approach
 --------------------
