@@ -73,9 +73,56 @@
              
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h1>
-<figure class="align-default">
-<a class="reference internal image-reference" href="_images/flow-overview.png"><img alt="_images/flow-overview.png" src="_images/flow-overview.png" style="width: 206.25px; height: 342.0px;" /></a>
+<p>The <strong>neutrino</strong> is a prototype framework that provides custom cryptocurrency tracking views and executes data-driven orders via the Coinbase Pro platform. <strong>It is currently under development.</strong></p>
+<p>The first goal of this program is to provide actionable views that are not readily available on most of the major exchanges, such as:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>What is my total cost basis for X currency in USD, considering all historical trades on this account (including crypto-to-crypto transactions)? What is my current gain/loss given the current market prices?</p></li>
+<li><p>What is the gain/loss of X currency <em>from the perspective of Y point in time</em>? Popular views show the 24-hour delta, but this moving window and can lead to counterintuitive reports. For example, a currency may show an increasingly positive 24-hour delta despite a current decrease in price, provided that there was a more servere drop 24 hours ago and a subsequent recovery in between.</p></li>
+<li><p>How are XYZ currencies performing in <em>relative to each other, from the perspective of Y point in time</em>?</p></li>
+</ol>
+</div></blockquote>
+<p>These are relatively simple examples, but one can imagine the usefulness of this data as a starting point for constructing portfolio trackers and trading algorithms. At the risk of derailing this high-level overview, here’s a simple prototype view that shows the performance of various currencies relative to BTC using a fixed frame of reference:</p>
+<figure class="align-center align-default" id="id1">
+<img alt="_images/proto-view.jpg" src="_images/proto-view.jpg" />
+<figcaption>
+<p><span class="caption-text">Prototype notebook view of currency performance relative to BTC using a fixed frame of reference</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
 </figure>
+<p>This kind of view gives a clear apples-to-apples comparison of performance across cryptocurrency by fixing the reference point to eliminate the moving window problem. In this case, it’s particularly useful for traders who prefer BTC over fiat, but the chart can easily be switched to use any reference currency such as USD.</p>
+<p>In any case, documentation of this program is by no means complete (some would say it has hardly begun) - but here are a few screenshots of the current command line interface as-is:</p>
+<p>screenshot of login
+screenshot of candles
+screenshot of ledger
+screenshot of stream
+screenshot of updates</p>
+<section id="development-approach">
+<h2>Development Approach<a class="headerlink" href="#development-approach" title="Permalink to this headline"></a></h2>
+<p>Formation of the <strong>neutrino</strong> is taking place across three phrases. It is currently in <strong>Phase 1</strong>, as is evident by its current lack of unit tests and architectural documentation:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Phase 1 - Initial development</dt><dd><ul class="simple">
+<li><p>Framework and tooling</p></li>
+<li><p>Data pulling features</p></li>
+<li><p>Prototype CLI</p></li>
+<li><p>Unit tests and documentation</p></li>
+</ul>
+</dd>
+<dt>Phase 2 - Reporting and analytics</dt><dd><ul class="simple">
+<li><p>Local database configuration</p></li>
+<li><p>Analytics tooling</p></li>
+<li><p>Reporting views and features</p></li>
+<li><p>User manual</p></li>
+</ul>
+</dd>
+<dt>Phase 3 - Data-driven actions</dt><dd><ul class="simple">
+<li><p>Data posting features</p></li>
+<li><p>Trading algorithms and implementation</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+</section>
 </section>
 <section id="contents">
 <h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline"></a></h1>
@@ -99,7 +146,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-03-06 15:44:02.
+      <span class="lastupdated">Last updated on 2022-03-06 20:27:20.
       </span></p>
   </div>
 

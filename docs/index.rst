@@ -1,8 +1,66 @@
 Overview
 --------
 
-.. figure:: _images/flow-overview.png
-   :scale: 75 %
+The **neutrino** is a prototype framework that provides custom cryptocurrency tracking views and executes \
+data-driven orders via the Coinbase Pro platform. **It is currently under development.**
+
+The first goal of this program is to provide actionable views that are not readily available \
+on most of the major exchanges, such as:
+
+   1. What is my total cost basis for X currency in USD, considering all historical trades on this account \
+      (including crypto-to-crypto transactions)? What is my current gain/loss given the current market prices?  
+
+   2. What is the gain/loss of X currency *from the perspective of Y point in time*? \
+      Popular views show the 24-hour delta, but this moving window and can lead to counterintuitive reports. \
+      For example, a currency may show an increasingly positive 24-hour delta despite a current decrease in price, \
+      provided that there was a more servere drop 24 hours ago and a subsequent recovery in between.
+
+   3. How are XYZ currencies performing in *relative to each other, from the perspective of Y point in time*?
+
+These are relatively simple examples, but one can imagine the usefulness of this data as a starting point \
+for constructing portfolio trackers and trading algorithms. At the risk of derailing this high-level overview, \
+here's a simple prototype view that shows the performance of various currencies relative to BTC \
+using a fixed frame of reference:
+
+.. figure:: _images/proto-view.jpg
+   :figclass: align-center
+
+   Prototype notebook view of currency performance relative to BTC using a fixed frame of reference
+
+This kind of view gives a clear apples-to-apples comparison of performance across different currencies by \
+fixing the reference point to eliminate the moving window problem. In this case, it's particularly useful for traders \
+who prefer BTC over fiat, but the chart can easily be switched to use any reference currency such as USD.
+
+In any case, documentation of this program is by no means complete (some would say it has hardly begun) - \
+but here are a few screenshots of the current command line interface as-is:
+
+screenshot of login
+screenshot of candles
+screenshot of ledger
+screenshot of stream
+screenshot of updates
+
+
+Development Approach
+====================
+
+Formation of the **neutrino** is taking place across three phrases. It is currently in **Phase 1**, as is evident by its current lack of unit tests and architectural documentation:
+
+   Phase 1 - Initial development
+      * Framework and tooling
+      * Data pulling features
+      * Prototype CLI
+      * Unit tests and documentation
+   
+   Phase 2 - Reporting and analytics
+      * Local database configuration
+      * Analytics tooling
+      * Reporting views and features
+      * User manual
+
+   Phase 3 - Data-driven actions
+      * Data posting features
+      * Trading algorithms and implementation
 
 Contents
 --------

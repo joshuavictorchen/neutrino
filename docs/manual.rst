@@ -22,3 +22,8 @@ Initial Configuration
 =====================
 
 *to be completed*
+
+Use
+===
+
+*to be completed*
