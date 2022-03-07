@@ -65,15 +65,15 @@ Prototype Example Screenshots
 .. figure:: _images/screenshot-candles.png
    :width: 800 px
 
-   BTC candle data pull as specified by a user settings file. The request is automatically \
-   split into sub-requests due to Coinbase Pro API limitations. Entry point: \
-   :py:obj:`Neutrino.load_product_candles<neutrino.main.Neutrino.load_product_candles>`.
+   BTC candle data pull as specified by a user settings file. This handled by \
+   :py:obj:`Neutrino.load_product_candles<neutrino.main.Neutrino.load_product_candles>`, which splits \
+   the request into requisite sub-requests per Coinbase Pro API constraints.
 
 .. figure:: _images/screenshot-ledger.png
    :width: 800 px
 
    BTC ledger data pull for an authenticated account (private info redacted) \
-   via paginated API requests, which are handled by \
+   via paginated API requests, which are recursively handled by \
    :py:obj:`Link.send_api_request<neutrino.link.Link.send_api_request>`.
 
 .. figure:: _images/screenshot-stream.png
@@ -81,7 +81,10 @@ Prototype Example Screenshots
 
    Websocket stream as configured by a user settings file.
 
-screenshot of updates 
+.. figure:: _images/screenshot-update.png
+   :width: 800 px
+
+   Built-in self-update capability using the :py:obj:`Updater<neutrino.updater.Updater>` module.
 
 Contents
 --------
