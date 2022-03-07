@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>neutrino.main &mdash; docs</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/logo-original.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #283618" >
+            <a href="../../index.html" class="icon icon-home"> neutrino
+            <img src="../../_static/logo-64.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                beta
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../manual.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #283618" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">neutrino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>neutrino.main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for neutrino.main</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">neutrino.config</span> <span class="k">as</span> <span class="nn">c</span>
+<span class="kn">import</span> <span class="nn">neutrino.tools</span> <span class="k">as</span> <span class="nn">t</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">neutrino.datum</span> <span class="kn">import</span> <span class="n">Datum</span>
+<span class="kn">from</span> <span class="nn">neutrino.link</span> <span class="kn">import</span> <span class="n">Link</span>
+<span class="kn">from</span> <span class="nn">neutrino.stream</span> <span class="kn">import</span> <span class="n">Stream</span>
+<span class="kn">from</span> <span class="nn">neutrino.updater</span> <span class="kn">import</span> <span class="n">Updater</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="c1"># instantiate a Neutrino</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">Neutrino</span><span class="p">(</span><span class="n">cbkey_set_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># start interacting</span>
+    <span class="n">n</span><span class="o">.</span><span class="n">interact</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Neutrino"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino">[docs]</a><span class="k">class</span> <span class="nc">Neutrino</span><span class="p">(</span><span class="n">Link</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Framework for performing Coinbase Pro actions. Handles :py:obj:`Streams&lt;neutrino.stream.Stream&gt;` (WebSocket feed messages) \</span>
+<span class="sd">        and inherits from :py:obj:`Link&lt;neutrino.link.Link&gt;` (API requests/responses).</span>
+
+<span class="sd">    .. admonition:: TODO</span>
+
+<span class="sd">        More detailed docs to be completed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cbkey_set_name (str, optional): Name of Coinbase Pro API key dictionary \</span>
+<span class="sd">            with which the Neutrino&#39;s ``auth`` value will be initialized. Defaults to &quot;default&quot;.</span>
+
+<span class="sd">    **Relevant instance attributes:** \n</span>
+<span class="sd">        * **user_settings** (*dict*): Dictionary of user settings parameters from ``neutrino\\user-settings.yaml``.</span>
+<span class="sd">        * **updater** (*Updater*): Updater object containing neutrino repo attributes and update methods.</span>
+<span class="sd">        * **cbkeys** (*dict*): Dictionary of Coinbase Pro API keys from the YAML file specified in ``user_settings``.</span>
+<span class="sd">        * **database_path** (*Path*): :py:obj:`Path` containing the absolute filepath to the CSV file directory.</span>
+<span class="sd">        * **auth** (*Authenticator*): Callable :py:obj:`Authenticator&lt;neutrino.authenticator.Authenticator&gt;` \</span>
+<span class="sd">            for Coinbase WebSocket and API authentication.</span>
+<span class="sd">        * **session** (*Session*): :py:obj:`requests.Session` for API requests.</span>
+<span class="sd">        * **streams** (*dict*): Dictionary of :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` objects \</span>
+<span class="sd">            for live streams of WebSocket feed data.</span>
+<span class="sd">        * **threads** (*dict*): Dictionary of :py:obj:`Thread` objects corresponding :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` objects.</span>
+<span class="sd">        * **accounts** (*Datum*): :py:obj:`Datum&lt;neutrino.datum.Datum&gt;` of data from the Coinbase Pro API &quot;accounts&quot; endpoint.</span>
+<span class="sd">        * **ledgers** (*Datum*): :py:obj:`Datum&lt;neutrino.datum.Datum&gt;` of consolidated ledger entries associated with all ``self.accounts``.</span>
+<span class="sd">        * **transfers** (*Datum*): :py:obj:`Datum&lt;neutrino.datum.Datum&gt;` of data from the Coinbase Pro API &quot;transfers&quot; endpoint.</span>
+<span class="sd">        * **orders** (*Datum*): :py:obj:`Datum&lt;neutrino.datum.Datum&gt;` of data from the Coinbase Pro API &quot;orders&quot; endpoint.</span>
+<span class="sd">        * **fees** (*dict*): Dictionary of trailing 30 day USD volume, maker fee rate, and taker fee rate.</span>
+<span class="sd">        * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbkey_set_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="c1"># establish directory in which neutrino is installed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutrino_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="c1"># load user settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_settings_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutrino_dir</span> <span class="o">/</span> <span class="s2">&quot;user-settings.yaml&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_user_settings_file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neutrino_dir</span> <span class="o">/</span> <span class="s2">&quot;internals/template-user-settings.yaml&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">load_yaml_settings</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_settings_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_user_settings_file</span>
+        <span class="p">)</span>
+
+        <span class="c1"># NOTE: the sandbox variable is a temporary workaround to get GitHub test builds to work</span>
+        <span class="c1">#       until actual unit tests are implemented</span>
+        <span class="c1">#       for now, it&#39;s set to True (i.e., don&#39;t perform certain actions) if no valid cbkeys file is provided</span>
+        <span class="n">sandbox</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># temporary measure for testing:</span>
+        <span class="c1"># if keys_file does not exist, update keys file to sandbox test keys</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keys_file&quot;</span><span class="p">)):</span>
+            <span class="n">sandbox</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="p">[</span><span class="s2">&quot;keys_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neutrino_dir</span> <span class="o">/</span> <span class="s2">&quot;tests/sandbox-keys.yaml&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># check for updates, if specified by user settings entry</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sandbox</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updater</span> <span class="o">=</span> <span class="n">Updater</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;check_for_updates&quot;</span><span class="p">))</span>
+
+        <span class="c1"># load dictionary of cbkey dicts</span>
+        <span class="c1"># TODO: don&#39;t store secrets in an attribute like this</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cbkeys</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">parse_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keys_file&quot;</span><span class="p">),</span> <span class="n">echo_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># define database path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutrino_dir</span> <span class="o">/</span> <span class="s2">&quot;database&quot;</span>  <span class="c1"># CSV database path</span>
+
+        <span class="c1"># create database dir if one doesn&#39;t already exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Initializing database directory: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span><span class="p">)</span>
+
+        <span class="c1"># initialize inherited Link parameters</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cbkeys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cbkey_set_name</span><span class="p">),</span>  <span class="c1"># cbkey dictionary</span>
+        <span class="p">)</span>
+
+        <span class="c1"># establish unique neutrino attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coins</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># load initial data sets</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sandbox</span><span class="p">:</span>
+
+            <span class="c1"># choose the data source from neutrino module attributes</span>
+            <span class="n">data_source</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">db_path</span> <span class="k">if</span> <span class="n">from_database</span> <span class="k">else</span> <span class="n">c</span><span class="o">.</span><span class="n">api_url</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Forming neutrino via: </span><span class="si">{</span><span class="n">data_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># get accounts Datum from the accounts endpoint (or corresponding database CSV)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;accounts&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span>
+            <span class="p">)</span>
+
+            <span class="c1"># get transfers Datum from the transfers endpoint</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;transfers&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span>
+            <span class="p">)</span>
+
+            <span class="c1"># get orders Datum from the orders endpoint</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">orders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;orders&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;all&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># get ledgers Datum from the accounts/{account_id}/ledger endpoint (via the load_ledgers function)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ledgers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_ledgers</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orders</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span>
+            <span class="p">)</span>
+
+            <span class="c1"># commented out for now - get fees at runtime as needed</span>
+            <span class="c1"># get fees dictionary from the fees endpoint (note: this is just a dictionary of volume and maker/taker rates)</span>
+            <span class="c1"># TODO: make fees db file and pull from it as applicable</span>
+            <span class="c1"># self.fees = self.send_api_request(&quot;get&quot;, &quot;fees&quot;)[0]</span>
+
+<div class="viewcode-block" id="Neutrino.refresh_user_settings"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.refresh_user_settings">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_user_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reloads ``self.user_settings`` from ``self.user_settings_file``. This allows the user to update the \</span>
+<span class="sd">            user settings file with different inputs between Neutrino commands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">load_yaml_settings</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_settings_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_user_settings_file</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># datum handling and loading</span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="Neutrino.load_datum"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.load_datum">[docs]</a>    <span class="k">def</span> <span class="nf">load_datum</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">from_database</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;get&quot;</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">main_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates a :py:obj:`Datum&lt;neutrino.datum.Datum&gt;` object corresponding to a Coinbase API endpoint.</span>
+
+<span class="sd">        More thorough documentation TBD.</span>
+
+<span class="sd">        .. admonition:: TODO</span>
+
+<span class="sd">            Update program structure for more generalized Datum loading, and/or add checks to ensure the Datum is valid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): Name of the :py:obj:`Datum` to be loaded.</span>
+<span class="sd">            from_database (bool): Loads data from the local database if ``True``, otherwise requests fresh \</span>
+<span class="sd">                Coinbase API pulls.</span>
+<span class="sd">            method (str, optional): API request method (``get``, ``post``, etc.). Defaults to &quot;get&quot;.</span>
+<span class="sd">            endpoint (str, optional): API request endpoint, with no leading ``/`` (i.e., &quot;accounts&quot;). Defaults to the provided ``name``.</span>
+<span class="sd">            save (bool, optional): Exports the DataFrame&#39;s data as a CSV to the default database path if ``True``. Defaults to ``False``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Datum: Datum object corresponding to the requested name and/or Coinbase API endpoint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># get the Datum&#39;s main key from neutrino module attributes, if not already provided</span>
+        <span class="n">main_key</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">api_response_keys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">main_key</span> <span class="k">else</span> <span class="n">main_key</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">main_key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> ERROR: main key not found for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> while generating Datum.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># if no enpoint is explicitly defined, then default to using the Datum&#39;s name as the endpoint</span>
+        <span class="c1"># TODO: make a maintained list of acceptable endpoints for error checking</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># load df data from CSV database, if applicable</span>
+        <span class="k">if</span> <span class="n">from_database</span><span class="p">:</span>
+            <span class="n">db_file</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">db_path</span> <span class="o">/</span> <span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">db_file</span><span class="p">):</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+            <span class="c1"># if no database file exists, then default to performing a fresh API request</span>
+            <span class="c1"># set from_database to false to ensure this happens</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">from_database</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> NOTE: </span><span class="si">{</span><span class="n">db_file</span><span class="si">}</span><span class="s2"> does not exist.</span><span class="se">\</span>
+<span class="s2">                    </span><span class="se">\n</span><span class="s2">       </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> data will be pulled via API request.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># perform a fresh API request for df data, if a database pull was not performed</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">from_database</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_API_response_list_to_df</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">send_api_request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">main_key</span>
+            <span class="p">)</span>
+
+        <span class="c1"># clean the df&#39;s time strings</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">clean_df_timestrings</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+        <span class="c1"># return an instantiated a Datum object with the df and its metadata</span>
+        <span class="k">return</span> <span class="n">Datum</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">main_key</span><span class="p">,</span> <span class="n">save</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Neutrino.filter_accounts"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.filter_accounts">[docs]</a>    <span class="k">def</span> <span class="nf">filter_accounts</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">account_df</span><span class="p">,</span> <span class="n">orders_df</span><span class="p">,</span> <span class="n">relevant_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_empty_accounts</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filters a DataFrame of account information per the supplied arguments and returns the result.</span>
+
+<span class="sd">        .. admonition:: TODO</span>
+
+<span class="sd">            1. Ensure ``account_df`` is actually a DataFrame of account info.</span>
+<span class="sd">            2. Ensure ``orders_df`` is actually a DataFrame of orders info. </span>
+<span class="sd">            3. Handle potential non-existence of ``self.orders`` prior to performing actions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            account_df (DataFrame): DataFrame of account data as pulled from the Coinbase API.</span>
+<span class="sd">            orders_df (DataFrame): DataFrame of orders data as pulled from the Coinbase API.</span>
+<span class="sd">            relevant_only (bool, optional): Only includes accounts that have seen activity in the past \</span>
+<span class="sd">                if ``True``, using data from ``orders_df`` to gauge activity. Defaults to ``True``.</span>
+<span class="sd">            exclude_empty_accounts (bool, optional): Excludes currently-zero-balanced accounts \</span>
+<span class="sd">                from the returned result if ``True``. Defaults to ``False``.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame: Filtered DataFrame of account information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">account_df</span><span class="p">)</span>
+
+        <span class="c1"># filter to only accounts that have had some activity at any point in time, if applicable</span>
+        <span class="c1"># use order history to get list of currencies where activity has been seen</span>
+        <span class="k">if</span> <span class="n">relevant_only</span><span class="p">:</span>
+            <span class="n">currencies</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">orders_df</span><span class="p">[</span><span class="s2">&quot;product_id&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># TODO: consider [1] as well</span>
+                <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;currency&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">currencies</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># exclude accounts with &lt;= 0 balance, if applicable</span>
+        <span class="k">if</span> <span class="n">exclude_empty_accounts</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;balance&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="Neutrino.load_ledgers"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.load_ledgers">[docs]</a>    <span class="k">def</span> <span class="nf">load_ledgers</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">account_datum</span><span class="p">,</span> <span class="n">orders_df</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pulls the ledgers for all relevant accounts loaded in :py:obj:`self.accounts` and consolidates the data into \</span>
+<span class="sd">            one Datum.</span>
+
+<span class="sd">            More information on ledger data can be found on the `API reference page &lt;https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getaccountledger&gt;`__.</span>
+
+<span class="sd">            More detailed documentation TBD.</span>
+
+<span class="sd">        .. admonition:: TODO</span>
+
+<span class="sd">            If loading from the local database, perform API requests for missing accounts and orders, if any exist.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            account_datum (Datum): Datum of account data as pulled from the Coinbase API.</span>
+<span class="sd">            orders_df (DataFrame): DataFrame of orders data as pulled from the Coinbase API.</span>
+<span class="sd">            from_database (bool, optional): Loads from the local CSV database if ``True``. Otherwise, performs an API request for fresh data. Defaults to ``False``.</span>
+<span class="sd">            save (bool, optional): Exports the returned DataFrame to a CSV file in the directory specified by ``self.database_path`` if ``True``. Defaults to ``False``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Datum: Datum of consolidated ledger entries associated with all :py:obj:`self.accounts`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># pull data from database, if applicable</span>
+        <span class="c1"># if no local ledgers data exists, then default to pulling via API request</span>
+        <span class="k">if</span> <span class="n">from_database</span><span class="p">:</span>
+            <span class="n">db_file</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">db_path</span> <span class="o">/</span> <span class="s2">&quot;ledgers.csv&quot;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">db_file</span><span class="p">):</span>
+                <span class="n">ledgers_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># set from_database to False to force an API pull</span>
+                <span class="n">from_database</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> NOTE: </span><span class="si">{</span><span class="n">db_file</span><span class="si">}</span><span class="s2"> does not exist.</span><span class="se">\</span>
+<span class="s2">                    </span><span class="se">\n</span><span class="s2">       Ledger data will be pulled via API request.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># if data was not pulled from the database, then pull via API request</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">from_database</span><span class="p">:</span>
+
+            <span class="c1"># get a list of relevant accounts (accounts with any historical activity)</span>
+            <span class="n">accounts_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_accounts</span><span class="p">(</span><span class="n">account_datum</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">orders_df</span><span class="p">)</span>
+
+            <span class="c1"># create empty ledgers_df and append ledger pulls for each account in accounts_df</span>
+            <span class="n">ledgers_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">accounts_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">account_id</span> <span class="o">=</span> <span class="n">accounts_df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">currency</span> <span class="o">=</span> <span class="n">account_datum</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;currency&quot;</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+                <span class="n">this_ledger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ledger&quot;</span><span class="p">,</span>
+                    <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span>
+                    <span class="n">endpoint</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;accounts/</span><span class="si">{</span><span class="n">account_id</span><span class="si">}</span><span class="s2">/ledger&quot;</span><span class="p">,</span>
+                    <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">df</span>
+
+                <span class="c1"># store the currency of the account for which the ledger is being pulled</span>
+                <span class="c1"># this is important because some product_ids contain two currencies (i.e. &quot;LRC-BTC&quot;),</span>
+                <span class="c1"># but from different currency perspectives (i.e., one with LRC denomination and one with BTC)</span>
+                <span class="n">this_ledger</span><span class="p">[</span><span class="s2">&quot;currency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">currency</span>
+
+                <span class="n">ledgers_df</span> <span class="o">=</span> <span class="n">ledgers_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_ledger</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># clean indices and time strings</span>
+        <span class="n">ledgers_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ledgers_df</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">clean_df_timestrings</span><span class="p">(</span><span class="n">ledgers_df</span><span class="p">)</span>
+
+        <span class="c1"># create ledgers Datum and store in self.ledgers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ledgers</span> <span class="o">=</span> <span class="n">Datum</span><span class="p">(</span><span class="s2">&quot;ledgers&quot;</span><span class="p">,</span> <span class="n">ledgers_df</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ledgers</span></div>
+
+    <span class="c1"># The following is a legacy function that is left as a comment for potential future use.</span>
+    <span class="c1">#</span>
+    <span class="c1"># It is an artefact of the original direction of the neutrino program, which sought to</span>
+    <span class="c1"># provide functions for each API endpoint, similar to the existing cbpro-python package.</span>
+    <span class="c1">#</span>
+    <span class="c1"># def get_account_ledger(self, account_id, from_database=False, save=False, **kwargs):</span>
+    <span class="c1">#</span>
+    <span class="c1">#     account_ledger = self.generate_datum(</span>
+    <span class="c1">#         name=&quot;ledger&quot;,</span>
+    <span class="c1">#         from_database=from_database,</span>
+    <span class="c1">#         endpoint=f&quot;accounts/{account_id}/ledger&quot;,</span>
+    <span class="c1">#         **kwargs,</span>
+    <span class="c1">#     )</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if save:</span>
+    <span class="c1">#         account_ledger.save_csv(</span>
+    <span class="c1">#             f&quot;ledger-{self.accounts.get(&#39;currency&#39;, account_id)}&quot;</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return account_ledger</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># candle methods</span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="Neutrino.load_product_candles"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.load_product_candles">[docs]</a>    <span class="k">def</span> <span class="nf">load_product_candles</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">product_id</span><span class="p">,</span> <span class="n">granularity</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs the following actions to efficiently retrieve the requested product candle dataset:</span>
+
+<span class="sd">            1. Loads in a dataframe of ``product_id`` data from the Neutrino&#39;s ``database`` directory, if \</span>
+<span class="sd">                such data exists.</span>
+<span class="sd">            2. Inspects the dataframe from Step 1 (if applicable) and augments this data as necessary via \</span>
+<span class="sd">                new API requests.</span>
+<span class="sd">            3. Saves the augmented data to the ``database`` file, if applicable.</span>
+<span class="sd">            4. Returns a DataFrame of ``product_id`` candles with the appropriate ``start`` and ``end`` bounds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            product_id (str): The coin trading pair (i.e., &#39;BTC-USD&#39;).</span>
+<span class="sd">            granularity (int, optional): Granularity of the returned candles in seconds. Must be one of the following values: \</span>
+<span class="sd">                ``60``, ``300``, ``900``, ``3600``, ``21600``, ``86400``.</span>
+<span class="sd">            start (str, optional): Start bound of the request (``%Y-%m-%d %H:%M``).</span>
+<span class="sd">            end (str, optional): End bound of the request (``%Y-%m-%d %H:%M``).</span>
+<span class="sd">            save (bool, optional): Exports the augmented dataset to the ``database`` file if ``True``. \</span>
+<span class="sd">                Defaults to ``False``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame: DataFrame with the following columns for each candle: \</span>
+<span class="sd">                ``time``, ``product_id``, ``low``, ``high``, ``open``, ``close``, ``volume``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># update start/end bounds if no input was provided</span>
+        <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_candle_bounds</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_max_candle_pull_minutes</span><span class="p">(</span><span class="n">granularity</span><span class="p">),</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
+        <span class="p">)</span>
+
+        <span class="c1"># establish name of the associated database CSV file for the given parameters</span>
+        <span class="n">csv_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;candles-</span><span class="si">{</span><span class="n">granularity</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">product_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">csv_file</span> <span class="o">=</span> <span class="n">csv_name</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span>
+
+        <span class="c1"># if dbfile exists, then load the existing database data and combine w/ newly pulled data as necessary</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span> <span class="o">/</span> <span class="n">csv_file</span><span class="p">):</span>
+
+            <span class="c1"># load data from database</span>
+            <span class="n">candles_df</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">clean_df_timestrings</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span> <span class="o">/</span> <span class="n">csv_file</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># generate dict of start: end time pairs to pull, if database_df does not cover the requested data</span>
+            <span class="n">pull_bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_candle_pull_bounds</span><span class="p">(</span>
+                <span class="n">candles_df</span><span class="p">,</span> <span class="n">granularity</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
+            <span class="p">)</span>
+
+            <span class="c1"># loop through the list of pull bounds and augment database_df</span>
+            <span class="k">for</span> <span class="n">pull_start</span><span class="p">,</span> <span class="n">pull_end</span> <span class="ow">in</span> <span class="n">pull_bounds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">pulled_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_product_candles</span><span class="p">(</span>
+                    <span class="n">product_id</span><span class="p">,</span> <span class="n">granularity</span><span class="p">,</span> <span class="n">pull_start</span><span class="p">,</span> <span class="n">pull_end</span>
+                <span class="p">)</span>
+                <span class="n">candles_df</span> <span class="o">=</span> <span class="n">candles_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulled_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># sort candles_df</span>
+            <span class="n">candles_df</span> <span class="o">=</span> <span class="n">candles_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+                <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># if dbfile doesn&#39;t exist, then just pull the candle data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">candles_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_product_candles</span><span class="p">(</span>
+                <span class="n">product_id</span><span class="p">,</span> <span class="n">granularity</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
+            <span class="p">)</span>
+
+        <span class="c1"># save to CSV, if applicable</span>
+        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">save_df_to_csv</span><span class="p">(</span><span class="n">candles_df</span><span class="p">,</span> <span class="n">csv_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_path</span><span class="p">)</span>
+
+        <span class="c1"># trim candles_df to the requested bounds</span>
+        <span class="n">returned_df</span> <span class="o">=</span> <span class="n">candles_df</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">)</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">returned_df</span></div>
+
+<div class="viewcode-block" id="Neutrino.generate_candle_pull_bounds"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.generate_candle_pull_bounds">[docs]</a>    <span class="k">def</span> <span class="nf">generate_candle_pull_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candles_df</span><span class="p">,</span> <span class="n">granularity</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines what additional API requests need to be made, if any, to augment a provided dataset \</span>
+<span class="sd">            in order to fulfill a request for candle data.</span>
+
+<span class="sd">            This function looks for required pulls:</span>
+
+<span class="sd">                1. Before the first ``candles_df`` entry.</span>
+<span class="sd">                2. After the last ``candles_df`` entry.</span>
+<span class="sd">                3. Within the ``candles_df`` entry for an arbitrary amount of internal gaps in the dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            candles_df (DataFrame): Initial dataset of candle data for a given ``product_id``.</span>
+<span class="sd">            granularity (int, optional): Granularity of the returned candles in seconds. Must be one of the following values: \</span>
+<span class="sd">                ``60``, ``300``, ``900``, ``3600``, ``21600``, ``86400``.</span>
+<span class="sd">            start (str, optional): Start bound of the request (``%Y-%m-%d %H:%M``).</span>
+<span class="sd">            end (str, optional): End bound of the request (``%Y-%m-%d %H:%M``).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict (str): Dictionary of required pull bounds in the following form:</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    start_time_1: end_time_1,</span>
+<span class="sd">                    start_time_2: end_time_2,</span>
+<span class="sd">                    ...</span>
+<span class="sd">                    start_time_n: end_time_n</span>
+<span class="sd">                }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">pull_bounds</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># get pull bounds for requested data BEFORE the FIRST value in candles_df</span>
+        <span class="c1"># this goes from &#39;start&#39; to the minimum of the first candles_df value minus one time step, and the requested end time</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+            <span class="n">this_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span>
+                    <span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">granularity</span> <span class="o">/</span> <span class="mi">60</span>
+                <span class="p">),</span>
+                <span class="n">end</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pull_bounds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">start</span><span class="p">:</span> <span class="n">this_end</span><span class="p">})</span>
+
+        <span class="c1"># get pull bounds for requested data AFTER the LAST value in candles_df</span>
+        <span class="c1"># this goes from the maximum of the last candles_df value plus one time step, and the requested start time</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+            <span class="n">this_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span>
+                    <span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">granularity</span> <span class="o">/</span> <span class="mi">60</span>
+                <span class="p">),</span>
+                <span class="n">start</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pull_bounds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">this_start</span><span class="p">:</span> <span class="n">end</span><span class="p">})</span>
+
+        <span class="c1"># get pull bounds for any &#39;gaps&#39; in the existing candles_df data</span>
+
+        <span class="c1"># create a dataframe with one column each for:</span>
+        <span class="c1">#   candles_df[&quot;time&quot;] plus one minute</span>
+        <span class="c1">#   candles_df[&quot;time&quot;] with each element shifted up one row</span>
+        <span class="n">gap_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">gap_df</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">gap_df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">candles_df</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># any rows in this dataframe where those two columns don&#39;t match up signify gaps in candles_df</span>
+        <span class="n">gap_df</span> <span class="o">=</span> <span class="n">gap_df</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">gap_df</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">gap_df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">gap_df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># subtract one minute from each element of the latter column to produce a dataframe of required start/end bounds</span>
+        <span class="n">gap_df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gap_df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># update dict of pull bounds with this data</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gap_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">pull_bounds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">gap_df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">]:</span> <span class="n">gap_df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]})</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pull_bounds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot; </span><span class="se">\n</span><span class="s2"> Database values will be augmented with the following pull bound(s):&quot;</span>
+            <span class="p">)</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">print_recursive_dict</span><span class="p">(</span><span class="n">pull_bounds</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pull_bounds</span></div>
+
+<div class="viewcode-block" id="Neutrino.retrieve_product_candles"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.retrieve_product_candles">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_product_candles</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">product_id</span><span class="p">,</span> <span class="n">granularity</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gets a DataFrame of a product&#39;s historic candle data. \</span>
+<span class="sd">            (`API Reference &lt;https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles&gt;`__).</span>
+
+<span class="sd">        The Coinbase API limits requests to 300 candles at a time. This function therefore calls itself recursively, \</span>
+<span class="sd">        as needed, to return all candles within the given ``start`` and ``end`` bounds.</span>
+
+<span class="sd">        If no ``end`` bound is given, then the current time is used.</span>
+
+<span class="sd">        If no ``start`` bound is given, then ``end`` minus ``granularity`` times 300 is used (i.e., maximum number of data points for one API call).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            product_id (str): The coin trading pair (i.e., &#39;BTC-USD&#39;).</span>
+<span class="sd">            granularity (int, optional): Granularity of the returned candles in seconds. Must be one of the following values: \</span>
+<span class="sd">                ``60``, ``300``, ``900``, ``3600``, ``21600``, ``86400``.</span>
+<span class="sd">            start (str, optional): Start bound of the request (``%Y-%m-%d %H:%M``).</span>
+<span class="sd">            end (str, optional): End bound of the request (``%Y-%m-%d %H:%M``).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame: DataFrame with the following columns for each candle: \</span>
+<span class="sd">                ``time``, ``product_id``, ``low``, ``high``, ``open``, ``close``, ``volume``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO: add robust error handling</span>
+
+        <span class="c1"># determine the maximum number of data points that can be pulled</span>
+        <span class="n">max_data_pull</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_max_candle_pull_minutes</span><span class="p">(</span><span class="n">granularity</span><span class="p">)</span>
+
+        <span class="c1"># update start/end bounds if no input was provided</span>
+        <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_candle_bounds</span><span class="p">(</span><span class="n">max_data_pull</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+
+        <span class="c1"># printed_end = min(end, t.add_minutes_to_time_string(start, max_data_pull))</span>
+        <span class="c1"># print(</span>
+        <span class="c1">#     f&quot;\n Requesting {product_id} candles from {start} to {printed_end}...&quot;</span>
+        <span class="c1"># )</span>
+
+        <span class="c1"># determine if the number of requested data points exceeds config.MAX_CANDLE_REQUEST</span>
+        <span class="n">recurse</span> <span class="o">=</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">max_data_pull</span><span class="p">)</span>
+
+        <span class="c1"># define the actual start/end parameters which will be passed into the API request</span>
+        <span class="c1"># retain the original &#39;start&#39; and &#39;end&#39; variables to be passed on recursively, if needed</span>
+        <span class="n">request_start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="n">request_end</span> <span class="o">=</span> <span class="n">end</span>
+
+        <span class="c1"># if recursion is necessary:</span>
+        <span class="c1"># [1] update request_start to account for fenceposting</span>
+        <span class="c1"># [2] modify the requested end parameter to keep it within the allowable request bounds</span>
+        <span class="c1"># [3] update the &#39;start&#39; variable to the first un-requested timestamp</span>
+        <span class="c1">#     (this is to set up the next API request)</span>
+        <span class="k">if</span> <span class="n">recurse</span><span class="p">:</span>
+            <span class="n">request_start</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">granularity</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="n">request_end</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">max_data_pull</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span>
+                <span class="n">start</span><span class="p">,</span> <span class="n">max_data_pull</span> <span class="o">+</span> <span class="p">(</span><span class="n">granularity</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># convert start and end to ISO format</span>
+        <span class="n">request_start</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">local_to_ISO_time_string</span><span class="p">(</span><span class="n">request_start</span><span class="p">)</span>
+        <span class="n">request_end</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">local_to_ISO_time_string</span><span class="p">(</span><span class="n">request_end</span><span class="p">)</span>
+
+        <span class="c1"># generate API request parameters</span>
+        <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;granularity&quot;</span><span class="p">:</span> <span class="n">granularity</span><span class="p">,</span>
+            <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">request_start</span><span class="p">,</span>
+            <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">request_end</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># send API request</span>
+        <span class="n">candles_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_api_request</span><span class="p">(</span>
+            <span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;products/</span><span class="si">{</span><span class="n">product_id</span><span class="si">}</span><span class="s2">/candles&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params_dict</span>
+        <span class="p">)</span>
+
+        <span class="c1"># convert retrieved timestamps</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">candles_list</span><span class="p">:</span>
+            <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span>
+
+        <span class="c1"># create dataframe from API response and sort records from earliest to latest</span>
+        <span class="n">candles_df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">candles_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;open&quot;</span><span class="p">,</span> <span class="s2">&quot;close&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># append candles_df to results from the previous recursive iterations, if they exist</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">candles_df</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">page</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">candles_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># recursively call this function, if needed, to satisfy the initially-supplied pull bounds</span>
+        <span class="c1"># pass candles_df into the recursed call so that it is carried forward</span>
+        <span class="k">if</span> <span class="n">recurse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_product_candles</span><span class="p">(</span>
+                <span class="n">product_id</span><span class="p">,</span> <span class="n">granularity</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">candles_df</span>
+            <span class="p">)</span>
+
+        <span class="c1"># add product_id as a column and move it to the 1st index</span>
+        <span class="n">candles_df</span><span class="p">[</span><span class="s2">&quot;product_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">product_id</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">move_df_column_inplace</span><span class="p">(</span><span class="n">candles_df</span><span class="p">,</span> <span class="s2">&quot;product_id&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">candles_df</span></div>
+
+<div class="viewcode-block" id="Neutrino.calculate_max_candle_pull_minutes"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.calculate_max_candle_pull_minutes">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_max_candle_pull_minutes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">granularity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the maximum allowable time range for a single Coinbase API request \</span>
+<span class="sd">            for the provided granularity. The API allows a maximum pull of 300 time steps per request.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            granularity (int, optional): Granularity of the returned candles in seconds. Must be one of the following values: \</span>
+<span class="sd">                ``60``, ``300``, ``900``, ``3600``, ``21600``, ``86400``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Maximum allowable time range for a single API request in minutes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># granularity / 60 &lt;-- get time in minutes</span>
+        <span class="c1"># c.MAX_CANDLE_REQUEST -1 &lt;-- account for fenceposting</span>
+
+        <span class="k">return</span> <span class="n">granularity</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">MAX_CANDLE_REQUEST</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Neutrino.augment_candle_bounds"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.augment_candle_bounds">[docs]</a>    <span class="k">def</span> <span class="nf">augment_candle_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_data_pull</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update a candle request&#39;s ``start`` and ``end`` parameters if none are provided.</span>
+
+<span class="sd">        If no ``end`` time is provided, then the current local time is used.</span>
+
+<span class="sd">        If no ``start`` time is provided, then ``start`` is set to the earliest time that fits into \</span>
+<span class="sd">        a single API request, as calculated by the ``end`` time minus ``max_data_pull``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_data_pull (int): Maximum allowable time range for a single API request in minutes.</span>
+<span class="sd">            start (str): Start bound of the request (``%Y-%m-%d %H:%M``).</span>
+<span class="sd">            end (str): End bound of the request (``%Y-%m-%d %H:%M``).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple (str): Updated ``start`` and ``end`` parameters in the form of ``(start, end)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if no end is given, then use current time</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">end</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+
+        <span class="c1"># if no start is given, then use end minus (granularity * max_data_pull)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">start</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">add_minutes_to_time_string</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">max_data_pull</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># stream methods</span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="Neutrino.configure_new_stream"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.configure_new_stream">[docs]</a>    <span class="k">def</span> <span class="nf">configure_new_stream</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">product_ids</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;subscribe&quot;</span><span class="p">,</span> <span class="n">cbkey_set_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Instantiates and configures a new :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` object.</span>
+
+<span class="sd">        Updates ``self.streams`` and ``self.threads`` with this object and corresponding thread.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): User-specified name of the new :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` object.</span>
+<span class="sd">            product_ids (list(str)): List of coin trading pairs (i.e., [&#39;BTC-USD&#39;]).</span>
+<span class="sd">            channels (list(str)): List of channels specified for the WebSocket connection (i.e., [&#39;ticker&#39;]).</span>
+<span class="sd">            type (str): Type of message that is sent to the WebSocket endpoint upon opening a connection. Defaults to &quot;subscribe&quot;.</span>
+<span class="sd">            cbkey_set_name (str, optional): Name of the ``cbkey_set`` dictionary defined in the cbkeys file. Defaults to &quot;default&quot;.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the specified stream name already exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># notify user that configuration is being overwritten, if applicable</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Overwriting configuration for stream: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># TODO: error handling and reqs checking for arguments</span>
+
+        <span class="c1"># get keys for authentication - default is the &#39;default&#39; key name; if no key is provided, then None is passed (no auth)</span>
+        <span class="n">auth_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbkeys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cbkey_set_name</span><span class="p">)</span>
+
+        <span class="c1"># initialize a stream + thread, and add to self.streams and self.threads</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">,</span>
+            <span class="n">product_ids</span><span class="p">,</span>
+            <span class="n">channels</span><span class="p">,</span>
+            <span class="n">auth_keys</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">stream</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">thread</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Stream </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> configured:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;       type: </span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   products: </span><span class="si">{</span><span class="n">product_ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   channels: </span><span class="si">{</span><span class="n">channels</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Neutrino.start_stream"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.start_stream">[docs]</a>    <span class="k">def</span> <span class="nf">start_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Starts the thread for a configured Coinbase WebSocket :py:obj:`Stream&lt;neutrino.stream.Stream&gt;`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stream_name (str): Name of the configured Coinbase WebSocket :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` to be started.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># don&#39;t start the stream if it has already previously been run</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span><span class="o">.</span><span class="n">killed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">threads</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Cannot revive a dead stream - please reconfigure this stream or start a new one.&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Neutrino.stop_stream"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.stop_stream">[docs]</a>    <span class="k">def</span> <span class="nf">stop_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Closes a configured Coinbase WebSocket :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` and stops its Thread.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stream_name (str): Name of the configured Coinbase WebSocket :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` to be stopped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># perform close-out actions for the Stream object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+
+        <span class="c1"># join the existing Thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Neutrino.parse_stream_messages"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.parse_stream_messages">[docs]</a>    <span class="k">def</span> <span class="nf">parse_stream_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test function to parse :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` messages.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stream_name (string): Name of :py:obj:`Stream&lt;neutrino.stream.Stream&gt;` whom&#39;s messages to parse.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">parsed_message_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># get streamed data, which is a tuple of the form: (message count, message)</span>
+            <span class="n">stream_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span><span class="o">.</span><span class="n">latest_message</span>
+
+            <span class="c1"># skip to next iteration if no data is present, or if the most recent data has already been parsed</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">stream_data</span> <span class="ow">or</span> <span class="n">parsed_message_count</span> <span class="o">==</span> <span class="n">stream_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">continue</span>
+
+            <span class="n">parsed_message_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># print(f&quot;-- streamed: {stream_data[0]} | parsed: {parsed_message_count} --&quot;)</span>
+
+            <span class="c1"># perform actions based on message type</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">stream_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;ticker&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">handle_ticker_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; error encountered - stream will be closed:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">print_recursive_dict</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># TODO: handle other items</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">print_recursive_dict</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Neutrino.handle_ticker_message"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.handle_ticker_message">[docs]</a>    <span class="k">def</span> <span class="nf">handle_ticker_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Temporary test actions taken upon receipt of a Coinbase WebSocket ticker message from a :py:obj:`Stream&lt;neutrino.stream.Stream&gt;`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message (dict): Placeholder, TBD.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ticker_product</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_id&quot;</span><span class="p">)</span>
+
+        <span class="c1"># store new data and determine if price increased or decreased since last tick for this product</span>
+        <span class="n">prev_tick</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ticker_product</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">prev_tick</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prev_price</span> <span class="o">=</span> <span class="n">prev_tick</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ticker&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ticker_product</span><span class="p">)[</span><span class="s2">&quot;ticker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">message</span>
+            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">prev_price</span><span class="p">:</span>
+                <span class="n">pdelta</span> <span class="o">=</span> <span class="s2">&quot;↑&quot;</span>
+            <span class="k">elif</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">prev_price</span><span class="p">:</span>
+                <span class="n">pdelta</span> <span class="o">=</span> <span class="s2">&quot;↓&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pdelta</span> <span class="o">=</span> <span class="s2">&quot;→&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coins</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">ticker_product</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ticker&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">}})</span>
+            <span class="n">pdelta</span> <span class="o">=</span> <span class="s2">&quot;→&quot;</span>
+
+        <span class="c1"># output data to console</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot; &quot;</span>
+            <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">ISO_to_local_time_string</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">),</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; | </span><span class="si">{</span><span class="n">ticker_product</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">pdelta</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># temporary &#39;client&#39; methods</span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="Neutrino.interact"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.interact">[docs]</a>    <span class="k">def</span> <span class="nf">interact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Temporary rudimentary command line interface that executes neutrino-related commands from user input. \</span>
+<span class="sd">        The jankiness of this implementation and availability of modules such as ``argparse`` are well understood. \</span>
+<span class="sd">        This is simply used for flexible testing/debugging during development.</span>
+
+<span class="sd">        This function is wrapped in a ``while True`` block to execute an arbitrary number of commands \</span>
+<span class="sd">        until terminated by the user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># NOTE: this function is not very well documented since it is an interim development measure</span>
+
+        <span class="c1"># continuously accept user input</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">DIVIDER</span><span class="p">)</span>
+
+                <span class="c1"># gather user input as a list of tokens</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&gt;&gt;&gt; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+                <span class="c1"># reload user settings (user can update settings file prior to providing a new command)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">refresh_user_settings</span><span class="p">()</span>
+
+                <span class="c1"># don&#39;t do anything if no input was provided</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># TODO: get arg metadata (length, etc.)</span>
+
+                <span class="c1"># exit the program if &#39;quit&#39; or &#39;q&#39; are entered</span>
+                <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;quit&quot;</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+                <span class="c1"># print list of available commands</span>
+                <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> A printed list of available commands. Not yet implemented.&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># print n attributes/internal data</span>
+                <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> A summary of the Neutrino&#39;s Datum objects. Not yet implemented.&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># update cbkey_set_name used for authentication</span>
+                <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cbkeys&quot;</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> No keys provided. Please provide a value for cbkey_set_name.&quot;</span>
+                        <span class="p">)</span>
+
+                    <span class="c1"># list the available cbkey names</span>
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-l&quot;</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Available API key sets:&quot;</span><span class="p">)</span>
+                        <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   + </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbkeys</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">update_auth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cbkeys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> API key set changed to: </span><span class="si">{</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># parse &#39;get&#39; statements</span>
+                <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;get&quot;</span><span class="p">:</span>
+
+                    <span class="c1"># establish whether or not to export retrieved data to CSV,</span>
+                    <span class="c1"># or whether or not to load data from CSV</span>
+                    <span class="n">save</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-s&quot;</span> <span class="k">else</span> <span class="kc">False</span>
+                    <span class="n">from_database</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-d&quot;</span> <span class="k">else</span> <span class="kc">False</span>
+
+                    <span class="c1"># TODO: prompt user w/ list of acceptable values</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> No &#39;get&#39; method provided. Please specify what should be retrieved.&quot;</span>
+                        <span class="p">)</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;accounts&quot;</span><span class="p">:</span>
+
+                        <span class="c1"># get account data</span>
+                        <span class="n">accounts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;accounts&quot;</span><span class="p">,</span>
+                            <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                        <span class="c1"># filter to default filter_accounts filters if &#39;all&#39; was not specified</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">arg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+                            <span class="n">accounts</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_accounts</span><span class="p">(</span>
+                                <span class="n">accounts</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orders</span><span class="o">.</span><span class="n">df</span>
+                            <span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+                            <span class="n">accounts</span><span class="o">.</span><span class="n">save_csv</span><span class="p">()</span>
+
+                        <span class="n">accounts</span><span class="o">.</span><span class="n">print_df</span><span class="p">()</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ledger&quot;</span><span class="p">:</span>
+
+                        <span class="c1"># parse which currency for which to get the ledger - default to BTC if none given</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="n">currency</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> No currency provided - using BTC as default:&quot;</span><span class="p">)</span>
+                            <span class="n">currency</span> <span class="o">=</span> <span class="s2">&quot;BTC&quot;</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ledger&quot;</span><span class="p">,</span>
+                            <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span>
+                            <span class="n">endpoint</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;accounts/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">currency</span><span class="p">,</span> <span class="s1">&#39;currency&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/ledger&quot;</span><span class="p">,</span>
+                            <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">print_df</span><span class="p">()</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ledgers&quot;</span><span class="p">:</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">load_ledgers</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">orders</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+                            <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span>
+                            <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">print_df</span><span class="p">()</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;transfers&quot;</span><span class="p">:</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;transfers&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">print_df</span><span class="p">()</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;orders&quot;</span><span class="p">:</span>
+
+                        <span class="c1"># get the list of requested statuses from args</span>
+                        <span class="n">status</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;-d&quot;</span><span class="p">)]</span>
+
+                        <span class="c1"># if no statuses are requested, then default to &#39;all&#39;</span>
+                        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span> <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="p">[]</span> <span class="k">else</span> <span class="n">status</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;orders&quot;</span><span class="p">,</span>
+                            <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span>
+                            <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+                            <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">print_df</span><span class="p">()</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;fees&quot;</span><span class="p">:</span>
+                        <span class="n">t</span><span class="o">.</span><span class="n">print_recursive_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">send_api_request</span><span class="p">(</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;fees&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;candles&quot;</span><span class="p">:</span>
+                        <span class="n">candles_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_product_candles</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;candles&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_id&quot;</span><span class="p">),</span>
+                            <span class="n">granularity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;candles&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                <span class="s2">&quot;granularity&quot;</span>
+                            <span class="p">),</span>
+                            <span class="n">start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;candles&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">),</span>
+                            <span class="n">end</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;candles&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">),</span>
+                            <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="nb">print</span><span class="p">()</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">candles_df</span><span class="p">)</span>
+
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> TBD&quot;</span><span class="p">)</span>
+
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># generic API/database request</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">load_datum</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="n">from_database</span><span class="o">=</span><span class="n">from_database</span><span class="p">,</span>
+                            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;get&quot;</span><span class="p">,</span>
+                            <span class="n">endpoint</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">print_df</span><span class="p">()</span>
+
+                <span class="c1"># stream data</span>
+                <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;stream&quot;</span><span class="p">:</span>
+
+                    <span class="c1"># TODO: prompt user w/ list of acceptable values</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Stream name not specified. Please specify a stream name.&quot;</span>
+                        <span class="p">)</span>
+
+                    <span class="c1"># partially hard-code for now - in future, split into components, let user append items to lists, etc.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">configure_new_stream</span><span class="p">(</span>
+                        <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stream&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_ids&quot;</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">user_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stream&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span>
+                    <span class="p">)</span>
+
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">start_stream</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">parse_stream_messages</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="c1"># TODO: implement a cleaner way to kill a stream</span>
+                    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="c1"># TODO: implement specific errors</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;update&quot;</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-f&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">updater</span><span class="o">.</span><span class="n">update_neutrino</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">updater</span><span class="o">.</span><span class="n">check_for_updates</span><span class="p">()</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Unrecognized command or specification.&quot;</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">exc</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Neutrino annihilated.&quot;</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> ERROR: prototype interface has encountered the following exception:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Neutrino annihilated.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">DIVIDER</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Joshua Chen.
+      <span class="lastupdated">Last updated on 2022-03-06 23:54:20.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

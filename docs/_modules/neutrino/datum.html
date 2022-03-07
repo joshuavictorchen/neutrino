@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>neutrino.datum &mdash; docs</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/logo-original.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #283618" >
+            <a href="../../index.html" class="icon icon-home"> neutrino
+            <img src="../../_static/logo-64.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                beta
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../manual.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #283618" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">neutrino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>neutrino.datum</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for neutrino.datum</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">neutrino.config</span> <span class="k">as</span> <span class="nn">c</span>
+<span class="kn">import</span> <span class="nn">neutrino.tools</span> <span class="k">as</span> <span class="nn">t</span>
+
+
+<div class="viewcode-block" id="Datum"><a class="viewcode-back" href="../../api.html#neutrino.datum.Datum">[docs]</a><span class="k">class</span> <span class="nc">Datum</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Custom data object that contains a DataFrame and a corresponding main key \</span>
+<span class="sd">        with which to pull specific DataFrame values.</span>
+<span class="sd">    </span>
+<span class="sd">    .. note::</span>
+
+<span class="sd">        This class may be used to do more useful things in the future.</span>
+
+<span class="sd">    **Instance attributes:** \n</span>
+<span class="sd">        * **name** (*str*): Name of the Datum.</span>
+<span class="sd">        * **df** (*DataFrame*): The Datum&#39;s DataFrame object, where data is stored.</span>
+<span class="sd">        * **main_key** (*str*): Name of the main (unique) key column of the Datum&#39;s DataFrame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): Name of the :py:obj:`Datum` to be generated. Used as the default filename when exporting data to CSV.</span>
+<span class="sd">        df (DataFrame): DataFrame object for the Datum.</span>
+<span class="sd">        main_key (str): Name of the main (unique) key column of the provided DataFrame.\</span>
+<span class="sd">            Used to retrieve values from the DataFrame in a similar manner to a dictionary.</span>
+<span class="sd">        save (bool, optional): Exports the DataFrame&#39;s data as a CSV to the default database path if ``True``. Defaults to ``False``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">main_key</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
+
+        <span class="c1"># if the provided main_key is none, then default to &#39;id&#39;:</span>
+        <span class="k">if</span> <span class="n">main_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">main_key</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> WARNING: no main key for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> found; defaulting to &#39;id&#39;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_key</span> <span class="o">=</span> <span class="n">main_key</span>
+
+        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_csv</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Datum.get"><a class="viewcode-back" href="../../api.html#neutrino.datum.Datum.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_column</span><span class="p">,</span> <span class="n">lookup_value</span><span class="p">,</span> <span class="n">lookup_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Treats the :py:obj:`self.df` DataFrame as a dictionary and pulls the value of ``return_column`` corresponding to \</span>
+<span class="sd">            the row containing ``lookup_value`` within the ``lookup_key`` column.</span>
+
+<span class="sd">        .. admonition:: TODO</span>
+
+<span class="sd">            Throw a warning/error if the key is not unique, doesn&#39;t exist, etc. Currently, the first matching value is returned \</span>
+<span class="sd">            if multiple matches exist.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            return_column (str): Column of the value to be returned.</span>
+<span class="sd">            lookup_value (str): Value of the key to look up.</span>
+<span class="sd">            lookup_key (str, optional): Column of the key to look up. Defaults to :py:obj:`self.main_key`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            various: Value of the ``return_column`` corresponding to the lookup inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO: throw warning if key is not unique, doesn&#39;t exist, etc.</span>
+
+        <span class="k">if</span> <span class="n">lookup_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lookup_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_key</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">return_column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">lookup_key</span><span class="p">]</span> <span class="o">==</span> <span class="n">lookup_value</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="Datum.print_df"><a class="viewcode-back" href="../../api.html#neutrino.datum.Datum.print_df">[docs]</a>    <span class="k">def</span> <span class="nf">print_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simply prints :py:obj:`self.df` to the console with a leading newline.&quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Datum.save_csv"><a class="viewcode-back" href="../../api.html#neutrino.datum.Datum.save_csv">[docs]</a>    <span class="k">def</span> <span class="nf">save_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">custom_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Exports :py:obj:`self.df` to a CSV file via :py:obj:`neutrino.tools.save_df_to_csv`.\</span>
+<span class="sd">            The CSV name and filepath may be specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            custom_name (str, optional): Name of the CSV file to be saved. Defaults to :py:obj:`self.name`.</span>
+<span class="sd">            custom_dir (str, optional): Path to where the CSV file will be saved.\</span>
+<span class="sd">                Defaults to the :py:obj:`neutrino.main.Neutrino`&#39;s ``db_path``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">csv_name</span> <span class="o">=</span> <span class="n">custom_name</span> <span class="k">if</span> <span class="n">custom_name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">database_path</span> <span class="o">=</span> <span class="n">custom_dir</span> <span class="k">if</span> <span class="n">custom_dir</span> <span class="k">else</span> <span class="n">c</span><span class="o">.</span><span class="n">db_path</span>
+
+        <span class="n">t</span><span class="o">.</span><span class="n">save_df_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">csv_name</span><span class="p">,</span> <span class="n">database_path</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Joshua Chen.
+      <span class="lastupdated">Last updated on 2022-03-06 23:54:20.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
