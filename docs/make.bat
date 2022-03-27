@@ -1,5 +1,13 @@
 @ECHO OFF
 
+:: clean up old files to ensure toctrees stay up-to-date across pages
+echo|set /p="Force deleting old files... "
+del /s /q _sources\* > nul
+del /s /q _build\doctrees\* > nul
+del /s /q _build\html\* > nul
+echo done
+echo[
+
 pushd %~dp0
 
 REM Command file for Sphinx documentation

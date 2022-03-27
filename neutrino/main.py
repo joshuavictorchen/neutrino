@@ -28,11 +28,6 @@ class Neutrino(Link):
     """Framework for performing Coinbase Pro actions. Handles :py:obj:`Streams<neutrino.stream.Stream>` (WebSocket feed messages) \
         and inherits from :py:obj:`Link<neutrino.link.Link>` (API requests/responses).
 
-    .. note::
-
-        Authentication is currently handled using a plaintext YAML file defined in ``user-settings.yaml``. \
-        It will be updated to use a more secure method in the future.
-
     .. admonition:: TODO
 
         More detailed docs to be completed.
@@ -46,14 +41,16 @@ class Neutrino(Link):
         * **updater** (*Updater*): Updater object containing neutrino repo attributes and update methods.
         * **cbkeys** (*dict*): Dictionary of Coinbase Pro API keys from the YAML file specified in ``user_settings``.
         * **database_path** (*Path*): :py:obj:`Path` containing the absolute filepath to the CSV file directory.
-        * **auth** (*Authenticator*): Callable :py:obj:`Authenticator` for Coinbase WebSocket and API authentication.
+        * **auth** (*Authenticator*): Callable :py:obj:`Authenticator<neutrino.authenticator.Authenticator>` \
+            for Coinbase WebSocket and API authentication.
         * **session** (*Session*): :py:obj:`requests.Session` for API requests.
-        * **streams** (*dict*): Dictionary of :py:obj:`Stream` objects for live streams of WebSocket feed data.
-        * **threads** (*dict*): Dictionary of :py:obj:`Thread` objects corresponding :py:obj:`Stream` objects.
-        * **accounts** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "accounts" endpoint.
-        * **ledgers** (*Datum*): :py:obj:`Datum` of consolidated ledger entries associated with all :py:obj:`self.accounts`.
-        * **transfers** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "transfers" endpoint.
-        * **orders** (*Datum*): :py:obj:`Datum` of data from the Coinbase Pro API "orders" endpoint.
+        * **streams** (*dict*): Dictionary of :py:obj:`Stream<neutrino.stream.Stream>` objects \
+            for live streams of WebSocket feed data.
+        * **threads** (*dict*): Dictionary of :py:obj:`Thread` objects corresponding :py:obj:`Stream<neutrino.stream.Stream>` objects.
+        * **accounts** (*Datum*): :py:obj:`Datum<neutrino.datum.Datum>` of data from the Coinbase Pro API "accounts" endpoint.
+        * **ledgers** (*Datum*): :py:obj:`Datum<neutrino.datum.Datum>` of consolidated ledger entries associated with all ``self.accounts``.
+        * **transfers** (*Datum*): :py:obj:`Datum<neutrino.datum.Datum>` of data from the Coinbase Pro API "transfers" endpoint.
+        * **orders** (*Datum*): :py:obj:`Datum<neutrino.datum.Datum>` of data from the Coinbase Pro API "orders" endpoint.
         * **fees** (*dict*): Dictionary of trailing 30 day USD volume, maker fee rate, and taker fee rate.
         * **coins** (*dict*): To be implemented - dict for each coin containing account info, orders, transfers.
     """
@@ -236,7 +233,7 @@ class Neutrino(Link):
 
             1. Ensure ``account_df`` is actually a DataFrame of account info.
             2. Ensure ``orders_df`` is actually a DataFrame of orders info. 
-            3. Handle potential non-existence of :py:obj:`self.orders` prior to performing actions.
+            3. Handle potential non-existence of ``self.orders`` prior to performing actions.
 
         Args:
             account_df (DataFrame): DataFrame of account data as pulled from the Coinbase API.
@@ -604,14 +601,14 @@ class Neutrino(Link):
                 product_id, granularity, start, end
             )
 
+        # save to CSV, if applicable
+        if save:
+            t.save_df_to_csv(candles_df, csv_name, self.database_path)
+
         # trim candles_df to the requested bounds
         returned_df = candles_df[
             (candles_df["time"] >= start) & (candles_df["time"] <= end)
         ].reset_index(drop=True)
-
-        # save to CSV, if applicable
-        if save:
-            returned_df = t.save_df_to_csv(candles_df, csv_name, self.database_path)
 
         return returned_df
 
@@ -1000,15 +997,14 @@ class Neutrino(Link):
 
     def interact(self):
         """Temporary rudimentary command line interface that executes neutrino-related commands from user input. \
-        The jankiness of this implementation and availability of modules such as ``argparse`` are well-understood. \
-        This is mostly used for flexible testing/debugging during development.
-
-        The actions here are mainly loading/exporting data in various chunks, whereas the real actions of this \
-        program are intended to be focused around data analysis and manipulation.
+        The jankiness of this implementation and availability of modules such as ``argparse`` are well understood. \
+        This is simply used for flexible testing/debugging during development.
 
         This function is wrapped in a ``while True`` block to execute an arbitrary number of commands \
         until terminated by the user.
         """
+
+        # NOTE: this function is not very well documented since it is an interim development measure
 
         # continuously accept user input
         while True:

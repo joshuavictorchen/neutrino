@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>neutrino.link &mdash; docs</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/logo-original.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #283618" >
+            <a href="../../index.html" class="icon icon-home"> neutrino
+            <img src="../../_static/logo-64.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                beta
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../manual.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #283618" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">neutrino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>neutrino.link</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for neutrino.link</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">neutrino.config</span> <span class="k">as</span> <span class="nn">c</span>
+<span class="kn">import</span> <span class="nn">neutrino.tools</span> <span class="k">as</span> <span class="nn">t</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">neutrino.authenticator</span> <span class="kn">import</span> <span class="n">Authenticator</span>
+
+
+<div class="viewcode-block" id="Link"><a class="viewcode-back" href="../../api.html#neutrino.link.Link">[docs]</a><span class="k">class</span> <span class="nc">Link</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Creates an API request session and sends/receives API requests/responses.</span>
+
+<span class="sd">    The `Coinbase API Reference &lt;https://docs.cloud.coinbase.com/exchange/reference/&gt;`__ provides a comprehensive \</span>
+<span class="sd">    list of available REST API endpoints.</span>
+
+<span class="sd">    The :py:obj:`send_api_request` method may be used to send a generic request to any available endpoint. \</span>
+<span class="sd">    Pagination is handled automatically.</span>
+
+<span class="sd">    **Instance attributes:** \n</span>
+<span class="sd">        * **auth** (*Authenticator*): :py:obj:`neutrino.authenticator.Authenticator` callable.</span>
+<span class="sd">        * **session** (*str*): :py:obj:`requests.Session` object for API requests.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.authenticator.Authenticator`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbkey_set</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_auth</span><span class="p">(</span><span class="n">cbkey_set</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Link.update_auth"><a class="viewcode-back" href="../../api.html#neutrino.link.Link.update_auth">[docs]</a>    <span class="k">def</span> <span class="nf">update_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbkey_set</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the :py:obj:`Link`&#39;s :py:obj:`Authenticator&lt;neutrino.authenticator.Authenticator&gt;` \</span>
+<span class="sd">            callable with new keys for authenticating Coinbase WebSocket and API requests.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cbkey_set (dict): Dictionary of API keys with the format defined in :py:obj:`neutrino.authenticator.Authenticator`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">Authenticator</span><span class="p">(</span><span class="n">cbkey_set</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Link.send_api_request"><a class="viewcode-back" href="../../api.html#neutrino.link.Link.send_api_request">[docs]</a>    <span class="k">def</span> <span class="nf">send_api_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pages</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Sends an API request to the specified Coinbase Exchange endpoint and returns the response.</span>
+
+<span class="sd">        `Paginated requests &lt;https://docs.cloud.coinbase.com/exchange/docs/pagination&gt;`__ are handled recursively; \</span>
+<span class="sd">        this method iterates through all available ``after`` cursors for a request.</span>
+
+<span class="sd">        This method returns a list of API response elements, which are usually dictionaries but can be of other types \</span>
+<span class="sd">        depending on the specific request.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method (str): API request method (``get``, ``post``, etc.).</span>
+<span class="sd">            endpoint (str): API request endpoint, with no leading ``/`` (i.e., &quot;accounts&quot;).</span>
+<span class="sd">            params (dict(str), optional): API request parameters (varies per request).</span>
+<span class="sd">            pages (list, optional): Previous data compiled for a paginated requests.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of API response elements (usually dictionaries).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># create a fresh list to be returned</span>
+        <span class="c1"># this needs to be done to prevent carry-over from unrelated API calls, since lists are mutable</span>
+        <span class="n">list_response</span> <span class="o">=</span> <span class="n">pages</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># print request to console</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Sending API request: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">print_recursive_dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">()</span>
+
+        <span class="c1"># get the api response</span>
+        <span class="n">api_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+            <span class="n">method</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">api_url</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+            <span class="n">auth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># append or extend this to the list to be returned, depending on the response type</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">api_response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="n">list_response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">api_response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">list_response</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">api_response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+
+        <span class="c1"># if there are no &#39;cb-after&#39; headers, then there is nothing to be paginated, and list_response can be returned</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">api_response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cb-after&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">list_response</span>
+
+        <span class="c1"># otherwise, perform this function recursively until pagination is exhausted</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># update the parameters supplied to the recursive call, preserving other parameters, if they exist</span>
+            <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;after&quot;</span><span class="p">:</span> <span class="n">api_response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cb-after&quot;</span><span class="p">)}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;after&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">api_response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cb-after&quot;</span><span class="p">)</span>
+
+            <span class="c1"># recursively call this function, carrying the list_response forward so that all &#39;pages&#39; are returned at the end</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_api_request</span><span class="p">(</span>
+                <span class="n">method</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">pages</span><span class="o">=</span><span class="n">list_response</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Link.convert_API_response_list_to_df"><a class="viewcode-back" href="../../api.html#neutrino.link.Link.convert_API_response_list_to_df">[docs]</a>    <span class="k">def</span> <span class="nf">convert_API_response_list_to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response_list</span><span class="p">,</span> <span class="n">main_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts a list of dicts from a Coinbase API response to a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            response_list (list(dict)): Response from a Coinbase API request.</span>
+<span class="sd">            main_key (str): Key containing a unique identifier for a response element.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame: DataFrame of values loaded from a Coinbase API response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># create a deepcopy in order to prevent carry-over to/from unrelated method calls, since lists are mutable</span>
+        <span class="n">response_list</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">response_list</span><span class="p">)</span>
+
+        <span class="c1"># convert list of dicts into dict of dicts</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="p">[</span><span class="n">data_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">main_key</span><span class="p">):</span> <span class="n">i</span><span class="p">})</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">response_list</span><span class="p">]</span>
+
+        <span class="c1"># create a df object to load data into</span>
+        <span class="n">converted_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="c1"># prep data and load into converted_df</span>
+        <span class="k">for</span> <span class="n">data_value_dict</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data_value_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="c1"># the Coinbase API nests multiple items under a &#39;details&#39; key for certain responses</span>
+                <span class="c1"># un-nest these items and delete the &#39;details&#39; key for these cases</span>
+                <span class="c1"># finally, put all values into list format so that they can be loaded via pd.DataFrame.from_dict()</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;details&quot;</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">inner_key</span><span class="p">,</span> <span class="n">inner_value</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">data_value_dict</span><span class="p">[</span><span class="n">inner_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">inner_value</span><span class="p">]</span>
+                    <span class="n">data_value_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data_value_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+
+            <span class="c1"># add this data to the df object</span>
+            <span class="n">converted_df</span> <span class="o">=</span> <span class="n">converted_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_value_dict</span><span class="p">),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">converted_df</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="k">pass</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Joshua Chen.
+      <span class="lastupdated">Last updated on 2022-03-07 08:37:58.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
