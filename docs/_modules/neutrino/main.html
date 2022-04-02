@@ -82,6 +82,7 @@
 <span class="kn">from</span> <span class="nn">neutrino.link</span> <span class="kn">import</span> <span class="n">Link</span>
 <span class="kn">from</span> <span class="nn">neutrino.stream</span> <span class="kn">import</span> <span class="n">Stream</span>
 <span class="kn">from</span> <span class="nn">neutrino.updater</span> <span class="kn">import</span> <span class="n">Updater</span>
+<span class="kn">from</span> <span class="nn">pandasql</span> <span class="kn">import</span> <span class="n">sqldf</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
 
@@ -89,7 +90,7 @@
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 
     <span class="c1"># instantiate a Neutrino</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">Neutrino</span><span class="p">(</span><span class="n">cbkey_set_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">Neutrino</span><span class="p">(</span><span class="n">cbkey_set_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">from_database</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># start interacting</span>
     <span class="n">n</span><span class="o">.</span><span class="n">interact</span><span class="p">()</span>
@@ -395,10 +396,11 @@
                     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">df</span>
 
-                <span class="c1"># store the currency of the account for which the ledger is being pulled</span>
+                <span class="c1"># store the currency and account_id of the account for which the ledger is being pulled</span>
                 <span class="c1"># this is important because some product_ids contain two currencies (i.e. &quot;LRC-BTC&quot;),</span>
                 <span class="c1"># but from different currency perspectives (i.e., one with LRC denomination and one with BTC)</span>
                 <span class="n">this_ledger</span><span class="p">[</span><span class="s2">&quot;currency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">currency</span>
+                <span class="n">this_ledger</span><span class="p">[</span><span class="s2">&quot;account_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">account_id</span>
 
                 <span class="n">ledgers_df</span> <span class="o">=</span> <span class="n">ledgers_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_ledger</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -412,7 +414,6 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ledgers</span></div>
 
     <span class="c1"># The following is a legacy function that is left as a comment for potential future use.</span>
-    <span class="c1">#</span>
     <span class="c1"># It is an artefact of the original direction of the neutrino program, which sought to</span>
     <span class="c1"># provide functions for each API endpoint, similar to the existing cbpro-python package.</span>
     <span class="c1">#</span>
@@ -431,6 +432,189 @@
     <span class="c1">#         )</span>
     <span class="c1">#</span>
     <span class="c1">#     return account_ledger</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># analysis methods</span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="Neutrino.get_consolidated_history"><a class="viewcode-back" href="../../api.html#neutrino.main.Neutrino.get_consolidated_history">[docs]</a>    <span class="k">def</span> <span class="nf">get_consolidated_history</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">accounts_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orders_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transfers_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ledgers_df</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Temporary (and very messy) placeholder function to combine data for analysis.&quot;&quot;&quot;</span>
+
+        <span class="n">accounts_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="o">.</span><span class="n">df</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">accounts_df</span> <span class="k">else</span> <span class="n">accounts_df</span>
+        <span class="n">orders_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orders</span><span class="o">.</span><span class="n">df</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">orders_df</span> <span class="k">else</span> <span class="n">orders_df</span>
+        <span class="n">transfers_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfers</span><span class="o">.</span><span class="n">df</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">transfers_df</span> <span class="k">else</span> <span class="n">transfers_df</span>
+        <span class="n">ledgers_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ledgers</span><span class="o">.</span><span class="n">df</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ledgers_df</span> <span class="k">else</span> <span class="n">ledgers_df</span>
+
+        <span class="n">accounts_df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">accounts_df</span><span class="p">)</span>
+        <span class="n">orders_df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">orders_df</span><span class="p">)</span>
+        <span class="n">transfers_df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">transfers_df</span><span class="p">)</span>
+        <span class="n">ledgers_df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ledgers_df</span><span class="p">)</span>
+
+        <span class="c1"># create orders_df fields for: reference_coin, exchange_coin</span>
+        <span class="n">orders_df</span><span class="p">[</span><span class="s2">&quot;reference_coin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">orders_df</span><span class="p">[</span><span class="s2">&quot;product_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">orders_df</span><span class="p">[</span><span class="s2">&quot;exchange_coin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">orders_df</span><span class="p">[</span><span class="s2">&quot;product_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># create &#39;reverse_side&#39; field that is reverse of buy/sell</span>
+        <span class="n">orders_df</span><span class="p">[</span><span class="s2">&quot;reverse_side&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">orders_df</span><span class="p">[</span><span class="s2">&quot;side&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;sell&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;buy&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;buy&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;sell&quot;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># prep ledgers_df</span>
+        <span class="n">ledgers_df</span> <span class="o">=</span> <span class="n">sqldf</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            select</span>
+<span class="sd">                sum(amount) as amount,</span>
+<span class="sd">                balance,</span>
+<span class="sd">                max(created_at) as created_at,</span>
+<span class="sd">                type,</span>
+<span class="sd">                order_id,</span>
+<span class="sd">                product_id,</span>
+<span class="sd">                transfer_id,</span>
+<span class="sd">                transfer_type,</span>
+<span class="sd">                account_id</span>
+<span class="sd">            from</span>
+<span class="sd">                ledgers_df</span>
+<span class="sd">            group by</span>
+<span class="sd">                order_id,</span>
+<span class="sd">                product_id,</span>
+<span class="sd">                transfer_id,</span>
+<span class="sd">                transfer_type,</span>
+<span class="sd">                account_id</span>
+<span class="sd">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="nb">locals</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># generate history table</span>
+        <span class="n">history_df</span> <span class="o">=</span> <span class="n">sqldf</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            select</span>
+<span class="sd">                ledgers_df.created_at as timestamp,</span>
+<span class="sd">                accounts_df.currency as account_coin,</span>
+<span class="sd">                ledgers_df.account_id,</span>
+<span class="sd">                ledgers_df.balance as account_balance,</span>
+<span class="sd">                null as account_usd_value,</span>
+<span class="sd">                null as account_btc_value,</span>
+<span class="sd">                case</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin = accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        orders_df.side</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin != accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        orders_df.reverse_side</span>
+<span class="sd">                    else</span>
+<span class="sd">                        transfers_df.type</span>
+<span class="sd">                end as activity,</span>
+<span class="sd">                case</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.id is not null</span>
+<span class="sd">                    then</span>
+<span class="sd">                        orders_df.id</span>
+<span class="sd">                    when</span>
+<span class="sd">                        transfers_df.id is not null</span>
+<span class="sd">                    then</span>
+<span class="sd">                        transfers_df.id</span>
+<span class="sd">                end as activity_id,</span>
+<span class="sd">                case</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin = accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        case</span>
+<span class="sd">                            when</span>
+<span class="sd">                                orders_df.side = &#39;buy&#39;</span>
+<span class="sd">                            then</span>
+<span class="sd">                                orders_df.filled_size</span>
+<span class="sd">                            else</span>
+<span class="sd">                                orders_df.filled_size * -1</span>
+<span class="sd">                        end</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin != accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        case</span>
+<span class="sd">                            when</span>
+<span class="sd">                                orders_df.side = &#39;buy&#39;</span>
+<span class="sd">                            then</span>
+<span class="sd">                                (orders_df.executed_value + orders_df.fill_fees) * -1</span>
+<span class="sd">                            else</span>
+<span class="sd">                                orders_df.executed_value - orders_df.fill_fees</span>
+<span class="sd">                        end</span>
+<span class="sd">                    when</span>
+<span class="sd">                        transfers_df.type = &#39;deposit&#39;</span>
+<span class="sd">                    then</span>
+<span class="sd">                        transfers_df.amount</span>
+<span class="sd">                    when</span>
+<span class="sd">                        transfers_df.type = &#39;withdraw&#39;</span>
+<span class="sd">                    then</span>
+<span class="sd">                        transfers_df.amount * -1</span>
+<span class="sd">                end as activity_impact,</span>
+<span class="sd">                null as activity_impact_usd_value,</span>
+<span class="sd">                null as activity_impact_btc_value,</span>
+<span class="sd">                orders_df.product_id as order_product_id,</span>
+<span class="sd">                case</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin = accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        TRUE</span>
+<span class="sd">                    else</span>
+<span class="sd">                        FALSE</span>
+<span class="sd">                end as order_product_id_reference,</span>
+<span class="sd">                orders_df.type as order_type,</span>
+<span class="sd">                orders_df.post_only as order_post_only,</span>
+<span class="sd">                orders_df.created_at as order_creation_timestamp,</span>
+<span class="sd">                null as order_duration,</span>
+<span class="sd">                case</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin = accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        orders_df.exchange_coin</span>
+<span class="sd">                    else</span>
+<span class="sd">                        orders_df.reference_coin</span>
+<span class="sd">                end as order_exchanged_coin,</span>
+<span class="sd">                case</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin = accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        orders_df.executed_value</span>
+<span class="sd">                    else</span>
+<span class="sd">                        orders_df.filled_size</span>
+<span class="sd">                end as order_exchanged_amount,</span>
+<span class="sd">                case</span>
+<span class="sd">                    when</span>
+<span class="sd">                        orders_df.reference_coin = accounts_df.currency</span>
+<span class="sd">                    then</span>
+<span class="sd">                        orders_df.fill_fees</span>
+<span class="sd">                    else</span>
+<span class="sd">                        null</span>
+<span class="sd">                end as order_exchanged_fee,</span>
+<span class="sd">                null as final_balance</span>
+<span class="sd">            from</span>
+<span class="sd">                ledgers_df</span>
+<span class="sd">            left join</span>
+<span class="sd">                accounts_df</span>
+<span class="sd">            on</span>
+<span class="sd">                ledgers_df.account_id = accounts_df.id</span>
+<span class="sd">            left join</span>
+<span class="sd">                orders_df</span>
+<span class="sd">            on</span>
+<span class="sd">                ledgers_df.order_id = orders_df.id</span>
+<span class="sd">            left join</span>
+<span class="sd">                transfers_df</span>
+<span class="sd">            on</span>
+<span class="sd">                ledgers_df.transfer_id = transfers_df.id</span>
+<span class="sd">            order by</span>
+<span class="sd">                ledgers_df.created_at</span>
+<span class="sd">        &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="nb">locals</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">history_df</span></div>
 
     <span class="c1">###########################################################################</span>
     <span class="c1"># candle methods</span>
@@ -1054,8 +1238,15 @@
                         <span class="nb">print</span><span class="p">()</span>
                         <span class="nb">print</span><span class="p">(</span><span class="n">candles_df</span><span class="p">)</span>
 
-                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> TBD&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;history&quot;</span><span class="p">:</span>
+                        <span class="n">history_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_consolidated_history</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">accounts</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">orders</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">transfers</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ledgers</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="nb">print</span><span class="p">()</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">history_df</span><span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>  <span class="c1"># generic API/database request</span>
 
@@ -1131,7 +1322,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, Joshua Chen.
-      <span class="lastupdated">Last updated on 2022-03-07 08:37:58.
+      <span class="lastupdated">Last updated on 2022-04-01 22:23:45.
       </span></p>
   </div>
 

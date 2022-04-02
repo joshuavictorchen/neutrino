@@ -15,5 +15,6 @@ setup(
         "numpy==1.20.1",
         "python-dateutil==2.8.1",
         "PyYAML==6.0",
+        "pandasql",  # temporary requirement until sqldf functions are replaced
     ],
 )

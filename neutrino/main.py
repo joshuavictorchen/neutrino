@@ -365,8 +365,11 @@ class Neutrino(Link):
     # analysis methods
     ###########################################################################
 
-    def get_consolidated_history(self, accounts_df=None, orders_df=None, transfers_df=None, ledgers_df=None):
-        
+    def get_consolidated_history(
+        self, accounts_df=None, orders_df=None, transfers_df=None, ledgers_df=None
+    ):
+        """Temporary (and very messy) placeholder function to combine data for analysis."""
+
         accounts_df = self.accounts.df if not accounts_df else accounts_df
         orders_df = self.orders.df if not orders_df else orders_df
         transfers_df = self.transfers.df if not transfers_df else transfers_df
@@ -378,16 +381,21 @@ class Neutrino(Link):
         ledgers_df = deepcopy(ledgers_df)
 
         # create orders_df fields for: reference_coin, exchange_coin
-        orders_df['reference_coin'] = orders_df['product_id'].apply(lambda x: x.split('-')[0])
-        orders_df['exchange_coin'] = orders_df['product_id'].apply(lambda x: x.split('-')[1])
+        orders_df["reference_coin"] = orders_df["product_id"].apply(
+            lambda x: x.split("-")[0]
+        )
+        orders_df["exchange_coin"] = orders_df["product_id"].apply(
+            lambda x: x.split("-")[1]
+        )
 
         # create 'reverse_side' field that is reverse of buy/sell
-        orders_df['reverse_side'] = orders_df['side'].apply(
-            lambda x: 'sell' if x == 'buy' else ('buy' if x == 'sell' else None)
+        orders_df["reverse_side"] = orders_df["side"].apply(
+            lambda x: "sell" if x == "buy" else ("buy" if x == "sell" else None)
         )
 
         # prep ledgers_df
-        ledgers_df = sqldf("""
+        ledgers_df = sqldf(
+            """
             select
                 sum(amount) as amount,
                 balance,
@@ -406,10 +414,13 @@ class Neutrino(Link):
                 transfer_id,
                 transfer_type,
                 account_id
-        """, locals())
+        """,
+            locals(),
+        )
 
         # generate history table
-        history_df = sqldf("""
+        history_df = sqldf(
+            """
             select
                 ledgers_df.created_at as timestamp,
                 accounts_df.currency as account_coin,
@@ -527,7 +538,9 @@ class Neutrino(Link):
                 ledgers_df.transfer_id = transfers_df.id
             order by
                 ledgers_df.created_at
-        """, locals())
+        """,
+            locals(),
+        )
 
         return history_df
 
@@ -1158,7 +1171,7 @@ class Neutrino(Link):
                             self.accounts.df,
                             self.orders.df,
                             self.transfers.df,
-                            self.ledgers.df
+                            self.ledgers.df,
                         )
                         print()
                         print(history_df)
